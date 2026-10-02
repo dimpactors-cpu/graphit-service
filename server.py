@@ -4,6 +4,8 @@ import time
 import hmac
 import hashlib
 import json
+import re
+import csv
 import urllib.request
 import urllib.error
 import uvicorn
@@ -350,55 +352,67 @@ async def api_schedule(request: Request, course: str = Query("")):
     if not get_current_user(request):
         return JSONResponse(status_code=401, content={"success": False, "message": "관리자 로그인이 필요합니다."})
     
-    sheet_schedules = get_final_schedules_from_sheet()
-    
-    matched = None
-    for row in sheet_schedules:
-        s_name = row["name"]
-        univ_m = re.search(r'([가-힣]+대)', s_name)
-        if not univ_m:
-            continue
-        univ = univ_m.group(1)
-        if univ not in course:
-            continue
-            
-        if "홍익대" in course or "홍대" in course:
-            if ("A" in s_name and ("(A)" in course or "A반" in course)) or \
-               ("B" in s_name and ("(B)" in course or "B반" in course)):
-                matched = row
-                break
-            continue
-            
-        if "중앙대" in course:
-            if "경영경제" in s_name and "경영경제" in course:
-                matched = row
-                break
-            if "인문사회" in s_name and "인문사회" in course:
-                matched = row
-                break
-            continue
-            
-        matched = row
-        break
+    try:
+        sheet_schedules = get_final_schedules_from_sheet()
+        
+        matched = None
+        for row in sheet_schedules:
+            s_name = row["name"]
+            univ_m = re.search(r'([가-힣]+대)', s_name)
+            if not univ_m:
+                continue
+            univ = univ_m.group(1)
+            if univ not in course:
+                continue
+                
+            if "홍익대" in course or "홍대" in course:
+                if ("A" in s_name and ("(A)" in course or "A반" in course)) or \
+                   ("B" in s_name and ("(B)" in course or "B반" in course)):
+                    matched = row
+                    break
+                continue
+                
+            if "중앙대" in course:
+                if "경영경제" in s_name and "경영경제" in course:
+                    matched = row
+                    break
+                if "인문사회" in s_name and "인문사회" in course:
+                    matched = row
+                    break
+                continue
+                
+            matched = row
+            break
 
-    if matched:
-        lecture_schedule = f"- 1회차: {matched['session1']}\n\n- 2회차: {matched['session2']}\n\n- 3회차: {matched['session3']}"
-        instructor = matched["instructor"]
-        exam_date = matched["exam_date"]
-    else:
-        lecture_schedule = "- 1회차: 00월 00일(요일) 00:00 ~ 00:00\n\n- 2회차: 00월 00일(요일) 00:00 ~ 00:00\n\n- 3회차: 00월 00일(요일) 00:00 ~ 00:00"
-        instructor = ""
-        exam_date = ""
+        if matched:
+            lecture_schedule = f"- 1회차: {matched['session1']}\n\n- 2회차: {matched['session2']}\n\n- 3회차: {matched['session3']}"
+            instructor = matched["instructor"]
+            exam_date = matched["exam_date"]
+        else:
+            lecture_schedule = "- 1회차: 00월 00일(요일) 00:00 ~ 00:00\n\n- 2회차: 00월 00일(요일) 00:00 ~ 00:00\n\n- 3회차: 00월 00일(요일) 00:00 ~ 00:00"
+            instructor = ""
+            exam_date = ""
 
-    return {
-        "success": True,
-        "course": course,
-        "matched": matched,
-        "instructor": instructor,
-        "exam_date": exam_date,
-        "lecture_schedule": lecture_schedule,
-        "all_schedules": sheet_schedules
-    }
+        return {
+            "success": True,
+            "course": course,
+            "matched": matched,
+            "instructor": instructor,
+            "exam_date": exam_date,
+            "lecture_schedule": lecture_schedule,
+            "all_schedules": sheet_schedules
+        }
+    except Exception as e:
+        print(f"[Error in api_schedule]: {e}")
+        return {
+            "success": True,
+            "course": course,
+            "matched": None,
+            "instructor": "",
+            "exam_date": "",
+            "lecture_schedule": "- 1회차: 00월 00일(요일) 00:00 ~ 00:00\n\n- 2회차: 00월 00일(요일) 00:00 ~ 00:00\n\n- 3회차: 00월 00일(요일) 00:00 ~ 00:00",
+            "all_schedules": []
+        }
 
 @app.post("/api/admin/upload-master-db")
 async def api_upload_master_db(request: Request, file: UploadFile = File(...)):
