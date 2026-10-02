@@ -16,9 +16,11 @@
       <span class="brand-badge" style="background: #0f172a;">ADMIN</span>
       <span class="brand-title">디임팩트학원 관리자 콘솔</span>
     </a>
-    <nav class="nav-links">
+    <nav class="nav-links" style="align-items: center; display: flex; gap: 12px;">
       <a href="/" target="_blank" class="nav-link">학생 조회 페이지 ↗</a>
       <a href="/admin" class="nav-link active">관리자 대시보드</a>
+      <span id="adminUserTag" style="font-size: 13px; color: var(--gray-600); background: var(--gray-100); padding: 4px 10px; border-radius: 6px; font-weight: 500;">관리자</span>
+      <button onclick="handleLogout()" class="btn-secondary" style="padding: 6px 12px; font-size: 12px; height: 32px; border-radius: 6px;">로그아웃</button>
     </nav>
   </header>
 

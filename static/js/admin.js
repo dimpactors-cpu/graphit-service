@@ -1,10 +1,43 @@
 let currentCourseStudents = [];
 
 document.addEventListener("DOMContentLoaded", () => {
+  checkAuth();
   loadStats();
   loadCourses();
   setupDropzone();
 });
+
+async function checkAuth() {
+  try {
+    const res = await fetch("/api/auth/me");
+    if (res.status === 401) {
+      window.location.href = "/admin/login";
+      return;
+    }
+    const data = await res.json();
+    if (data.authenticated) {
+      const tag = document.getElementById("adminUserTag");
+      if (tag && data.user) {
+        tag.textContent = data.user;
+      }
+    } else {
+      window.location.href = "/admin/login";
+    }
+  } catch (err) {
+    console.error("Auth check failed", err);
+  }
+}
+
+async function handleLogout() {
+  if (confirm("관리자 로그아웃 하시겠습니까?")) {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      window.location.href = "/admin/login";
+    } catch (e) {
+      window.location.href = "/admin/login";
+    }
+  }
+}
 
 async function loadStats() {
   try {

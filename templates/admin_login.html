@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>디임팩트학원 | 관리자 보안 로그인</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    .login-wrapper {
+      min-height: calc(100vh - 180px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .login-card {
+      background: #ffffff;
+      border: 1px solid var(--gray-200);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+      width: 100%;
+      max-width: 440px;
+      padding: 36px 32px;
+      text-align: center;
+    }
+    .login-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #ffffff;
+      background: #0f172a;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+    .login-card h1 {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--gray-900);
+      margin-bottom: 8px;
+    }
+    .login-card p {
+      font-size: 14px;
+      color: var(--gray-600);
+      line-height: 1.5;
+      margin-bottom: 28px;
+    }
+    .google-btn-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+      min-height: 44px;
+    }
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 24px 0;
+      color: var(--gray-400);
+      font-size: 13px;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .divider:not(:empty)::before {
+      margin-right: .75em;
+    }
+    .divider:not(:empty)::after {
+      margin-left: .75em;
+    }
+    .password-form {
+      text-align: left;
+    }
+    .error-alert {
+      display: none;
+      background-color: #fee2e2;
+      border: 1px solid #f87171;
+      color: #b91c1c;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 18px;
+      line-height: 1.4;
+      text-align: left;
+    }
+    .google-notice {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--gray-600);
+      margin-top: 20px;
+      text-align: left;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="app-header">
+    <a href="/" class="brand">
+      <span class="brand-badge">DIMPACT</span>
+      <span class="brand-title">디임팩트학원</span>
+    </a>
+    <nav class="nav-links">
+      <a href="/" class="nav-link">학생 조회 페이지 ↗</a>
+    </nav>
+  </header>
+
+  <!-- Login Main -->
+  <div class="login-wrapper">
+    <div class="login-card">
+      <span class="login-badge">SECURITY CHECK</span>
+      <h1>관리자 보안 인증</h1>
+      <p>본 페이지는 학원 운영진 전용입니다.<br>등록된 구글 계정으로 로그인해주세요.</p>
+
+      <div id="errorAlert" class="error-alert"></div>
+
+      <!-- Google Sign-In Container -->
+      <div id="g_id_onload"
+           data-client_id="{{ google_client_id }}"
+           data-callback="handleGoogleLogin"
+           data-auto_prompt="false">
+      </div>
+      
+      <div class="google-btn-wrap">
+        <div class="g_id_signin" 
+             data-type="standard" 
+             data-size="large" 
+             data-theme="outline" 
+             data-text="sign_in_with" 
+             data-shape="rectangular" 
+             data-logo_alignment="left"
+             data-width="320">
+        </div>
+      </div>
+
+      <div class="divider">또는 관리자 암호로 로그인</div>
+
+      <!-- Password Form -->
+      <form class="password-form" onsubmit="handlePasswordLogin(event)">
+        <div class="form-group">
+          <label for="adminPassword" class="form-label">관리자 암호</label>
+          <input 
+            type="password" 
+            id="adminPassword" 
+            class="form-input" 
+            placeholder="관리자 전용 암호 입력" 
+            required
+            autocomplete="current-password"
+          >
+        </div>
+        <button type="submit" id="pwLoginBtn" class="btn-primary" style="width: 100%;">
+          로그인
+        </button>
+      </form>
+
+      <div class="google-notice">
+        🔒 <strong>안내</strong><br>
+        구글 계정으로 로그인 시 <strong>디임팩트 관리자로 사전에 승인된 지메일</strong>만 대시보드에 접근할 수 있습니다.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showError(msg) {
+      const el = document.getElementById('errorAlert');
+      el.innerText = msg;
+      el.style.display = 'block';
+    }
+
+    function clearError() {
+      const el = document.getElementById('errorAlert');
+      el.style.display = 'none';
+      el.innerText = '';
+    }
+
+    // Handle Google ID Token
+    async function handleGoogleLogin(response) {
+      clearError();
+      try {
+        const res = await fetch('/api/auth/google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ credential: response.credential })
+        });
+        const data = await res.json();
+        if (data.success) {
+          window.location.href = '/admin';
+        } else {
+          showError(data.message || '접근 권한이 없는 구글 계정입니다.');
+        }
+      } catch (err) {
+        showError('구글 인증 처리 중 오류가 발생했습니다: ' + err.message);
+      }
+    }
+
+    // Handle Password Login
+    async function handlePasswordLogin(e) {
+      e.preventDefault();
+      clearError();
+      const pwInput = document.getElementById('adminPassword');
+      const btn = document.getElementById('pwLoginBtn');
+      btn.disabled = true;
+      btn.innerText = '인증 중...';
+
+      try {
+        const res = await fetch('/api/auth/password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pwInput.value.trim() })
+        });
+        const data = await res.json();
+        if (data.success) {
+          window.location.href = '/admin';
+        } else {
+          showError(data.message || '암호가 일치하지 않습니다.');
+          btn.disabled = false;
+          btn.innerText = '로그인';
+        }
+      } catch (err) {
+        showError('로그인 처리 중 오류가 발생했습니다: ' + err.message);
+        btn.disabled = false;
+        btn.innerText = '로그인';
+      }
+    }
+  </script>
+</body>
+</html>
