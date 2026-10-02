@@ -29,18 +29,18 @@ app = FastAPI(title="디임팩트학원 수강생 신청이력 조회 서비스"
 # Normalize Vercel serverless request paths
 @app.middleware("http")
 async def fix_vercel_path(request: Request, call_next):
-    # Check headers for original path
-    orig_path = (
-        request.headers.get("x-invoke-path") or
-        request.headers.get("x-matched-path") or
-        request.headers.get("x-original-uri") or
-        request.headers.get("x-rewrite-url")
-    )
-    path = request.scope.get("path", "")
-    print(f"[DEBUG PATH] scope path: {path}, orig_path: {orig_path}, x-invoke-path: {request.headers.get('x-invoke-path')}, x-matched-path: {request.headers.get('x-matched-path')}")
-    if orig_path:
-        request.scope["path"] = orig_path
+    # Check if Vercel passed the matched path via query parameter
+    route_path = request.query_params.get("__route_path")
+    if route_path:
+        clean_path = route_path.split("?")[0]
+        if not clean_path.startswith("/"):
+            clean_path = "/" + clean_path
+        # Clean trailing slash if not root
+        if len(clean_path) > 1 and clean_path.endswith("/"):
+            clean_path = clean_path[:-1]
+        request.scope["path"] = clean_path
     else:
+        path = request.scope.get("path", "")
         for prefix in ("/api/index.py", "/api/index"):
             if path == prefix:
                 request.scope["path"] = "/"
@@ -49,14 +49,6 @@ async def fix_vercel_path(request: Request, call_next):
                 request.scope["path"] = path[len(prefix):]
                 break
     return await call_next(request)
-
-@app.get("/api/debug-headers")
-async def debug_headers(request: Request):
-    return {
-        "scope_path": request.scope.get("path"),
-        "headers": dict(request.headers),
-        "raw_path": str(request.scope.get("raw_path", b"")),
-    }
 
 # Mount static files
 if os.path.isdir(STATIC_DIR):
@@ -88,17 +80,7 @@ watcher_thread.start()
 @app.get("/", response_class=HTMLResponse)
 @app.get("/api/index", response_class=HTMLResponse)
 @app.get("/api/index.py", response_class=HTMLResponse)
-async def read_index(request: Request):
-    if request.query_params.get("debug") == "1":
-        import json
-        headers = dict(request.headers)
-        scope_info = {
-            "path": request.scope.get("path"),
-            "raw_path": str(request.scope.get("raw_path")),
-            "query_string": str(request.scope.get("query_string")),
-            "headers": headers,
-        }
-        return HTMLResponse(content=f"<pre>{json.dumps(scope_info, indent=2)}</pre>")
+async def read_index():
     index_path = os.path.join(TEMPLATES_DIR, "index.html")
     with open(index_path, "r", encoding="utf-8") as f:
         return f.read()
