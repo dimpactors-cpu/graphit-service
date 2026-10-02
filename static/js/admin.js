@@ -133,14 +133,18 @@ async function loadCourseStudents() {
 
 async function generateMessageTemplate(courseName, students) {
   let examDateText = "";
-  let lectureSchedule = "1회차: 00월 00일(요일) 00:00 ~ 00:00\n2회차: 00월 00일(요일) 00:00 ~ 00:00\n3회차: 00월 00일(요일) 00:00 ~ 00:00";
+  let instructorText = "";
+  let lectureSchedule = "- 1회차: 00월 00일(요일) 00:00 ~ 00:00\n- 2회차: 00월 00일(요일) 00:00 ~ 00:00\n- 3회차: 00월 00일(요일) 00:00 ~ 00:00";
 
   try {
     const res = await fetch(`/api/admin/schedule?course=${encodeURIComponent(courseName)}`);
     const data = await res.json();
     if (data.success) {
-      if (data.exam_event) {
-        examDateText = `■ 논술고사 일정: ${data.exam_event.formatted} (${data.exam_event.title})\n`;
+      if (data.instructor) {
+        instructorText = `■ 담당 강사: ${data.instructor}\n`;
+      }
+      if (data.exam_date) {
+        examDateText = `■ 논술고사 일정: ${data.exam_date}\n`;
       }
       if (data.lecture_schedule) {
         lectureSchedule = data.lecture_schedule;
@@ -157,7 +161,7 @@ async function generateMessageTemplate(courseName, students) {
 ${courseName} 등록이 확인되어 강의 일정 및 논술고사 일정을 안내드립니다.
 
 ■ 강좌명: ${courseName}
-${examDateText}■ 강의 일정: 총 3회 완성
+${instructorText}${examDateText}■ 강의 일정: 총 3회 완성
 ${lectureSchedule}
 
 ■ 안내 사항 및 유의사항:

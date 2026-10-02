@@ -286,116 +286,118 @@ async def api_upload(request: Request, file: UploadFile = File(...)):
     except Exception as e:
         return {"success": False, "message": str(e)}
 
-CALENDAR_ICS_URL = "https://calendar.google.com/calendar/ical/d.impactors@gmail.com/public/basic.ics"
-calendar_cache = {"time": 0, "events": []}
+DATA_DIR = find_dir("data")
+GOOGLE_SHEET_SCHEDULE_CSV_URL = "https://docs.google.com/spreadsheets/d/1OCiAw0U8j7fbD8Epbi5vpd1LtQpVG_rLl-kDbbWcW08/export?format=csv"
+schedule_cache = {"time": 0, "rows": []}
 
-def get_google_calendar_events():
+def get_final_schedules_from_sheet():
     now = time.time()
-    if now - calendar_cache["time"] < 300 and calendar_cache["events"]:
-        return calendar_cache["events"]
+    if now - schedule_cache["time"] < 300 and schedule_cache["rows"]:
+        return schedule_cache["rows"]
+    
+    rows = []
+    # 1. Try fetching from live Google Sheet
     try:
-        req = urllib.request.Request(CALENDAR_ICS_URL, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=3) as resp:
+        req = urllib.request.Request(GOOGLE_SHEET_SCHEDULE_CSV_URL, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=4) as resp:
             content = resp.read().decode("utf-8")
-        import re, datetime
-        raw_events = re.findall(r"BEGIN:VEVENT(.*?)END:VEVENT", content, re.DOTALL)
-        events = []
-        for ev in raw_events:
-            sum_m = re.search(r"SUMMARY:(.*?)\r?\n", ev)
-            dt_m = re.search(r"DTSTART(?:;VALUE=DATE)?:(\d{8})", ev)
-            if sum_m and dt_m:
-                title = sum_m.group(1).strip()
-                date_str = dt_m.group(1)
-                dt = datetime.datetime.strptime(date_str, "%Y%m%d")
-                weekdays = ["월", "화", "수", "목", "금", "토", "일"]
-                formatted = f"{dt.year}년 {dt.month}월 {dt.day}일({weekdays[dt.weekday()]})"
-                events.append({
-                    "title": title,
-                    "date": date_str,
-                    "formatted": formatted
+        import csv, io
+        reader = csv.reader(io.StringIO(content))
+        for r in reader:
+            if len(r) >= 6 and r[0] and r[0] != "대학/강의명" and "일정표" not in r[0]:
+                rows.append({
+                    "name": r[0].strip(),
+                    "instructor": r[1].strip(),
+                    "session1": r[2].strip(),
+                    "session2": r[3].strip(),
+                    "session3": r[4].strip(),
+                    "exam_date": r[5].strip(),
                 })
-        if events:
-            calendar_cache["time"] = now
-            calendar_cache["events"] = events
-            return events
+        if rows:
+            schedule_cache["time"] = now
+            schedule_cache["rows"] = rows
+            return rows
     except Exception as e:
-        print(f"[Calendar Fetch Warning]: {e}")
-    return calendar_cache.get("events", [])
-
-KNOWN_LECTURES = {
-    "홍익대_A": "- 1회차: 9월 29일(화) 14:00 ~ 17:00\n- 2회차: 10월 1일(목) 14:00 ~ 17:00\n- 3회차: 10월 3일(토) 14:00 ~ 17:00",
-    "홍익대_B": "- 1회차: 9월 29일(화) 18:00 ~ 21:00\n- 2회차: 10월 1일(목) 18:00 ~ 21:00\n- 3회차: 10월 3일(토) 18:00 ~ 21:00",
-    "가톨릭대": "- 1회차: 10월 5일(월) 18:00 ~ 21:00\n- 2회차: 10월 7일(수) 18:00 ~ 21:00\n- 3회차: 10월 9일(금) 18:00 ~ 21:00",
-    "중앙대_경영경제": "- 1회차: 10월 5일(월) 18:00 ~ 22:00\n- 2회차: 10월 7일(수) 18:00 ~ 22:00\n- 3회차: 10월 9일(금) 18:00 ~ 22:00",
-    "중앙대_인문사회": "- 1회차: 10월 6일(화) 18:00 ~ 21:00\n- 2회차: 10월 8일(목) 18:00 ~ 21:00\n- 3회차: 10월 10일(토) 18:00 ~ 21:00",
-    "고려대": "- 1회차: 10월 4일(일) 14:00 ~ 17:00\n- 2회차: 10월 11일(일) 14:00 ~ 17:00\n- 3회차: 11월 21일(토) 18:00 ~ 21:00",
-    "성균관대": "- 1회차: 10월 12일(월) 18:00 ~ 21:00\n- 2회차: 10월 15일(목) 18:00 ~ 21:00\n- 3회차: 11월 20일(금) 18:00 ~ 21:00",
-    "경희대": "- 1회차: 10월 13일(화) 18:00 ~ 21:00\n- 2회차: 10월 16일(금) 18:00 ~ 21:00\n- 3회차: 11월 20일(금) 14:00 ~ 17:00",
-    "건국대": "- 1회차: 10월 18일(일) 18:00 ~ 21:00\n- 2회차: 10월 21일(수) 18:00 ~ 21:00\n- 3회차: 11월 20일(금) 18:00 ~ 21:00",
-    "숭실대": "- 1회차: 10월 19일(월) 18:00 ~ 21:00\n- 2회차: 10월 21일(수) 18:00 ~ 21:00\n- 3회차: 10월 23일(금) 18:00 ~ 21:00",
-    "서강대": "- 1회차: 10월 20일(화) 18:00 ~ 21:00\n- 2회차: 10월 22일(목) 18:00 ~ 21:00\n- 3회차: 10월 24일(토) 18:00 ~ 21:00",
-    "숙명여대": "- 1회차: 10월 11일(일) 18:00 ~ 21:00\n- 2회차: 10월 14일(수) 18:00 ~ 21:00\n- 3회차: 10월 18일(일) 18:00 ~ 21:00",
-}
+        print(f"[Google Sheet Fetch Warning]: {e}")
+        
+    # 2. Try loading from bundled local cache file
+    local_cache_path = os.path.join(DATA_DIR, "final_schedule.csv")
+    if os.path.exists(local_cache_path):
+        try:
+            import csv
+            with open(local_cache_path, "r", encoding="utf-8") as f:
+                reader = csv.reader(f)
+                for r in reader:
+                    if len(r) >= 6 and r[0] and r[0] != "대학/강의명" and "일정표" not in r[0]:
+                        rows.append({
+                            "name": r[0].strip(),
+                            "instructor": r[1].strip(),
+                            "session1": r[2].strip(),
+                            "session2": r[3].strip(),
+                            "session3": r[4].strip(),
+                            "exam_date": r[5].strip(),
+                        })
+            if rows:
+                schedule_cache["rows"] = rows
+                return rows
+        except Exception as e:
+            print(f"[Local Schedule Cache Warning]: {e}")
+            
+    return schedule_cache.get("rows", [])
 
 @app.get("/api/admin/schedule")
 async def api_schedule(request: Request, course: str = Query("")):
     if not get_current_user(request):
         return JSONResponse(status_code=401, content={"success": False, "message": "관리자 로그인이 필요합니다."})
     
-    cal_events = get_google_calendar_events()
+    sheet_schedules = get_final_schedules_from_sheet()
     
-    matched_univ = None
-    univ_keywords = [
-        ("홍익대", "홍익대"), ("홍대", "홍익대"),
-        ("가톨릭대", "가톨릭대"),
-        ("중앙대", "중앙대"),
-        ("숙명여대", "숙명여대"), ("숙대", "숙명여대"),
-        ("성균관대", "성균관대"), ("성대", "성균관대"),
-        ("경희대", "경희대"),
-        ("건국대", "건국대"), ("건대", "건국대"),
-        ("숭실대", "숭실대"),
-        ("서강대", "서강대"),
-        ("고려대", "고려대"), ("고대", "고려대"),
-        ("동국대", "동국대"), ("동대", "동국대"),
-        ("단국대", "단국대"),
-        ("연세대", "연세대"),
-        ("성신여대", "성신여대")
-    ]
-    for kw, standard in univ_keywords:
-        if kw in course:
-            matched_univ = standard
-            break
+    matched = None
+    for row in sheet_schedules:
+        s_name = row["name"]
+        univ_m = re.search(r'([가-힣]+대)', s_name)
+        if not univ_m:
+            continue
+        univ = univ_m.group(1)
+        if univ not in course:
+            continue
             
-    exam_info = None
-    if matched_univ:
-        for ev in cal_events:
-            if matched_univ in ev["title"] and "논술" in ev["title"]:
-                exam_info = ev
+        if "홍익대" in course or "홍대" in course:
+            if ("A" in s_name and ("(A)" in course or "A반" in course)) or \
+               ("B" in s_name and ("(B)" in course or "B반" in course)):
+                matched = row
                 break
-                
-    lecture_schedule = ""
-    if "홍익대" in course or "홍대" in course:
-        if "B" in course or "B반" in course:
-            lecture_schedule = KNOWN_LECTURES["홍익대_B"]
-        else:
-            lecture_schedule = KNOWN_LECTURES["홍익대_A"]
-    elif "중앙대" in course:
-        if "경영경제" in course:
-            lecture_schedule = KNOWN_LECTURES["중앙대_경영경제"]
-        else:
-            lecture_schedule = KNOWN_LECTURES["중앙대_인문사회"]
-    elif matched_univ and matched_univ in KNOWN_LECTURES:
-        lecture_schedule = KNOWN_LECTURES[matched_univ]
+            continue
+            
+        if "중앙대" in course:
+            if "경영경제" in s_name and "경영경제" in course:
+                matched = row
+                break
+            if "인문사회" in s_name and "인문사회" in course:
+                matched = row
+                break
+            continue
+            
+        matched = row
+        break
+
+    if matched:
+        lecture_schedule = f"- 1회차: {matched['session1']}\n- 2회차: {matched['session2']}\n- 3회차: {matched['session3']}"
+        instructor = matched["instructor"]
+        exam_date = matched["exam_date"]
     else:
         lecture_schedule = "- 1회차: 00월 00일(요일) 00:00 ~ 00:00\n- 2회차: 00월 00일(요일) 00:00 ~ 00:00\n- 3회차: 00월 00일(요일) 00:00 ~ 00:00"
+        instructor = ""
+        exam_date = ""
 
     return {
         "success": True,
         "course": course,
-        "matched_univ": matched_univ,
-        "exam_event": exam_info,
+        "matched": matched,
+        "instructor": instructor,
+        "exam_date": exam_date,
         "lecture_schedule": lecture_schedule,
-        "all_exams": [e for e in cal_events if "논술" in e["title"] or "수능" in e["title"]]
+        "all_schedules": sheet_schedules
     }
 
 @app.post("/api/admin/upload-master-db")
