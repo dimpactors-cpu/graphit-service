@@ -88,7 +88,17 @@ watcher_thread.start()
 @app.get("/", response_class=HTMLResponse)
 @app.get("/api/index", response_class=HTMLResponse)
 @app.get("/api/index.py", response_class=HTMLResponse)
-async def read_index():
+async def read_index(request: Request):
+    if request.query_params.get("debug") == "1":
+        import json
+        headers = dict(request.headers)
+        scope_info = {
+            "path": request.scope.get("path"),
+            "raw_path": str(request.scope.get("raw_path")),
+            "query_string": str(request.scope.get("query_string")),
+            "headers": headers,
+        }
+        return HTMLResponse(content=f"<pre>{json.dumps(scope_info, indent=2)}</pre>")
     index_path = os.path.join(TEMPLATES_DIR, "index.html")
     with open(index_path, "r", encoding="utf-8") as f:
         return f.read()
