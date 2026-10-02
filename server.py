@@ -19,7 +19,7 @@ from data_manager import data_manager
 ADMIN_SECRET_KEY = os.environ.get("ADMIN_SECRET_KEY", "dimpact-daechi-secret-key-2026")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "dimpact1234!")
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
-ADMIN_GOOGLE_EMAILS = [e.strip().lower() for e in os.environ.get("ADMIN_GOOGLE_EMAILS", "").split(",") if e.strip()]
+ADMIN_GOOGLE_EMAILS = [e.strip().lower() for e in os.environ.get("ADMIN_GOOGLE_EMAILS", "d.impactors@gmail.com").split(",") if e.strip()]
 
 def create_session_token(identity: str) -> str:
     timestamp = str(int(time.time()))
