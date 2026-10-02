@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>디임팩트학원 | 논술 파이널 신청 현황 조회</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="app-header">
+    <a href="/" class="brand">
+      <span class="brand-badge">THE IMPACT</span>
+      <span class="brand-title">디임팩트학원</span>
+    </a>
+    <nav class="nav-links">
+      <a href="/" class="nav-link active">신청조회</a>
+      <a href="/admin" class="nav-link">관리자</a>
+    </nav>
+  </header>
+
+  <!-- Search Main -->
+  <main class="search-container">
+    <div class="search-card">
+      <div class="search-header">
+        <span class="title-badge">2027 수시 파이널</span>
+        <h1>📋 논술 파이널 신청 현황</h1>
+        <p>신청 내역을 확인하시려면 학생 이름과 결제선생 링크를 받은 연락처의 뒷자리 4자리를 입력해주세요.</p>
+      </div>
+
+      <form id="searchForm" onsubmit="handleSearch(event)">
+        <div class="form-group">
+          <label for="studentName" class="form-label">학생 이름</label>
+          <input 
+            type="text" 
+            id="studentName" 
+            class="form-input" 
+            placeholder="예: 홍길동" 
+            autocomplete="name"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="phoneTail" class="form-label">연락처 뒷자리 (4자리)</label>
+          <p class="form-hint">💡 결제선생 알림톡/링크를 받은 분의 휴대폰 번호 뒷자리</p>
+          <input 
+            type="tel" 
+            id="phoneTail" 
+            class="form-input" 
+            maxlength="4" 
+            pattern="[0-9]{4}" 
+            inputmode="numeric" 
+            placeholder="예: 1234" 
+            required
+          >
+        </div>
+
+        <button type="submit" id="searchBtn" class="btn-primary">
+          <span id="btnText">조회하기</span>
+          <span id="btnSpinner" style="display: none;">조회 중...</span>
+        </button>
+      </form>
+
+      <!-- Results Area -->
+      <section id="resultSection" class="result-section">
+        <div class="result-summary">
+          <span>조회 결과 (<span id="resultCount">0</span>건)</span>
+          <span id="studentGreeting" style="color: var(--accent); font-weight: 700;"></span>
+        </div>
+
+        <div id="courseList"></div>
+      </section>
+
+      <!-- Customer Support Box -->
+      <div class="notice-box">
+        📢 신청하신 강좌나 대학이 보이지 않으면<br>
+        <strong>디임팩트 상담실</strong> <a href="tel:02-6956-0289">📞 02-6956-0289</a>로 전화주세요.
+      </div>
+    </div>
+  </main>
+
+  <script src="/static/js/student.js"></script>
+</body>
+</html>
