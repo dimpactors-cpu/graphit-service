@@ -5,9 +5,12 @@ import pandas as pd
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 
+import json
+
 DOWNLOADS_DIR = os.path.join(os.environ.get("USERPROFILE", ""), "Downloads")
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 CACHE_FILE = os.path.join(DATA_DIR, "latest_parsed.json")
+MASTER_CONTACTS_FILE = os.path.join(DATA_DIR, "contacts_master.json")
 
 os.makedirs(DATA_DIR, exist_ok=True)
 
@@ -18,6 +21,10 @@ class DataManager:
         self.last_file_name: Optional[str] = None
         self.last_file_mtime: Optional[float] = None
         self.auto_sync_enabled: bool = True
+        self.master_contacts: Dict[str, Dict[str, str]] = {}
+        
+        # Load masterDB contacts
+        self.load_master_db()
         
         # Load initially from downloads or bundled data
         self.sync_from_latest_download()
@@ -25,6 +32,118 @@ class DataManager:
             bundled = os.path.join(DATA_DIR, "master_bills.xlsx")
             if os.path.exists(bundled):
                 self.load_excel_file(bundled)
+
+    def load_master_db(self):
+        """Load student and parent contact mapping from contacts_master.json or master_db.xlsx"""
+        # 1. From precompiled JSON
+        if os.path.exists(MASTER_CONTACTS_FILE):
+            try:
+                with open(MASTER_CONTACTS_FILE, "r", encoding="utf-8") as f:
+                    self.master_contacts = json.load(f)
+            except Exception as e:
+                print(f"[load_master_db error]: {e}")
+
+        # 2. Check for latest master_db excel in data or Downloads
+        master_candidates = [
+            os.path.join(DATA_DIR, "master_db.xlsx"),
+            os.path.join(DOWNLOADS_DIR, "디임팩트학원 종합관리 DB.xlsx"),
+            os.path.join(DOWNLOADS_DIR, "*종합관리*DB*.xlsx"),
+        ]
+        master_file = None
+        for c in master_candidates:
+            matched = glob.glob(c)
+            if matched:
+                master_file = matched[0]
+                break
+
+        if master_file and os.path.exists(master_file):
+            try:
+                self.parse_master_db_file(master_file)
+            except Exception as e:
+                print(f"[parse_master_db_file error]: {e}")
+
+    def parse_master_db_file(self, filepath: str):
+        """Parse masterDB excel and update student/parent contact dictionary"""
+        import openpyxl
+        wb = openpyxl.load_workbook(filepath, data_only=True)
+        self._extract_master_contacts_from_wb(wb)
+
+    def load_master_db_from_bytes(self, content: bytes, filename: str) -> bool:
+        """Load masterDB from uploaded bytes"""
+        try:
+            import io, openpyxl
+            wb = openpyxl.load_workbook(io.BytesIO(content), data_only=True)
+            self._extract_master_contacts_from_wb(wb)
+            # Also save to master_db.xlsx in DATA_DIR
+            try:
+                dest = os.path.join(DATA_DIR, "master_db.xlsx")
+                with open(dest, "wb") as f:
+                    f.write(content)
+            except Exception:
+                pass
+            return True
+        except Exception as e:
+            print(f"[load_master_db_from_bytes error]: {e}")
+            return False
+
+    def _extract_master_contacts_from_wb(self, wb):
+        def clean_phone(val):
+            if not val or val == "None" or val == "000-0000-0000":
+                return ""
+            digits = re.sub(r"\D", "", str(val))
+            if len(digits) == 11:
+                return f"{digits[:3]}-{digits[3:7]}-{digits[7:]}"
+            elif len(digits) == 10:
+                return f"{digits[:3]}-{digits[3:6]}-{digits[6:]}"
+            return str(val).strip()
+
+        def add_contact(name, s_phone, p_phone):
+            name = str(name or "").strip()
+            if not name or name == "None" or len(name) < 2:
+                return
+            s = clean_phone(s_phone)
+            p = clean_phone(p_phone)
+            if name not in self.master_contacts:
+                self.master_contacts[name] = {"student_phone": "", "parent_phone": ""}
+            if s:
+                self.master_contacts[name]["student_phone"] = s
+            if p:
+                self.master_contacts[name]["parent_phone"] = p
+
+        # 1. 수강생 정보
+        if "수강생 정보" in wb.sheetnames:
+            ws = wb["수강생 정보"]
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                if row and len(row) >= 11:
+                    add_contact(row[3], row[9], row[10])
+
+        # 2. 수강생 수강 이력
+        if "수강생 수강 이력" in wb.sheetnames:
+            ws = wb["수강생 수강 이력"]
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                if row and len(row) >= 6:
+                    add_contact(row[3], row[4], row[5])
+
+        # 3. 구글폼_수강생_입력창
+        if "구글폼_수강생_입력창" in wb.sheetnames:
+            ws = wb["구글폼_수강생_입력창"]
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                if row and len(row) >= 10:
+                    add_contact(row[2], row[8], row[9])
+
+        # 4. 구글폼_상담일지_입력창
+        if "구글폼_상담일지_입력창" in wb.sheetnames:
+            ws = wb["구글폼_상담일지_입력창"]
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                if row and len(row) >= 8:
+                    add_contact(row[2], row[6], row[7])
+
+        # Save to cache JSON
+        try:
+            with open(MASTER_CONTACTS_FILE, "w", encoding="utf-8") as f:
+                json.dump(self.master_contacts, f, ensure_ascii=False, indent=2)
+        except Exception:
+            pass
 
     def find_latest_download_file(self) -> Optional[str]:
         """Find the latest 발송수납내역 excel file in Downloads folder or data directory"""
@@ -210,8 +329,7 @@ class DataManager:
                 "name": r["name"],
                 "course": course,
                 "status": status,
-                "date": date_val,
-                "amount": r["amount"]
+                "date": date_val
             })
             
         return results
@@ -252,10 +370,23 @@ class DataManager:
                 courses.add(r["course"])
         return sorted(list(courses))
 
+    def load_master_db_from_bytes(self, content: bytes, filename: str) -> bool:
+        """Save and reload uploaded masterDB file"""
+        try:
+            save_path = os.path.join(DATA_DIR, "master_db.xlsx")
+            with open(save_path, "wb") as f:
+                f.write(content)
+            self.parse_master_db_file(save_path)
+            return True
+        except Exception as e:
+            print(f"[load_master_db_from_bytes error]: {e}")
+            return False
+
     def get_course_students(self, course_name: str, status_filter: str = "수납") -> List[Dict[str, Any]]:
         """
         Get students registered for a course, applying all business rules,
         sorted in Korean alphabetical order (가나다순).
+        Returns student_phone and parent_phone matched from masterDB.
         """
         if self.auto_sync_enabled:
             self.sync_from_latest_download()
@@ -292,9 +423,15 @@ class DataManager:
             if status_filter and status != status_filter:
                 continue
                 
+            master_info = self.master_contacts.get(r["name"], {})
+            s_phone = master_info.get("student_phone") or "-"
+            p_phone = master_info.get("parent_phone") or r["phone"] or "-"
+
             students.append({
                 "name": r["name"],
                 "phone": r["phone"],
+                "student_phone": s_phone,
+                "parent_phone": p_phone,
                 "phone_tail": r["phone_tail"],
                 "course": r["course"],
                 "status": status,

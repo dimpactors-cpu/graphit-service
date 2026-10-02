@@ -42,6 +42,10 @@
         <button onclick="triggerSync()" class="btn-secondary">
           🔄 최신 엑셀 즉시 불러오기
         </button>
+        <button onclick="document.getElementById('masterDbInput').click()" class="btn-secondary" title="학원 종합관리 masterDB 엑셀 반영">
+          📑 masterDB 반영
+        </button>
+        <input type="file" id="masterDbInput" accept=".xlsx, .xls" style="display: none;" onchange="handleMasterDbUpload(event)">
       </div>
     </div>
 
@@ -78,15 +82,17 @@
     </div>
 
     <!-- Main Content Grid -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 24px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(520px, 1fr)); gap: 24px;">
       
       <!-- Panel 1: Course Students & List -->
       <div class="panel">
         <div class="panel-title-row">
           <div class="panel-title">👥 강좌별 수강생 명단 (가나다순)</div>
           <div class="btn-group">
-            <button onclick="copyNamesOnly()" class="btn-sm" title="이름만 가나다순으로 복사">📋 이름만 복사</button>
-            <button onclick="copyNamesAndPhones()" class="btn-sm" title="순번, 이름, 전화번호 복사">📋 이름+연락처 복사</button>
+            <button onclick="copyNamesOnly()" class="btn-sm" title="이름만 가나다순으로 복사">📋 이름</button>
+            <button onclick="copyStudentPhones()" class="btn-sm" title="학생 연락처 목록 복사">📱 학생번호</button>
+            <button onclick="copyParentPhones()" class="btn-sm" title="학부모 연락처 목록 복사">📱 학부모번호</button>
+            <button onclick="copyFullTable()" class="btn-sm" title="전체 명단 복사 (엑셀 붙여넣기용)">📋 전체복사</button>
           </div>
         </div>
 
@@ -100,20 +106,21 @@
           </select>
         </div>
 
-        <div style="max-height: 400px; overflow-y: auto; border: 1px solid var(--gray-200); border-radius: var(--radius-sm);">
+        <div style="max-height: 420px; overflow-y: auto; border: 1px solid var(--gray-200); border-radius: var(--radius-sm);">
           <table class="data-table">
             <thead>
               <tr>
-                <th style="width: 50px;">No</th>
-                <th style="width: 90px;">학생명</th>
-                <th style="width: 140px;">연락처</th>
+                <th style="width: 45px;">No</th>
+                <th style="width: 80px;">학생명</th>
+                <th style="width: 125px;">학생 연락처</th>
+                <th style="width: 125px;">학부모 연락처</th>
                 <th>신청(발송)일시</th>
-                <th style="width: 70px;">상태</th>
+                <th style="width: 65px;">상태</th>
               </tr>
             </thead>
             <tbody id="studentTableBody">
               <tr>
-                <td colspan="5" style="text-align: center; color: var(--gray-400); padding: 30px;">강좌를 선택해 주세요.</td>
+                <td colspan="6" style="text-align: center; color: var(--gray-400); padding: 30px;">강좌를 선택해 주세요.</td>
               </tr>
             </tbody>
           </table>
@@ -128,7 +135,7 @@
         </div>
 
         <div style="margin-bottom: 12px; font-size: 13px; color: var(--gray-600);">
-          좌측에서 선택한 강좌의 수강생 명단(가나다순)이 본문 하단에 자동으로 채워집니다.
+          💡 구글 캘린더의 대학별 논술고사 일정 및 강의 일정이 실시간 연동되어 자동 채워집니다.
         </div>
 
         <textarea id="messageTemplate" class="template-box" placeholder="강좌를 선택하면 템플릿이 자동으로 작성됩니다..."></textarea>

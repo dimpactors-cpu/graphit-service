@@ -286,6 +286,133 @@ async def api_upload(request: Request, file: UploadFile = File(...)):
     except Exception as e:
         return {"success": False, "message": str(e)}
 
+CALENDAR_ICS_URL = "https://calendar.google.com/calendar/ical/d.impactors@gmail.com/public/basic.ics"
+calendar_cache = {"time": 0, "events": []}
+
+def get_google_calendar_events():
+    now = time.time()
+    if now - calendar_cache["time"] < 300 and calendar_cache["events"]:
+        return calendar_cache["events"]
+    try:
+        req = urllib.request.Request(CALENDAR_ICS_URL, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            content = resp.read().decode("utf-8")
+        import re, datetime
+        raw_events = re.findall(r"BEGIN:VEVENT(.*?)END:VEVENT", content, re.DOTALL)
+        events = []
+        for ev in raw_events:
+            sum_m = re.search(r"SUMMARY:(.*?)\r?\n", ev)
+            dt_m = re.search(r"DTSTART(?:;VALUE=DATE)?:(\d{8})", ev)
+            if sum_m and dt_m:
+                title = sum_m.group(1).strip()
+                date_str = dt_m.group(1)
+                dt = datetime.datetime.strptime(date_str, "%Y%m%d")
+                weekdays = ["월", "화", "수", "목", "금", "토", "일"]
+                formatted = f"{dt.year}년 {dt.month}월 {dt.day}일({weekdays[dt.weekday()]})"
+                events.append({
+                    "title": title,
+                    "date": date_str,
+                    "formatted": formatted
+                })
+        if events:
+            calendar_cache["time"] = now
+            calendar_cache["events"] = events
+            return events
+    except Exception as e:
+        print(f"[Calendar Fetch Warning]: {e}")
+    return calendar_cache.get("events", [])
+
+KNOWN_LECTURES = {
+    "홍익대": {
+        "A": "1회차: 9월 29일(화) 14:00 ~ 17:00\n2회차: 10월 1일(목) 14:00 ~ 17:00\n3회차: 10월 3일(토) 14:00 ~ 17:00",
+        "B": "1회차: 9월 29일(화) 18:00 ~ 21:00\n2회차: 10월 1일(목) 18:00 ~ 21:00\n3회차: 10월 3일(토) 18:00 ~ 21:00"
+    },
+    "가톨릭대": "1회차: 10월 7일(수) 18:00 ~ 22:00\n2회차: 10월 9일(금/한글날) 14:00 ~ 18:00\n3회차: 10월 10일(토) 14:00 ~ 18:00",
+    "중앙대": "1회차: 10월 7일(수) 18:00 ~ 22:00\n2회차: 10월 9일(금/한글날) 18:00 ~ 22:00\n3회차: 10월 10일(토) 18:00 ~ 22:00",
+    "숙명여대": "1회차: 10월 11일(일)\n2회차: 10월 14일(수)\n3회차: 10월 18일(일)",
+    "성균관대": "1회차: 10월 12일(월)\n2회차: 10월 15일(목)\n3회차: 11월 20일(금)",
+    "경희대": "1회차: 10월 13일(화)\n2회차: 10월 16일(금)\n3회차: 11월 20일(금)",
+    "건국대": "1회차: 10월 18일(일)\n2회차: 10월 21일(수)\n3회차: 11월 20일(금)",
+    "숭실대": "1회차: 10월 19일(월)\n2회차: 10월 21일(수)\n3회차: 10월 23일(금)",
+    "서강대": "1회차: 10월 20일(화)\n2회차: 10월 22일(목)\n3회차: 10월 24일(토)",
+    "고려대": "1회차: 11월 20일(금)\n2회차: 11월 21일(토)",
+    "동국대": "1회차: 11월 20일(금)\n2회차: 11월 21일(토)",
+    "단국대": "1회차: 10월 15일(목)\n2회차: 10월 16일(금)\n3회차: 10월 17일(토)"
+}
+
+@app.get("/api/admin/schedule")
+async def api_schedule(request: Request, course: str = Query("")):
+    if not get_current_user(request):
+        return JSONResponse(status_code=401, content={"success": False, "message": "관리자 로그인이 필요합니다."})
+    
+    cal_events = get_google_calendar_events()
+    
+    matched_univ = None
+    univ_keywords = [
+        ("홍익대", "홍익대"), ("홍대", "홍익대"),
+        ("가톨릭대", "가톨릭대"),
+        ("중앙대", "중앙대"),
+        ("숙명여대", "숙명여대"), ("숙대", "숙명여대"),
+        ("성균관대", "성균관대"), ("성대", "성균관대"),
+        ("경희대", "경희대"),
+        ("건국대", "건국대"), ("건대", "건국대"),
+        ("숭실대", "숭실대"),
+        ("서강대", "서강대"),
+        ("고려대", "고려대"), ("고대", "고려대"),
+        ("동국대", "동국대"), ("동대", "동국대"),
+        ("단국대", "단국대"),
+        ("성신여대", "성신여대")
+    ]
+    for kw, standard in univ_keywords:
+        if kw in course:
+            matched_univ = standard
+            break
+            
+    exam_info = None
+    if matched_univ:
+        for ev in cal_events:
+            if matched_univ in ev["title"] and "논술" in ev["title"]:
+                exam_info = ev
+                break
+                
+    lecture_schedule = ""
+    if matched_univ == "홍익대":
+        if "B반" in course or "(B)" in course:
+            lecture_schedule = KNOWN_LECTURES["홍익대"]["B"]
+        else:
+            lecture_schedule = KNOWN_LECTURES["홍익대"]["A"]
+    elif matched_univ in KNOWN_LECTURES:
+        lecture_schedule = KNOWN_LECTURES[matched_univ]
+    else:
+        lecture_schedule = "1회차: 00월 00일(요일) 00:00 ~ 00:00\n2회차: 00월 00일(요일) 00:00 ~ 00:00\n3회차: 00월 00일(요일) 00:00 ~ 00:00"
+
+    return {
+        "success": True,
+        "course": course,
+        "matched_univ": matched_univ,
+        "exam_event": exam_info,
+        "lecture_schedule": lecture_schedule,
+        "all_exams": [e for e in cal_events if "논술" in e["title"] or "수능" in e["title"]]
+    }
+
+@app.post("/api/admin/upload-master-db")
+async def api_upload_master_db(request: Request, file: UploadFile = File(...)):
+    if not get_current_user(request):
+        return JSONResponse(status_code=401, content={"success": False, "message": "관리자 로그인이 필요합니다."})
+    try:
+        content = await file.read()
+        success = data_manager.load_master_db_from_bytes(content, file.filename)
+        if success:
+            return {
+                "success": True,
+                "message": f"성공적으로 학원 관리 masterDB ({file.filename})를 반영했습니다.",
+                "contacts_count": len(data_manager.master_contacts)
+            }
+        else:
+            return {"success": False, "message": "masterDB 파일 파싱에 실패했습니다."}
+    except Exception as e:
+        return {"success": False, "message": str(e)}
+
 @app.post("/api/admin/sync")
 async def api_sync(request: Request):
     if not get_current_user(request):

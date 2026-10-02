@@ -55,8 +55,6 @@ async function handleSearch(event) {
       res.data.forEach(item => {
         const status = item.status || "미납";
         const badgeClass = "status-" + status;
-        const formattedAmount = item.amount ? item.amount.toLocaleString() + "원" : "";
-
         html += `
           <div class="course-card">
             <div class="card-top">
@@ -65,7 +63,6 @@ async function handleSearch(event) {
             </div>
             <div class="card-meta">
               <span>신청일시: ${escapeHtml(item.date || "-")}</span>
-              ${formattedAmount ? `<span>${formattedAmount}</span>` : ""}
             </div>
           </div>
         `;

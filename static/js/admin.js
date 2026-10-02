@@ -86,13 +86,13 @@ async function loadCourseStudents() {
   const tbody = document.getElementById("studentTableBody");
 
   if (!course) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--gray-400); padding: 30px;">강좌를 선택해 주세요.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--gray-400); padding: 30px;">강좌를 선택해 주세요.</td></tr>';
     currentCourseStudents = [];
     document.getElementById("messageTemplate").value = "";
     return;
   }
 
-  tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--gray-500); padding: 20px;">명단을 불러오는 중...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--gray-500); padding: 20px;">명단을 불러오는 중...</td></tr>';
 
   try {
     const res = await fetch(`/api/admin/course-students?course=${encodeURIComponent(course)}&status=${encodeURIComponent(status)}`);
@@ -102,17 +102,20 @@ async function loadCourseStudents() {
       currentCourseStudents = data.students;
 
       if (currentCourseStudents.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--gray-400); padding: 30px;">해당 조건의 학생이 없습니다.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--gray-400); padding: 30px;">해당 조건의 학생이 없습니다.</td></tr>';
       } else {
         let html = "";
         currentCourseStudents.forEach((s, idx) => {
           const badgeClass = "status-" + (s.status || "미납");
+          const sPhone = (s.student_phone && s.student_phone !== "-") ? escapeHtml(s.student_phone) : '<span style="color: var(--gray-400);">-</span>';
+          const pPhone = (s.parent_phone && s.parent_phone !== "-") ? escapeHtml(s.parent_phone) : (s.phone ? escapeHtml(s.phone) : '<span style="color: var(--gray-400);">-</span>');
           html += `
             <tr>
               <td>${idx + 1}</td>
               <td><strong>${escapeHtml(s.name)}</strong></td>
-              <td>${escapeHtml(s.phone)}</td>
-              <td>${escapeHtml(s.date || "-")}</td>
+              <td>${sPhone}</td>
+              <td>${pPhone}</td>
+              <td style="font-size: 13px; color: var(--gray-600);">${escapeHtml(s.date || "-")}</td>
               <td><span class="status-badge ${badgeClass}">${escapeHtml(s.status)}</span></td>
             </tr>
           `;
@@ -120,42 +123,50 @@ async function loadCourseStudents() {
         tbody.innerHTML = html;
       }
 
-      generateMessageTemplate(course, currentCourseStudents);
+      await generateMessageTemplate(course, currentCourseStudents);
     }
   } catch (err) {
     console.error(err);
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--danger); padding: 20px;">불러오기 오류 발생</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--danger); padding: 20px;">불러오기 오류 발생</td></tr>';
   }
 }
 
-function generateMessageTemplate(courseName, students) {
-  const studentNames = students.map(s => s.name).join(", ");
-  const count = students.length;
+async function generateMessageTemplate(courseName, students) {
+  let examDateText = "";
+  let lectureSchedule = "1회차: 00월 00일(요일) 00:00 ~ 00:00\n2회차: 00월 00일(요일) 00:00 ~ 00:00\n3회차: 00월 00일(요일) 00:00 ~ 00:00";
 
-  let scheduleText = "1회차: 00월 00일(요일) 00:00 ~ 00:00\n2회차: 00월 00일(요일) 00:00 ~ 00:00\n3회차: 00월 00일(요일) 00:00 ~ 00:00";
-  
-  if (courseName.includes("홍익대") && courseName.includes("A반")) {
-    scheduleText = "1회차: 9월 29일(화) 14:00 ~ 17:00\n2회차: 10월 1일(목) 14:00 ~ 17:00\n3회차: 10월 3일(토) 14:00 ~ 17:00";
-  } else if (courseName.includes("홍익대") && courseName.includes("B반")) {
-    scheduleText = "1회차: 9월 29일(화) 18:00 ~ 21:00\n2회차: 10월 1일(목) 18:00 ~ 21:00\n3회차: 10월 3일(토) 18:00 ~ 21:00";
+  try {
+    const res = await fetch(`/api/admin/schedule?course=${encodeURIComponent(courseName)}`);
+    const data = await res.json();
+    if (data.success) {
+      if (data.exam_event) {
+        examDateText = `■ 논술고사 일정: ${data.exam_event.formatted} (${data.exam_event.title})\n`;
+      }
+      if (data.lecture_schedule) {
+        lectureSchedule = data.lecture_schedule;
+      }
+    }
+  } catch (err) {
+    console.error("Failed to fetch schedule info:", err);
   }
 
-  const template = `[${courseName} 개강]
+  const template = `[${courseName} 개강 및 등원 안내]
 
 안녕하세요, 디임팩트학원입니다.
 
-${courseName} 등록이 정상적으로 완료되어 강의 일정 및 등원 안내드립니다.
+${courseName} 등록이 확인되어 강의 일정 및 논술고사 일정을 안내드립니다.
 
 ■ 강좌명: ${courseName}
-■ 강의 일정: 총 3회 완성
-${scheduleText}
+${examDateText}■ 강의 일정:
+${lectureSchedule}
 
-■ 영상 제공: 현강을 녹화하여 제공하므로 다소 시간이 걸릴 수 있습니다. 링크로 전달드릴 예정이며, 최대한 빠르게 편집하여 전달 드리겠습니다.
+■ 안내 사항 및 유의사항:
+- 수업 시작 10분 전까지 강의실에 입실해 주시기 바랍니다.
+- 필기도구 및 개인 필기노트를 지참해 주세요.
+- 영상 제공: 현장 강의를 녹화하여 제공하므로 복습 및 결석 시 활용 가능하며, 편집 완료 후 순차적으로 링크 전달드립니다.
 
-감사합니다.
-
-■ 수강 명단 (${count}명 - 가나다순)
-${studentNames || "등록된 학생 없음"}`;
+궁금하신 점은 학원으로 문의해 주시기 바랍니다.
+감사합니다.`;
 
   document.getElementById("messageTemplate").value = template;
 }
@@ -171,14 +182,40 @@ function copyNamesOnly() {
   });
 }
 
-function copyNamesAndPhones() {
+function copyStudentPhones() {
   if (currentCourseStudents.length === 0) {
     showToast("복사할 학생 명단이 없습니다.");
     return;
   }
-  const text = currentCourseStudents.map((s, i) => `${i + 1}. ${s.name} (${s.phone})`).join("\n");
+  const text = currentCourseStudents.map((s, i) => `${i + 1}. ${s.name}: ${s.student_phone || '-'}`).join("\n");
   navigator.clipboard.writeText(text).then(() => {
-    showToast(`학생 ${currentCourseStudents.length}명의 연락처 명단이 복사되었습니다.`);
+    showToast(`학생 ${currentCourseStudents.length}명의 학생 연락처가 복사되었습니다.`);
+  });
+}
+
+function copyParentPhones() {
+  if (currentCourseStudents.length === 0) {
+    showToast("복사할 학생 명단이 없습니다.");
+    return;
+  }
+  const text = currentCourseStudents.map((s, i) => `${i + 1}. ${s.name}: ${s.parent_phone || s.phone || '-'}`).join("\n");
+  navigator.clipboard.writeText(text).then(() => {
+    showToast(`학생 ${currentCourseStudents.length}명의 학부모 연락처가 복사되었습니다.`);
+  });
+}
+
+function copyFullTable() {
+  if (currentCourseStudents.length === 0) {
+    showToast("복사할 학생 명단이 없습니다.");
+    return;
+  }
+  const header = "순번\t학생명\t학생연락처\t학부모연락처\t신청일시\t상태";
+  const rows = currentCourseStudents.map((s, idx) => 
+    `${idx + 1}\t${s.name}\t${s.student_phone || '-'}\t${s.parent_phone || s.phone || '-'}\t${s.date || '-'}\t${s.status || '미납'}`
+  );
+  const tsv = [header, ...rows].join("\n");
+  navigator.clipboard.writeText(tsv).then(() => {
+    showToast(`학생 ${currentCourseStudents.length}명의 전체 명단(엑셀 표 형식)이 복사되었습니다.`);
   });
 }
 
@@ -192,6 +229,7 @@ function copyMessageTemplate() {
     showToast("안내문자 전체 내용이 복사되었습니다.");
   });
 }
+
 
 async function triggerSync() {
   try {
@@ -270,6 +308,34 @@ async function uploadFile(file) {
   } catch (err) {
     console.error(err);
     showToast("업로드 중 네트워크 오류가 발생했습니다.");
+  }
+}
+
+async function handleMasterDbUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const formData = new FormData();
+  formData.append("file", file);
+
+  showToast("학원 관리 masterDB 파일을 반영 중입니다...");
+
+  try {
+    const res = await fetch("/api/admin/upload-master-db", {
+      method: "POST",
+      body: formData
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message || "masterDB가 성공적으로 반영되었습니다.");
+      loadCourseStudents();
+    } else {
+      showToast("masterDB 반영 실패: " + (data.message || ""));
+    }
+  } catch (err) {
+    console.error(err);
+    showToast("masterDB 업로드 중 오류가 발생했습니다.");
+  } finally {
+    event.target.value = "";
   }
 }
 
