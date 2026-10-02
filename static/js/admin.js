@@ -131,20 +131,36 @@ async function loadCourseStudents() {
   }
 }
 
+function getCleanClassTitle(courseName) {
+  let name = (courseName || "").replace(/^#/, "").trim();
+  if (name.includes("_")) {
+    name = name.split("_")[0].trim();
+  }
+  if (name.includes("홍익대") || name.includes("홍대")) {
+    if (name.includes("(A)") || name.includes("A반") || name.includes("A")) {
+      return "홍익대 파이널 A반";
+    }
+    if (name.includes("(B)") || name.includes("B반") || name.includes("B")) {
+      return "홍익대 파이널 B반";
+    }
+  }
+  if (!name.endsWith("반") && !name.includes("패키지")) {
+    name += "반";
+  }
+  return name;
+}
+
 async function generateMessageTemplate(courseName, students) {
-  let examDateText = "";
-  let instructorText = "";
-  let lectureSchedule = "- 1회차: 00월 00일(요일) 00:00 ~ 00:00\n- 2회차: 00월 00일(요일) 00:00 ~ 00:00\n- 3회차: 00월 00일(요일) 00:00 ~ 00:00";
+  const classTitle = getCleanClassTitle(courseName);
+  let instructor = "";
+  let lectureSchedule = "- 1회차: 00월 00일(요일) 00:00 ~ 00:00\n\n- 2회차: 00월 00일(요일) 00:00 ~ 00:00\n\n- 3회차: 00월 00일(요일) 00:00 ~ 00:00";
 
   try {
     const res = await fetch(`/api/admin/schedule?course=${encodeURIComponent(courseName)}`);
     const data = await res.json();
     if (data.success) {
       if (data.instructor) {
-        instructorText = `■ 담당 강사: ${data.instructor}\n`;
-      }
-      if (data.exam_date) {
-        examDateText = `■ 논술고사 일정: ${data.exam_date}\n`;
+        instructor = data.instructor;
       }
       if (data.lecture_schedule) {
         lectureSchedule = data.lecture_schedule;
@@ -154,28 +170,48 @@ async function generateMessageTemplate(courseName, students) {
     console.error("Failed to fetch schedule info:", err);
   }
 
-  const template = `[${courseName} 개강 및 등원 안내]
+  const parts = [];
 
-안녕하세요, 디임팩트학원입니다.
+  // 1. 제목: ~~반 개강 안내
+  parts.push(`[${classTitle} 개강 안내]`);
 
-${courseName} 등록이 확인되어 강의 일정 및 논술고사 일정을 안내드립니다.
+  // 2. 인사말
+  parts.push("안녕하세요. 디임팩트학원입니다.");
 
-■ 강좌명: ${courseName}
-${instructorText}${examDateText}■ 강의 일정: 총 3회 완성
-${lectureSchedule}
+  // 3. 안내 도입
+  parts.push(`${classTitle} 등록이 확인되어 강의 일정을 안내드립니다.`);
 
-■ 안내 사항 및 유의사항:
-- 수업 시작 10분 전까지 강의실에 입실해 주시기 바랍니다.
-- 필기도구 및 개인 필기노트를 지참해 주세요.
-- 영상 제공: 수업 다음날 개별 문자를 통해 링크로 전달 드릴 예정입니다.
+  // 4. 강좌명
+  parts.push(`■ 강좌명: ${courseName}`);
 
-□ 오시는길 : 서울시 강남구 삼성로81길 35, 5층 (https://naver.me/xOdYehVS)
-□ 1층 공동현관 비밀번호 : #0809 
+  // 5. 담당 강사 (있을 경우)
+  if (instructor) {
+    parts.push(`■ 담당 강사: ${instructor}`);
+  }
 
-궁금하신 사항은 언제든 편하게 연락주세요.
-감사합니다.`;
+  // 6. 강의 일정 헤더
+  parts.push("■ 강의 일정: 총 3회 완성");
 
-  document.getElementById("messageTemplate").value = template;
+  // 7. 각 회차별 일정 (각 회차마다 빈 줄 간격)
+  const sessionLines = lectureSchedule.split("\n").map(s => s.trim()).filter(Boolean);
+  sessionLines.forEach(line => parts.push(line));
+
+  // 8. 안내 사항 및 유의사항
+  parts.push("■ 안내 사항 및 유의사항:");
+  parts.push("- 수업 시작 10분 전까지 강의실에 입실해 주시기 바랍니다.");
+  parts.push("- 필기도구 및 개인 필기노트를 지참해 주세요.");
+  parts.push("- 영상 제공: 수업 다음날 개별 문자를 통해 링크로 전달 드릴 예정입니다.");
+
+  // 9. 오시는 길 및 공동현관 비밀번호
+  parts.push("□ 오시는길 : 서울시 강남구 삼성로81길 35, 5층 (https://naver.me/xOdYehVS)");
+  parts.push("□ 1층 공동현관 비밀번호 : #0809");
+
+  // 10. 맺음말
+  parts.push("궁금하신 사항은 언제든 편하게 연락주세요.");
+  parts.push("감사합니다.");
+
+  // 각 문장마다 한줄씩 간격 주기 (\n\n)
+  document.getElementById("messageTemplate").value = parts.join("\n\n");
 }
 
 function copyNamesOnly() {

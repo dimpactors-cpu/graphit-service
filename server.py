@@ -382,11 +382,11 @@ async def api_schedule(request: Request, course: str = Query("")):
         break
 
     if matched:
-        lecture_schedule = f"- 1회차: {matched['session1']}\n- 2회차: {matched['session2']}\n- 3회차: {matched['session3']}"
+        lecture_schedule = f"- 1회차: {matched['session1']}\n\n- 2회차: {matched['session2']}\n\n- 3회차: {matched['session3']}"
         instructor = matched["instructor"]
         exam_date = matched["exam_date"]
     else:
-        lecture_schedule = "- 1회차: 00월 00일(요일) 00:00 ~ 00:00\n- 2회차: 00월 00일(요일) 00:00 ~ 00:00\n- 3회차: 00월 00일(요일) 00:00 ~ 00:00"
+        lecture_schedule = "- 1회차: 00월 00일(요일) 00:00 ~ 00:00\n\n- 2회차: 00월 00일(요일) 00:00 ~ 00:00\n\n- 3회차: 00월 00일(요일) 00:00 ~ 00:00"
         instructor = ""
         exam_date = ""
 
