@@ -308,8 +308,8 @@ class DataManager:
             cancel_reason = r["cancel_reason"]
             date_val = r["date"]
             
-            # Rule 1: Must include '#'
-            if "#" not in course:
+            # Rule 1: Must be a final course ('#' and '파이널' required)
+            if "#" not in course or "파이널" not in course:
                 continue
                 
             # Rule 2: Exclude if it's an old course from change notice
@@ -335,17 +335,18 @@ class DataManager:
         return results
 
     def get_admin_stats(self) -> Dict[str, Any]:
-        """Compute summary statistics matching Payssam manager site"""
+        """Compute summary statistics matching final courses ('#' and '파이널')"""
         if self.auto_sync_enabled:
             self.sync_from_latest_download()
             
-        total_count = len(self.raw_records)
-        total_amount = sum(r["amount"] for r in self.raw_records)
+        final_records = [r for r in self.raw_records if "#" in r["course"] and "파이널" in r["course"]]
+        total_count = len(final_records)
+        total_amount = sum(r["amount"] for r in final_records)
         
-        paid_rows = [r for r in self.raw_records if r["status"] == "수납" or (r["status"] == "파기" and "현장납부" in re.sub(r"\s+", "", r["cancel_reason"]))]
-        unpaid_rows = [r for r in self.raw_records if r["status"] == "미납"]
-        cancel_rows = [r for r in self.raw_records if r["status"] == "취소"]
-        destroy_rows = [r for r in self.raw_records if r["status"] == "파기" and "현장납부" not in re.sub(r"\s+", "", r["cancel_reason"])]
+        paid_rows = [r for r in final_records if r["status"] == "수납" or (r["status"] == "파기" and "현장납부" in re.sub(r"\s+", "", r["cancel_reason"]))]
+        unpaid_rows = [r for r in final_records if r["status"] == "미납"]
+        cancel_rows = [r for r in final_records if r["status"] == "취소"]
+        destroy_rows = [r for r in final_records if r["status"] == "파기" and "현장납부" not in re.sub(r"\s+", "", r["cancel_reason"])]
         
         return {
             "last_file": self.last_file_name,
@@ -363,10 +364,10 @@ class DataManager:
         }
 
     def get_courses(self) -> List[str]:
-        """Return list of distinct final courses (# included)"""
+        """Return list of distinct final courses ('#' and '파이널' included)"""
         courses = set()
         for r in self.raw_records:
-            if "#" in r["course"]:
+            if "#" in r["course"] and "파이널" in r["course"]:
                 courses.add(r["course"])
         return sorted(list(courses))
 
@@ -404,6 +405,8 @@ class DataManager:
                 
         students = []
         for r in self.raw_records:
+            if "#" not in r["course"] or "파이널" not in r["course"]:
+                continue
             if course_name not in r["course"] and r["course"] not in course_name:
                 continue
                 
