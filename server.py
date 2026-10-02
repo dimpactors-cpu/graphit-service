@@ -18,7 +18,7 @@ from data_manager import data_manager
 # Security & Authentication Settings
 ADMIN_SECRET_KEY = os.environ.get("ADMIN_SECRET_KEY", "dimpact-daechi-secret-key-2026")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "dimpact1234!")
-GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "1058171620857-e9280pb9lvqr6bjhnmrhbtmsfq8s8uuc.apps.googleusercontent.com")
 ADMIN_GOOGLE_EMAILS = [e.strip().lower() for e in os.environ.get("ADMIN_GOOGLE_EMAILS", "d.impactors@gmail.com").split(",") if e.strip()]
 
 def create_session_token(identity: str) -> str:
@@ -201,7 +201,8 @@ async def api_auth_google(req: GoogleLoginRequest):
             value=token,
             max_age=14 * 86400,
             httponly=True,
-            samesite="lax"
+            samesite="lax",
+            path="/"
         )
         return res
     except urllib.error.HTTPError:
@@ -219,7 +220,8 @@ async def api_auth_password(req: PasswordLoginRequest):
             value=token,
             max_age=14 * 86400,
             httponly=True,
-            samesite="lax"
+            samesite="lax",
+            path="/"
         )
         return res
     return JSONResponse(status_code=401, content={"success": False, "message": "관리자 암호가 일치하지 않습니다."})
@@ -227,7 +229,7 @@ async def api_auth_password(req: PasswordLoginRequest):
 @app.post("/api/auth/logout")
 async def api_auth_logout():
     res = JSONResponse(content={"success": True})
-    res.delete_cookie(key="dimpact_admin_session")
+    res.delete_cookie(key="dimpact_admin_session", path="/")
     return res
 
 # --- Admin API Endpoints ---
