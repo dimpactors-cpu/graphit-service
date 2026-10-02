@@ -270,6 +270,16 @@ async def api_course_students(
     except Exception as e:
         return {"success": False, "message": str(e)}
 
+@app.post("/api/admin/sync-master-db")
+async def api_sync_master_db(request: Request):
+    if not get_current_user(request):
+        return JSONResponse(status_code=401, content={"success": False, "message": "관리자 로그인이 필요합니다."})
+    try:
+        ok = data_manager.sync_master_db_from_google_sheet()
+        return {"success": ok, "count": len(data_manager.master_contacts)}
+    except Exception as e:
+        return {"success": False, "message": str(e)}
+
 @app.post("/api/admin/upload")
 async def api_upload(request: Request, file: UploadFile = File(...)):
     if not get_current_user(request):

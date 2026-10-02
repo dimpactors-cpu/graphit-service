@@ -34,16 +34,22 @@ class DataManager:
                 self.load_excel_file(bundled)
 
     def load_master_db(self):
-        """Load student and parent contact mapping from contacts_master.json or master_db.xlsx"""
-        # 1. From precompiled JSON
+        """Load student and parent contact mapping from contacts_master.json, Google Sheet, or master_db.xlsx"""
+        # 1. From precompiled JSON cache
         if os.path.exists(MASTER_CONTACTS_FILE):
             try:
                 with open(MASTER_CONTACTS_FILE, "r", encoding="utf-8") as f:
                     self.master_contacts = json.load(f)
             except Exception as e:
-                print(f"[load_master_db error]: {e}")
+                print(f"[load_master_db json error]: {e}")
 
-        # 2. Check for latest master_db excel in data or Downloads
+        # 2. Try syncing from Google Sheet: 학원 관리 masterDB -> 1. 학생 전체 DB
+        try:
+            self.sync_master_db_from_google_sheet()
+        except Exception as e:
+            print(f"[Google Sheet masterDB sync warning]: {e}")
+
+        # 3. Check for latest master_db excel in data or Downloads
         master_candidates = [
             os.path.join(DATA_DIR, "master_db.xlsx"),
             os.path.join(DOWNLOADS_DIR, "디임팩트학원 종합관리 DB.xlsx"),
@@ -61,6 +67,76 @@ class DataManager:
                 self.parse_master_db_file(master_file)
             except Exception as e:
                 print(f"[parse_master_db_file error]: {e}")
+
+    def sync_master_db_from_google_sheet(self) -> bool:
+        """Fetch and parse live '1. 학생 전체 DB' from Google Spreadsheet '학원 관리 masterDB'"""
+        import urllib.request
+        import csv
+        import io
+        
+        # 학원 관리 masterDB (gid=1053925274: 1. 학생 전체 DB)
+        sheet_url = "https://docs.google.com/spreadsheets/d/1NrH9IiyeHd69OfUogH_RrtI4xhtZxH56unFm4ggHVVI/export?format=csv&gid=1053925274"
+        req = urllib.request.Request(sheet_url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            content = resp.read().decode("utf-8")
+            
+        reader = csv.reader(io.StringIO(content))
+        rows = list(reader)
+        if not rows:
+            return False
+
+        header = rows[0]
+        # Identify columns
+        name_col = 1
+        s_col = 5
+        p_col = 6
+        for idx, col_name in enumerate(header):
+            c_clean = str(col_name).strip()
+            if "학생명" in c_clean or c_clean == "이름":
+                name_col = idx
+            elif "학생" in c_clean and ("연락처" in c_clean or "전화" in c_clean or "휴대폰" in c_clean):
+                s_col = idx
+            elif ("보호자" in c_clean or "학부모" in c_clean) and ("연락처" in c_clean or "전화" in c_clean or "휴대폰" in c_clean):
+                p_col = idx
+
+        count = 0
+        for r in rows[1:]:
+            if len(r) > max(name_col, s_col, p_col):
+                name = str(r[name_col] or "").strip()
+                s_phone = self.clean_phone_number(r[s_col])
+                p_phone = self.clean_phone_number(r[p_col])
+                if name and len(name) >= 2:
+                    if name not in self.master_contacts:
+                        self.master_contacts[name] = {"student_phone": "", "parent_phone": ""}
+                    if s_phone:
+                        self.master_contacts[name]["student_phone"] = s_phone
+                    if p_phone:
+                        self.master_contacts[name]["parent_phone"] = p_phone
+                    count += 1
+
+        # Cache to disk
+        try:
+            with open(MASTER_CONTACTS_FILE, "w", encoding="utf-8") as f:
+                json.dump(self.master_contacts, f, ensure_ascii=False, indent=2)
+            csv_cache = os.path.join(DATA_DIR, "master_students.csv")
+            with open(csv_cache, "w", encoding="utf-8") as f:
+                f.write(content)
+        except Exception:
+            pass
+
+        print(f"[DataManager] Synced {count} contacts from Google Sheet '1. 학생 전체 DB'")
+        return True
+
+    def clean_phone_number(self, val: Any) -> str:
+        if not val or val == "None" or val == "000-0000-0000":
+            return ""
+        digits = re.sub(r"\D", "", str(val))
+        if len(digits) == 11:
+            return f"{digits[:3]}-{digits[3:7]}-{digits[7:]}"
+        elif len(digits) == 10:
+            return f"{digits[:3]}-{digits[3:6]}-{digits[6:]}"
+        clean_str = str(val).strip()
+        return clean_str if clean_str != "000-0000-0000" else ""
 
     def parse_master_db_file(self, filepath: str):
         """Parse masterDB excel and update student/parent contact dictionary"""
@@ -87,28 +163,38 @@ class DataManager:
             return False
 
     def _extract_master_contacts_from_wb(self, wb):
-        def clean_phone(val):
-            if not val or val == "None" or val == "000-0000-0000":
-                return ""
-            digits = re.sub(r"\D", "", str(val))
-            if len(digits) == 11:
-                return f"{digits[:3]}-{digits[3:7]}-{digits[7:]}"
-            elif len(digits) == 10:
-                return f"{digits[:3]}-{digits[3:6]}-{digits[6:]}"
-            return str(val).strip()
-
         def add_contact(name, s_phone, p_phone):
             name = str(name or "").strip()
             if not name or name == "None" or len(name) < 2:
                 return
-            s = clean_phone(s_phone)
-            p = clean_phone(p_phone)
+            s = self.clean_phone_number(s_phone)
+            p = self.clean_phone_number(p_phone)
             if name not in self.master_contacts:
                 self.master_contacts[name] = {"student_phone": "", "parent_phone": ""}
             if s:
                 self.master_contacts[name]["student_phone"] = s
             if p:
                 self.master_contacts[name]["parent_phone"] = p
+
+        # 0. 1. 학생 전체 DB
+        for sname in wb.sheetnames:
+            if "학생 전체" in sname or "1. 학생" in sname:
+                ws = wb[sname]
+                header = []
+                for row in ws.iter_rows(max_row=1, values_only=True):
+                    header = [str(c or "").strip() for c in row]
+                    break
+                name_idx, s_idx, p_idx = 1, 5, 6
+                for i, col_name in enumerate(header):
+                    if "학생명" in col_name or col_name == "이름":
+                        name_idx = i
+                    elif "학생" in col_name and ("연락처" in col_name or "전화" in col_name or "휴대폰" in col_name):
+                        s_idx = i
+                    elif ("보호자" in col_name or "학부모" in col_name) and ("연락처" in col_name or "전화" in col_name or "휴대폰" in col_name):
+                        p_idx = i
+                for row in ws.iter_rows(min_row=2, values_only=True):
+                    if row and len(row) > max(name_idx, s_idx, p_idx):
+                        add_contact(row[name_idx], row[s_idx], row[p_idx])
 
         # 1. 수강생 정보
         if "수강생 정보" in wb.sheetnames:
