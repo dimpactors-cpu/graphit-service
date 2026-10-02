@@ -157,15 +157,18 @@ async function generateMessageTemplate(courseName, students) {
 ${courseName} 등록이 확인되어 강의 일정 및 논술고사 일정을 안내드립니다.
 
 ■ 강좌명: ${courseName}
-${examDateText}■ 강의 일정:
+${examDateText}■ 강의 일정: 총 3회 완성
 ${lectureSchedule}
 
 ■ 안내 사항 및 유의사항:
 - 수업 시작 10분 전까지 강의실에 입실해 주시기 바랍니다.
 - 필기도구 및 개인 필기노트를 지참해 주세요.
-- 영상 제공: 현장 강의를 녹화하여 제공하므로 복습 및 결석 시 활용 가능하며, 편집 완료 후 순차적으로 링크 전달드립니다.
+- 영상 제공: 수업 다음날 개별 문자를 통해 링크로 전달 드릴 예정입니다.
 
-궁금하신 점은 학원으로 문의해 주시기 바랍니다.
+□ 오시는길 : 서울시 강남구 삼성로81길 35, 5층 (https://naver.me/xOdYehVS)
+□ 1층 공동현관 비밀번호 : #0809 
+
+궁금하신 사항은 언제든 편하게 연락주세요.
 감사합니다.`;
 
   document.getElementById("messageTemplate").value = template;
