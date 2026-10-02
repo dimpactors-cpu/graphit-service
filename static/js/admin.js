@@ -230,9 +230,17 @@ function copyStudentPhones() {
     showToast("복사할 학생 명단이 없습니다.");
     return;
   }
-  const text = currentCourseStudents.map((s, i) => `${i + 1}. ${s.name}: ${s.student_phone || '-'}`).join("\n");
+  const numbers = currentCourseStudents
+    .map(s => (s.student_phone || '').trim())
+    .filter(p => p && p !== '-');
+
+  if (numbers.length === 0) {
+    showToast("복사할 학생 연락처가 없습니다.");
+    return;
+  }
+  const text = numbers.join("\n");
   navigator.clipboard.writeText(text).then(() => {
-    showToast(`학생 ${currentCourseStudents.length}명의 학생 연락처가 복사되었습니다.`);
+    showToast(`학생 연락처 ${numbers.length}개가 번호만 복사되었습니다.`);
   });
 }
 
@@ -241,9 +249,17 @@ function copyParentPhones() {
     showToast("복사할 학생 명단이 없습니다.");
     return;
   }
-  const text = currentCourseStudents.map((s, i) => `${i + 1}. ${s.name}: ${s.parent_phone || s.phone || '-'}`).join("\n");
+  const numbers = currentCourseStudents
+    .map(s => (s.parent_phone || s.phone || '').trim())
+    .filter(p => p && p !== '-');
+
+  if (numbers.length === 0) {
+    showToast("복사할 학부모 연락처가 없습니다.");
+    return;
+  }
+  const text = numbers.join("\n");
   navigator.clipboard.writeText(text).then(() => {
-    showToast(`학생 ${currentCourseStudents.length}명의 학부모 연락처가 복사되었습니다.`);
+    showToast(`학부모 연락처 ${numbers.length}개가 번호만 복사되었습니다.`);
   });
 }
 
