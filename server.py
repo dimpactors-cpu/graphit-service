@@ -10,21 +10,47 @@ from typing import Optional
 
 from data_manager import data_manager
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
-STATIC_DIR = os.path.join(BASE_DIR, "static")
+def find_dir(name):
+    candidates = [
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), name),
+        os.path.join(os.getcwd(), name),
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), name),
+    ]
+    for c in candidates:
+        if os.path.isdir(c):
+            return c
+    return candidates[0]
 
-app = FastAPI(title="디임팩트학원 수강생 신청이력 조회 서비스")
+TEMPLATES_DIR = find_dir("templates")
+STATIC_DIR = find_dir("static")
+
+app = FastAPI(title="디임팩트학원 수강생 신청이력 조회 서비스", redirect_slashes=False)
+
+# Normalize Vercel serverless request paths
+@app.middleware("http")
+async def fix_vercel_path(request: Request, call_next):
+    path = request.scope.get("path", "")
+    for prefix in ("/api/index.py", "/api/index"):
+        if path == prefix:
+            request.scope["path"] = "/"
+            break
+        elif path.startswith(prefix + "/"):
+            request.scope["path"] = path[len(prefix):]
+            break
+    return await call_next(request)
 
 # Mount static files
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+if os.path.isdir(STATIC_DIR):
+    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 class SearchRequest(BaseModel):
     name: str
     phone_tail: str
 
-# Background Watcher for Downloads folder
+# Background Watcher for Downloads folder (runs only in local mode)
 def background_download_watcher():
+    if not os.path.exists(os.path.join(os.environ.get("USERPROFILE", ""), "Downloads")):
+        return
     print("[BackgroundWatcher] Started monitoring Downloads folder...")
     while True:
         try:
@@ -41,12 +67,15 @@ watcher_thread.start()
 # --- Page Routes ---
 
 @app.get("/", response_class=HTMLResponse)
+@app.get("/api/index", response_class=HTMLResponse)
+@app.get("/api/index.py", response_class=HTMLResponse)
 async def read_index():
     index_path = os.path.join(TEMPLATES_DIR, "index.html")
     with open(index_path, "r", encoding="utf-8") as f:
         return f.read()
 
 @app.get("/admin", response_class=HTMLResponse)
+@app.get("/api/index/admin", response_class=HTMLResponse)
 async def read_admin():
     admin_path = os.path.join(TEMPLATES_DIR, "admin.html")
     with open(admin_path, "r", encoding="utf-8") as f:
