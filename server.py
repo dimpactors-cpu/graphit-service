@@ -29,15 +29,34 @@ app = FastAPI(title="디임팩트학원 수강생 신청이력 조회 서비스"
 # Normalize Vercel serverless request paths
 @app.middleware("http")
 async def fix_vercel_path(request: Request, call_next):
+    # Check headers for original path
+    orig_path = (
+        request.headers.get("x-invoke-path") or
+        request.headers.get("x-matched-path") or
+        request.headers.get("x-original-uri") or
+        request.headers.get("x-rewrite-url")
+    )
     path = request.scope.get("path", "")
-    for prefix in ("/api/index.py", "/api/index"):
-        if path == prefix:
-            request.scope["path"] = "/"
-            break
-        elif path.startswith(prefix + "/"):
-            request.scope["path"] = path[len(prefix):]
-            break
+    print(f"[DEBUG PATH] scope path: {path}, orig_path: {orig_path}, x-invoke-path: {request.headers.get('x-invoke-path')}, x-matched-path: {request.headers.get('x-matched-path')}")
+    if orig_path:
+        request.scope["path"] = orig_path
+    else:
+        for prefix in ("/api/index.py", "/api/index"):
+            if path == prefix:
+                request.scope["path"] = "/"
+                break
+            elif path.startswith(prefix + "/"):
+                request.scope["path"] = path[len(prefix):]
+                break
     return await call_next(request)
+
+@app.get("/api/debug-headers")
+async def debug_headers(request: Request):
+    return {
+        "scope_path": request.scope.get("path"),
+        "headers": dict(request.headers),
+        "raw_path": str(request.scope.get("raw_path", b"")),
+    }
 
 # Mount static files
 if os.path.isdir(STATIC_DIR):
