@@ -34,7 +34,7 @@ class DataManager:
                 self.load_excel_file(bundled)
 
     def load_master_db(self):
-        """Load student and parent contact mapping from contacts_master.json, Google Sheet, or master_db.xlsx"""
+        """Load student and parent contact mapping from contacts_master.json or master_db.xlsx without blocking init"""
         # 1. From precompiled JSON cache
         if os.path.exists(MASTER_CONTACTS_FILE):
             try:
@@ -43,13 +43,7 @@ class DataManager:
             except Exception as e:
                 print(f"[load_master_db json error]: {e}")
 
-        # 2. Try syncing from Google Sheet: 학원 관리 masterDB -> 1. 학생 전체 DB
-        try:
-            self.sync_master_db_from_google_sheet()
-        except Exception as e:
-            print(f"[Google Sheet masterDB sync warning]: {e}")
-
-        # 3. Check for latest master_db excel in data or Downloads
+        # 2. Check for latest master_db excel in data or Downloads
         master_candidates = [
             os.path.join(DATA_DIR, "master_db.xlsx"),
             os.path.join(DOWNLOADS_DIR, "디임팩트학원 종합관리 DB.xlsx"),
@@ -68,18 +62,28 @@ class DataManager:
             except Exception as e:
                 print(f"[parse_master_db_file error]: {e}")
 
-    def sync_master_db_from_google_sheet(self) -> bool:
+    def sync_master_db_from_google_sheet(self, force: bool = False) -> bool:
         """Fetch and parse live '1. 학생 전체 DB' from Google Spreadsheet '학원 관리 masterDB'"""
+        import time
+        now = time.time()
+        if not force and hasattr(self, "last_master_sync") and (now - self.last_master_sync < 300):
+            return True
+
         import urllib.request
         import csv
         import io
         
         # 학원 관리 masterDB (gid=1053925274: 1. 학생 전체 DB)
         sheet_url = "https://docs.google.com/spreadsheets/d/1NrH9IiyeHd69OfUogH_RrtI4xhtZxH56unFm4ggHVVI/export?format=csv&gid=1053925274"
-        req = urllib.request.Request(sheet_url, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=5) as resp:
-            content = resp.read().decode("utf-8")
-            
+        try:
+            req = urllib.request.Request(sheet_url, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, timeout=4) as resp:
+                content = resp.read().decode("utf-8")
+        except Exception as e:
+            print(f"[sync_master_db_from_google_sheet error]: {e}")
+            return False
+
+        self.last_master_sync = now
         reader = csv.reader(io.StringIO(content))
         rows = list(reader)
         if not rows:
