@@ -605,7 +605,7 @@
   },
   "박종빈": {
     "student_phone": "010-5013-2813",
-    "parent_phone": ""
+    "parent_phone": "010-5172-2813"
   },
   "안리하": {
     "student_phone": "010-8174-2817",
@@ -722,5 +722,69 @@
   "미상": {
     "student_phone": "010-2061-9329",
     "parent_phone": "010-6238-0962"
+  },
+  "이용석": {
+    "student_phone": "010-3573-2128",
+    "parent_phone": "010-5685-0285"
+  },
+  "금승현a": {
+    "student_phone": "",
+    "parent_phone": "010-3247-4001"
+  },
+  "왕한별a": {
+    "student_phone": "010-9528-0555",
+    "parent_phone": "010-4753-0555"
+  },
+  "김샘율a": {
+    "student_phone": "010-7592-5724",
+    "parent_phone": "010-4857-5724"
+  },
+  "김재윤a": {
+    "student_phone": "010-5728-0976",
+    "parent_phone": "010-5368-0976"
+  },
+  "장준호": {
+    "student_phone": "010-8688-9438",
+    "parent_phone": "010-4568-9438"
+  },
+  "김수현": {
+    "student_phone": "",
+    "parent_phone": "010-8764-0226"
+  },
+  "문수현": {
+    "student_phone": "010-3476-2620",
+    "parent_phone": "010-9550-6520"
+  },
+  "황주원": {
+    "student_phone": "010-9908-7745",
+    "parent_phone": ""
+  },
+  "강소현": {
+    "student_phone": "010-7913-9049",
+    "parent_phone": "010-5097-9049"
+  },
+  "임한주": {
+    "student_phone": "",
+    "parent_phone": "010-9939-7596"
+  },
+  "노우현": {
+    "student_phone": "",
+    "parent_phone": "010-3213-6135"
+  },
+  "노우현a": {
+    "student_phone": "",
+    "parent_phone": "010-3213-6135"
+  },
+  "복현수": {
+    "student_phone": "010-6478-2556",
+    "parent_phone": "010-3888-2556"
+  },
+  "백준호": {
+    "student_phone": "010-3662-2417",
+    "parent_phone": "010-6319-2417"
+  },
+  "박한음": {
+    "student_phone": "",
+    "parent_phone": "010-8331-8916"
   }
 }
