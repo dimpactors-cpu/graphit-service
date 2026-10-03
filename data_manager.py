@@ -22,16 +22,72 @@ class DataManager:
         self.last_file_mtime: Optional[float] = None
         self.auto_sync_enabled: bool = True
         self.master_contacts: Dict[str, Dict[str, str]] = {}
+        self.last_bills_sheet_sync_time: float = 0
+        self.last_master_sync: float = 0
         
-        # Load masterDB contacts
+        # 1. Load masterDB contacts
         self.load_master_db()
         
-        # Load initially from downloads or bundled data
+        # 2. Fast startup: load from cached/bundled master_bills.xlsx if present
+        bundled = os.path.join(DATA_DIR, "master_bills.xlsx")
+        if os.path.exists(bundled):
+            self.load_excel_file(bundled)
+
+        # 3. Sync from Google Sheet '학생신청현황_마스터DB' (2-hour interval)
+        try:
+            self.sync_from_google_sheet_bills()
+        except Exception as e:
+            print(f"[Init bills sync warning]: {e}")
+
+        # 4. Check Downloads folder if newer
         self.sync_from_latest_download()
-        if not self.raw_records:
-            bundled = os.path.join(DATA_DIR, "master_bills.xlsx")
-            if os.path.exists(bundled):
-                self.load_excel_file(bundled)
+
+    def sync_from_google_sheet_bills(self, force: bool = False) -> bool:
+        """
+        Fetch and parse latest billing records from Google Spreadsheet '학생신청현황_마스터DB'
+        Runs every 2 hours (7200 seconds) or when force=True.
+        """
+        import time
+        now = time.time()
+        # 2-hour interval check (7200 seconds)
+        if not force and hasattr(self, "last_bills_sheet_sync_time") and (now - self.last_bills_sheet_sync_time < 7200) and self.raw_records:
+            return True
+
+        import urllib.request
+        import io
+        import pandas as pd
+
+        # 구글 스프레드시트: 학생신청현황_마스터DB (gid=1402314358)
+        sheet_url = "https://docs.google.com/spreadsheets/d/13MoNOUWcy1w-liBKLwaaYnIjwrmubO74oN4onuaW29c/export?format=csv&gid=1402314358"
+        try:
+            req = urllib.request.Request(sheet_url, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, timeout=8) as resp:
+                content = resp.read().decode("utf-8")
+        except Exception as e:
+            print(f"[Google Sheet bills sync warning]: {e}")
+            return False
+
+        try:
+            df = pd.read_csv(io.StringIO(content))
+            if len(df) > 0:
+                self._process_dataframe(df, "구글시트: 학생신청현황_마스터DB")
+                self.last_bills_sheet_sync_time = now
+
+                # Cache to disk for offline / fast serverless cold start
+                try:
+                    csv_path = os.path.join(DATA_DIR, "latest_bills_sheet.csv")
+                    with open(csv_path, "w", encoding="utf-8") as f:
+                        f.write(content)
+                    excel_path = os.path.join(DATA_DIR, "master_bills.xlsx")
+                    df.to_excel(excel_path, index=False)
+                except Exception:
+                    pass
+                print(f"[DataManager] Successfully synced {len(df)} records from Google Sheet '학생신청현황_마스터DB'")
+                return True
+        except Exception as e:
+            print(f"[Error processing Google Sheet bills]: {e}")
+            return False
+        return False
 
     def load_master_db(self):
         """Load student and parent contact mapping from contacts_master.json or master_db.xlsx without blocking init"""
@@ -235,6 +291,12 @@ class DataManager:
         except Exception:
             pass
 
+    def check_and_sync_bills_sheet(self):
+        """Check if 2 hours (7200s) have passed since last Google Sheet bills sync"""
+        import time
+        if time.time() - getattr(self, "last_bills_sheet_sync_time", 0) >= 7200:
+            self.sync_from_google_sheet_bills()
+
     def find_latest_download_file(self) -> Optional[str]:
         """Find the latest 발송수납내역 excel file in Downloads folder or data directory"""
         patterns = [
@@ -254,19 +316,22 @@ class DataManager:
         return files[0]
 
     def sync_from_latest_download(self) -> bool:
-        """Automatically find and parse latest excel file"""
+        """Automatically find and parse latest excel file from Downloads or bundle"""
         latest_file = self.find_latest_download_file()
         if not latest_file:
             bundled = os.path.join(DATA_DIR, "master_bills.xlsx")
-            if os.path.exists(bundled) and self.last_file_name != "master_bills.xlsx":
+            if os.path.exists(bundled) and self.last_file_name != "master_bills.xlsx" and not self.raw_records:
                 return self.load_excel_file(bundled)
             return False
             
-        # Check if already loaded and file not modified
         file_mtime = os.path.getmtime(latest_file)
         if self.last_file_name == os.path.basename(latest_file) and self.last_file_mtime == file_mtime:
             return True
             
+        # If currently loaded from Google Sheet and it's newer than the download file, don't overwrite with older download
+        if self.last_file_name and "구글시트" in self.last_file_name and file_mtime < getattr(self, "last_bills_sheet_sync_time", 0):
+            return True
+
         self.last_file_mtime = file_mtime
         return self.load_excel_file(latest_file)
 
@@ -368,7 +433,8 @@ class DataManager:
         5. If status is '파기' and cancel_reason has '현장납부', treat as '수납', otherwise exclude
         """
         if self.auto_sync_enabled:
-            # Check if there is a newer file
+            # Check 2-hour Google Sheet bills sync and Downloads folder
+            self.check_and_sync_bills_sheet()
             self.sync_from_latest_download()
             
         clean_name = name.strip()
@@ -427,6 +493,7 @@ class DataManager:
     def get_admin_stats(self) -> Dict[str, Any]:
         """Compute summary statistics matching final courses ('#' and '파이널')"""
         if self.auto_sync_enabled:
+            self.check_and_sync_bills_sheet()
             self.sync_from_latest_download()
             
         final_records = [r for r in self.raw_records if "#" in r["course"] and "파이널" in r["course"]]
@@ -455,6 +522,10 @@ class DataManager:
 
     def get_courses(self) -> List[str]:
         """Return list of distinct final courses ('#' and '파이널' included)"""
+        if self.auto_sync_enabled:
+            self.check_and_sync_bills_sheet()
+            self.sync_from_latest_download()
+
         courses = set()
         for r in self.raw_records:
             if "#" in r["course"] and "파이널" in r["course"]:
@@ -480,6 +551,7 @@ class DataManager:
         Returns student_phone and parent_phone matched from masterDB.
         """
         if self.auto_sync_enabled:
+            self.check_and_sync_bills_sheet()
             self.sync_from_latest_download()
             
         # Collect changed old courses across all records

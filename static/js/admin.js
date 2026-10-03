@@ -179,7 +179,10 @@ async function generateMessageTemplate(courseName, students) {
   parts.push("안녕하세요. 디임팩트학원입니다.");
 
   // 3. 안내 도입
-  parts.push(`${classTitle} 등록이 확인되어 강의 일정을 안내드립니다.`);
+  parts.push(`${classTitle} 강의 일정을 안내드립니다.`);
+
+  // 섹션 구분 빈 줄
+  parts.push("");
 
   // 4. 강좌명
   parts.push(`■ 강좌명: ${courseName}`);
@@ -196,11 +199,16 @@ async function generateMessageTemplate(courseName, students) {
   const sessionLines = lectureSchedule.split("\n").map(s => s.trim()).filter(Boolean);
   sessionLines.forEach(line => parts.push(line));
 
+  // 섹션 구분 빈 줄
+  parts.push("");
+
   // 8. 안내 사항 및 유의사항
   parts.push("■ 안내 사항 및 유의사항:");
   parts.push("- 수업 시작 10분 전까지 강의실에 입실해 주시기 바랍니다.");
-  parts.push("- 필기도구 및 개인 필기노트를 지참해 주세요.");
   parts.push("- 영상 제공: 수업 다음날 개별 문자를 통해 링크로 전달 드릴 예정입니다.");
+
+  // 섹션 구분 빈 줄
+  parts.push("");
 
   // 9. 오시는 길 및 공동현관 비밀번호
   parts.push("□ 오시는길 : 서울시 강남구 삼성로81길 35, 5층 (https://naver.me/xOdYehVS)");
