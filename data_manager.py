@@ -39,7 +39,13 @@ class DataManager:
         except Exception as e:
             print(f"[Init bills sync warning]: {e}")
 
-        # 4. Check Downloads folder if newer
+        # 4. Sync from Google Sheet student contacts (2-hour interval)
+        try:
+            self.sync_master_db_from_google_sheet()
+        except Exception as e:
+            print(f"[Init master sync warning]: {e}")
+
+        # 5. Check Downloads folder if newer
         self.sync_from_latest_download()
 
     def sync_from_google_sheet_bills(self, force: bool = False) -> bool:
@@ -119,52 +125,108 @@ class DataManager:
                 print(f"[parse_master_db_file error]: {e}")
 
     def sync_master_db_from_google_sheet(self, force: bool = False) -> bool:
-        """Fetch and parse live '1. 학생 전체 DB' from Google Spreadsheet '학원 관리 masterDB'"""
+        """
+        Fetch and parse live student contacts from Google Spreadsheet (every 2 hours)
+        Primary Target: '학원 관리 시스템 테스트의 테스트' (1. Students 탭, gid=186735437)
+        Fallback Target: '학원 관리 masterDB' (1. 학생 전체 DB 탭, gid=1053925274)
+        """
         import time
         now = time.time()
-        if not force and hasattr(self, "last_master_sync") and (now - self.last_master_sync < 300):
+        if not force and hasattr(self, "last_master_sync") and (now - self.last_master_sync < 7200) and self.master_contacts:
             return True
 
         import urllib.request
         import csv
         import io
         
-        # 학원 관리 masterDB (gid=1053925274: 1. 학생 전체 DB)
-        sheet_url = "https://docs.google.com/spreadsheets/d/1NrH9IiyeHd69OfUogH_RrtI4xhtZxH56unFm4ggHVVI/export?format=csv&gid=1053925274"
-        try:
-            req = urllib.request.Request(sheet_url, headers={"User-Agent": "Mozilla/5.0"})
-            with urllib.request.urlopen(req, timeout=4) as resp:
-                content = resp.read().decode("utf-8")
-        except Exception as e:
-            print(f"[sync_master_db_from_google_sheet error]: {e}")
+        candidates = [
+            {
+                "name": "학원 관리 시스템 테스트의 테스트 (1. Students)",
+                "url": "https://docs.google.com/spreadsheets/d/1xEhr4GvzHKhba9bB9u750vTTBT7mB-c3JK9B4cJUXxQ/export?format=csv&gid=186735437"
+            },
+            {
+                "name": "학원 관리 masterDB (1. 학생 전체 DB)",
+                "url": "https://docs.google.com/spreadsheets/d/1NrH9IiyeHd69OfUogH_RrtI4xhtZxH56unFm4ggHVVI/export?format=csv&gid=1053925274"
+            }
+        ]
+
+        content = None
+        used_source = None
+
+        for cand in candidates:
+            try:
+                req = urllib.request.Request(cand["url"], headers={"User-Agent": "Mozilla/5.0"})
+                with urllib.request.urlopen(req, timeout=5) as resp:
+                    data = resp.read().decode("utf-8")
+                    if len(data) > 50:
+                        content = data
+                        used_source = cand["name"]
+                        break
+            except Exception as e:
+                print(f"[sync_master_db_from_google_sheet] '{cand['name']}' fetch failed ({e}). Checking next candidate...")
+
+        if not content:
+            print("[sync_master_db_from_google_sheet] Google Sheet fetch failed or unauthorized. Keeping existing contacts.")
+            self.last_master_sync_status = "Google Sheet 접근 실패 (권한 설정 확인 필요)"
             return False
 
         self.last_master_sync = now
+        self.last_master_sync_source = used_source
+        self.last_master_sync_status = f"{used_source} 동기화 완료"
+
         reader = csv.reader(io.StringIO(content))
         rows = list(reader)
         if not rows:
             return False
 
         header = rows[0]
-        # Identify columns
-        name_col = 1
-        s_col = 5
-        p_col = 6
+        # Identify columns dynamically
+        name_col = -1
+        s_col = -1
+        p_col = -1
+
         for idx, col_name in enumerate(header):
-            c_clean = str(col_name).strip()
-            if "학생명" in c_clean or c_clean == "이름":
-                name_col = idx
-            elif "학생" in c_clean and ("연락처" in c_clean or "전화" in c_clean or "휴대폰" in c_clean):
-                s_col = idx
-            elif ("보호자" in c_clean or "학부모" in c_clean) and ("연락처" in c_clean or "전화" in c_clean or "휴대폰" in c_clean):
-                p_col = idx
+            c_clean = str(col_name).strip().lower()
+            if not c_clean:
+                continue
+            # Student name
+            if any(k in c_clean for k in ["학생명", "학생이름", "학생 이름", "성명"]) or c_clean in ["이름", "name", "student name", "student"]:
+                if name_col == -1:
+                    name_col = idx
+            # Student phone
+            elif ("학생" in c_clean or "student" in c_clean) and any(k in c_clean for k in ["연락처", "전화", "휴대폰", "phone", "mobile", "tel"]):
+                if s_col == -1:
+                    s_col = idx
+            # Parent phone
+            elif any(k in c_clean for k in ["보호자", "학부모", "부모", "parent"]) and any(k in c_clean for k in ["연락처", "전화", "휴대폰", "phone", "mobile", "tel"]):
+                if p_col == -1:
+                    p_col = idx
+
+        # Additional fallback checks if s_col or p_col was not matched
+        if s_col == -1 or p_col == -1:
+            for idx, col_name in enumerate(header):
+                if idx == name_col:
+                    continue
+                c_clean = str(col_name).strip().lower()
+                if s_col == -1 and any(k in c_clean for k in ["학생연락처", "학생전화", "연락처", "전화번호", "휴대폰", "phone", "mobile"]):
+                    s_col = idx
+                elif p_col == -1 and idx != s_col and any(k in c_clean for k in ["학부모연락처", "학부모전화", "보호자", "학부모", "비상연락처", "비상"]):
+                    p_col = idx
+
+        # Default fallbacks
+        if name_col == -1:
+            name_col = 1
+        if s_col == -1:
+            s_col = 5
+        if p_col == -1:
+            p_col = 6
 
         count = 0
         for r in rows[1:]:
-            if len(r) > max(name_col, s_col, p_col):
+            if len(r) > name_col:
                 name = str(r[name_col] or "").strip()
-                s_phone = self.clean_phone_number(r[s_col])
-                p_phone = self.clean_phone_number(r[p_col])
+                s_phone = self.clean_phone_number(r[s_col]) if s_col < len(r) else ""
+                p_phone = self.clean_phone_number(r[p_col]) if p_col < len(r) else ""
                 if name and len(name) >= 2:
                     if name not in self.master_contacts:
                         self.master_contacts[name] = {"student_phone": "", "parent_phone": ""}
@@ -184,7 +246,7 @@ class DataManager:
         except Exception:
             pass
 
-        print(f"[DataManager] Synced {count} contacts from Google Sheet '1. 학생 전체 DB'")
+        print(f"[DataManager] Synced {count} contacts from Google Sheet '{used_source}'")
         return True
 
     def clean_phone_number(self, val: Any) -> str:
@@ -291,11 +353,18 @@ class DataManager:
         except Exception:
             pass
 
-    def check_and_sync_bills_sheet(self):
-        """Check if 2 hours (7200s) have passed since last Google Sheet bills sync"""
+    def check_and_sync_google_sheets(self):
+        """Check if 2 hours (7200s) have passed for Google Sheets (bills and masterDB contacts)"""
         import time
-        if time.time() - getattr(self, "last_bills_sheet_sync_time", 0) >= 7200:
+        now = time.time()
+        if now - getattr(self, "last_bills_sheet_sync_time", 0) >= 7200:
             self.sync_from_google_sheet_bills()
+        if now - getattr(self, "last_master_sync", 0) >= 7200:
+            self.sync_master_db_from_google_sheet()
+
+    def check_and_sync_bills_sheet(self):
+        """Alias for check_and_sync_google_sheets"""
+        self.check_and_sync_google_sheets()
 
     def find_latest_download_file(self) -> Optional[str]:
         """Find the latest 발송수납내역 excel file in Downloads folder or data directory"""

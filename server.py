@@ -122,14 +122,15 @@ def background_download_watcher():
 watcher_thread = threading.Thread(target=background_download_watcher, daemon=True)
 watcher_thread.start()
 
-# Background Watcher for Google Sheet bills ('학생신청현황_마스터DB') - runs every 2 hours
+# Background Watcher for Google Sheets ('학생신청현황_마스터DB' & '학원 관리 시스템 테스트의 테스트') - runs every 2 hours
 def background_sheets_sync_watcher():
-    print("[BackgroundWatcher] Started 2-hour Google Sheet bills sync worker...")
+    print("[BackgroundWatcher] Started 2-hour Google Sheets sync worker...")
     while True:
         try:
             time.sleep(7200) # every 2 hours
-            print("[BackgroundWatcher] Running scheduled 2-hour sync for 학생신청현황_마스터DB...")
+            print("[BackgroundWatcher] Running scheduled 2-hour sync for 학생신청현황_마스터DB and 학생 연락처DB...")
             data_manager.sync_from_google_sheet_bills(force=True)
+            data_manager.sync_master_db_from_google_sheet(force=True)
         except Exception as e:
             print(f"[Background Sheet Sync Error]: {e}")
 
@@ -289,8 +290,13 @@ async def api_sync_master_db(request: Request):
     if not get_current_user(request):
         return JSONResponse(status_code=401, content={"success": False, "message": "관리자 로그인이 필요합니다."})
     try:
-        ok = data_manager.sync_master_db_from_google_sheet()
-        return {"success": ok, "count": len(data_manager.master_contacts)}
+        ok = data_manager.sync_master_db_from_google_sheet(force=True)
+        return {
+            "success": ok, 
+            "count": len(data_manager.master_contacts),
+            "source": getattr(data_manager, "last_master_sync_source", "Google Sheets"),
+            "status_msg": getattr(data_manager, "last_master_sync_status", "")
+        }
     except Exception as e:
         return {"success": False, "message": str(e)}
 
@@ -463,14 +469,18 @@ async def api_sync(request: Request):
     try:
         # 1. Force sync latest Google Sheet bills ('학생신청현황_마스터DB')
         data_manager.sync_from_google_sheet_bills(force=True)
-        # 2. Check Downloads folder if newer
+        # 2. Force sync latest Google Sheet contacts ('학원 관리 시스템 테스트의 테스트' / '학원 관리 masterDB')
+        data_manager.sync_master_db_from_google_sheet(force=True)
+        # 3. Check Downloads folder if newer
         data_manager.sync_from_latest_download()
         return {
             "success": True,
-            "message": "구글 스프레드시트(학생신청현황_마스터DB) 및 최신 수납 데이터 동기화 완료",
+            "message": "구글 스프레드시트(수납내역 & 학생 연락처DB) 및 최신 데이터 동기화 완료",
             "file": data_manager.last_file_name,
             "last_sync": data_manager.last_sync_time,
-            "count": len(data_manager.raw_records)
+            "count": len(data_manager.raw_records),
+            "contacts_count": len(data_manager.master_contacts),
+            "contacts_source": getattr(data_manager, "last_master_sync_source", "")
         }
     except Exception as e:
         return {"success": False, "message": str(e)}
