@@ -8,6 +8,10 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function checkAuth() {
+  const tag = document.getElementById("adminUserTag");
+  if (tag && tag.textContent && tag.textContent.trim() !== "관리자") {
+    return; // Already pre-rendered by server session check!
+  }
   try {
     const res = await fetch("/api/auth/me");
     if (res.status === 401) {

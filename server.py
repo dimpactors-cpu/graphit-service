@@ -167,7 +167,10 @@ async def read_admin(request: Request):
         return RedirectResponse(url="/admin/login", status_code=303)
     admin_path = os.path.join(TEMPLATES_DIR, "admin.html")
     with open(admin_path, "r", encoding="utf-8") as f:
-        return f.read()
+        html = f.read()
+    user_str = str(user or "관리자")
+    html = html.replace('id="adminUserTag">관리자</span>', f'id="adminUserTag">{user_str}</span>')
+    return HTMLResponse(content=html)
 
 # --- API Endpoints ---
 
@@ -322,16 +325,43 @@ DATA_DIR = find_dir("data")
 GOOGLE_SHEET_SCHEDULE_CSV_URL = "https://docs.google.com/spreadsheets/d/1OCiAw0U8j7fbD8Epbi5vpd1LtQpVG_rLl-kDbbWcW08/export?format=csv"
 schedule_cache = {"time": 0, "rows": []}
 
+def _init_schedule_cache():
+    local_cache_path = os.path.join(DATA_DIR, "final_schedule.csv")
+    if os.path.exists(local_cache_path):
+        try:
+            import csv
+            with open(local_cache_path, "r", encoding="utf-8") as f:
+                reader = csv.reader(f)
+                rows = []
+                for r in reader:
+                    if len(r) >= 6 and r[0] and r[0] != "대학/강의명" and "일정표" not in r[0]:
+                        rows.append({
+                            "name": r[0].strip(),
+                            "instructor": r[1].strip(),
+                            "session1": r[2].strip(),
+                            "session2": r[3].strip(),
+                            "session3": r[4].strip(),
+                            "exam_date": r[5].strip(),
+                        })
+                if rows:
+                    schedule_cache["time"] = time.time()
+                    schedule_cache["rows"] = rows
+        except Exception:
+            pass
+
+_init_schedule_cache()
+
 def get_final_schedules_from_sheet():
     now = time.time()
-    if now - schedule_cache["time"] < 300 and schedule_cache["rows"]:
+    # If cache is valid (2 hours), return immediately
+    if now - schedule_cache["time"] < 7200 and schedule_cache["rows"]:
         return schedule_cache["rows"]
     
+    # If cache exists but is older than 2 hours, try fetching live Google Sheet with fast timeout
     rows = []
-    # 1. Try fetching from live Google Sheet
     try:
         req = urllib.request.Request(GOOGLE_SHEET_SCHEDULE_CSV_URL, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=4) as resp:
+        with urllib.request.urlopen(req, timeout=3) as resp:
             content = resp.read().decode("utf-8")
         import csv, io
         reader = csv.reader(io.StringIO(content))
@@ -348,33 +378,17 @@ def get_final_schedules_from_sheet():
         if rows:
             schedule_cache["time"] = now
             schedule_cache["rows"] = rows
+            # Cache to disk
+            try:
+                local_cache_path = os.path.join(DATA_DIR, "final_schedule.csv")
+                with open(local_cache_path, "w", encoding="utf-8") as f:
+                    f.write(content)
+            except Exception:
+                pass
             return rows
     except Exception as e:
         print(f"[Google Sheet Fetch Warning]: {e}")
         
-    # 2. Try loading from bundled local cache file
-    local_cache_path = os.path.join(DATA_DIR, "final_schedule.csv")
-    if os.path.exists(local_cache_path):
-        try:
-            import csv
-            with open(local_cache_path, "r", encoding="utf-8") as f:
-                reader = csv.reader(f)
-                for r in reader:
-                    if len(r) >= 6 and r[0] and r[0] != "대학/강의명" and "일정표" not in r[0]:
-                        rows.append({
-                            "name": r[0].strip(),
-                            "instructor": r[1].strip(),
-                            "session1": r[2].strip(),
-                            "session2": r[3].strip(),
-                            "session3": r[4].strip(),
-                            "exam_date": r[5].strip(),
-                        })
-            if rows:
-                schedule_cache["rows"] = rows
-                return rows
-        except Exception as e:
-            print(f"[Local Schedule Cache Warning]: {e}")
-            
     return schedule_cache.get("rows", [])
 
 @app.get("/api/admin/schedule")

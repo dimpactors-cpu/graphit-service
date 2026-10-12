@@ -16,37 +16,59 @@ os.makedirs(DATA_DIR, exist_ok=True)
 
 class DataManager:
     def __init__(self):
+        import time
         self.raw_records: List[Dict[str, Any]] = []
         self.last_sync_time: Optional[str] = None
         self.last_file_name: Optional[str] = None
         self.last_file_mtime: Optional[float] = None
         self.auto_sync_enabled: bool = True
         self.master_contacts: Dict[str, Dict[str, str]] = {}
-        self.last_bills_sheet_sync_time: float = 0
-        self.last_master_sync: float = 0
+        self.last_bills_sheet_sync_time: float = time.time()
+        self.last_master_sync: float = time.time()
+        self._is_syncing: bool = False
         
-        # 1. Load masterDB contacts
+        # 1. Fast load masterDB contacts from JSON cache (instant, < 1ms)
         self.load_master_db()
         
-        # 2. Fast startup: load from cached/bundled master_bills.xlsx if present
+        # 2. Fast startup: load from precompiled JSON cache (1ms) or latest CSV (6ms)
+        self.load_cached_records()
+
+        # 3. Check Downloads folder if newer (local only)
+        self.sync_from_latest_download()
+
+    def load_cached_records(self) -> bool:
+        """Ultra-fast startup: load parsed records from JSON cache (1ms) or fallback CSV/Excel"""
+        # 1. Try pre-parsed JSON (fastest, ~1ms)
+        if os.path.exists(CACHE_FILE):
+            try:
+                with open(CACHE_FILE, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    if isinstance(data, dict) and "records" in data and data["records"]:
+                        self.raw_records = data["records"]
+                        self.last_file_name = data.get("last_file_name", "구글시트: 학생신청현황_마스터DB")
+                        self.last_sync_time = data.get("last_sync_time", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+                        print(f"[DataManager] Fast-loaded {len(self.raw_records)} records from JSON cache")
+                        return True
+            except Exception as e:
+                print(f"[load_cached_records JSON error]: {e}")
+
+        # 2. Try latest bills sheet CSV (~5ms)
+        csv_path = os.path.join(DATA_DIR, "latest_bills_sheet.csv")
+        if os.path.exists(csv_path):
+            try:
+                df = pd.read_csv(csv_path)
+                self._process_dataframe(df, "구글시트: 학생신청현황_마스터DB")
+                print(f"[DataManager] Fast-loaded {len(self.raw_records)} records from bills CSV")
+                return True
+            except Exception as e:
+                print(f"[load_cached_records CSV error]: {e}")
+
+        # 3. Fallback to master_bills.xlsx (~250ms)
         bundled = os.path.join(DATA_DIR, "master_bills.xlsx")
         if os.path.exists(bundled):
-            self.load_excel_file(bundled)
+            return self.load_excel_file(bundled)
 
-        # 3. Sync from Google Sheet '학생신청현황_마스터DB' (2-hour interval)
-        try:
-            self.sync_from_google_sheet_bills()
-        except Exception as e:
-            print(f"[Init bills sync warning]: {e}")
-
-        # 4. Sync from Google Sheet student contacts (2-hour interval)
-        try:
-            self.sync_master_db_from_google_sheet()
-        except Exception as e:
-            print(f"[Init master sync warning]: {e}")
-
-        # 5. Check Downloads folder if newer
-        self.sync_from_latest_download()
+        return False
 
     def sync_from_google_sheet_bills(self, force: bool = False) -> bool:
         """
@@ -97,15 +119,21 @@ class DataManager:
 
     def load_master_db(self):
         """Load student and parent contact mapping from contacts_master.json or master_db.xlsx without blocking init"""
-        # 1. From precompiled JSON cache
+        # 1. From precompiled JSON cache (< 1ms)
         if os.path.exists(MASTER_CONTACTS_FILE):
             try:
                 with open(MASTER_CONTACTS_FILE, "r", encoding="utf-8") as f:
                     self.master_contacts = json.load(f)
+                    if self.master_contacts:
+                        print(f"[DataManager] Fast-loaded {len(self.master_contacts)} contacts from contacts_master.json")
             except Exception as e:
                 print(f"[load_master_db json error]: {e}")
 
-        # 2. Check for latest master_db excel in data or Downloads
+        # If already populated from JSON, return immediately (avoid parsing slow 4MB Excel)!
+        if self.master_contacts:
+            return
+
+        # 2. Check for latest master_db excel in data or Downloads (fallback only)
         master_candidates = [
             os.path.join(DATA_DIR, "master_db.xlsx"),
             os.path.join(DOWNLOADS_DIR, "디임팩트학원 종합관리 DB.xlsx"),
@@ -354,13 +382,38 @@ class DataManager:
             pass
 
     def check_and_sync_google_sheets(self):
-        """Check if 2 hours (7200s) have passed for Google Sheets (bills and masterDB contacts)"""
-        import time
+        """Check if 2 hours (7200s) have passed for Google Sheets in a non-blocking background thread"""
+        import time, threading
         now = time.time()
-        if now - getattr(self, "last_bills_sheet_sync_time", 0) >= 7200:
-            self.sync_from_google_sheet_bills()
-        if now - getattr(self, "last_master_sync", 0) >= 7200:
-            self.sync_master_db_from_google_sheet()
+        needs_bills = (now - getattr(self, "last_bills_sheet_sync_time", 0) >= 7200)
+        needs_master = (now - getattr(self, "last_master_sync", 0) >= 7200)
+
+        if not (needs_bills or needs_master):
+            return
+
+        # If we have no data at all, fetch synchronously
+        if not self.raw_records or not self.master_contacts:
+            if needs_bills:
+                self.sync_from_google_sheet_bills()
+            if needs_master:
+                self.sync_master_db_from_google_sheet()
+            return
+
+        # If we already have data, run sync in a background daemon thread so user requests are never delayed!
+        if getattr(self, "_is_syncing", False):
+            return
+        
+        self._is_syncing = True
+        def _bg_sync():
+            try:
+                if needs_bills:
+                    self.sync_from_google_sheet_bills(force=True)
+                if needs_master:
+                    self.sync_master_db_from_google_sheet(force=True)
+            finally:
+                self._is_syncing = False
+
+        threading.Thread(target=_bg_sync, daemon=True).start()
 
     def check_and_sync_bills_sheet(self):
         """Alias for check_and_sync_google_sheets"""
@@ -491,6 +544,17 @@ class DataManager:
         self.last_file_name = source_name
         self.last_sync_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print(f"[DataManager] Loaded {len(records)} records from {source_name}")
+
+        # Save to JSON cache for ultra-fast instant startup (< 1ms)
+        try:
+            with open(CACHE_FILE, "w", encoding="utf-8") as f:
+                json.dump({
+                    "records": records,
+                    "last_file_name": source_name,
+                    "last_sync_time": self.last_sync_time
+                }, f, ensure_ascii=False)
+        except Exception:
+            pass
 
     def search_student(self, name: str, phone_tail: str) -> List[Dict[str, Any]]:
         """
