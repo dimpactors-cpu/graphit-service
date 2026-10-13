@@ -39,7 +39,11 @@
           <span class="dot"></span>
           <span>다운로드 폴더 자동 감시 활성화</span>
         </div>
-        <button onclick="triggerSync()" class="btn-secondary">
+        <button onclick="document.getElementById('fileInput').click()" class="btn-secondary" title="결제선생 수납 엑셀 파일(.xlsx) 직접 업로드">
+          📤 결제선생 엑셀 업로드
+        </button>
+        <input type="file" id="fileInput" accept=".xlsx, .xls" style="display: none;" onchange="handleFileUpload(event)">
+        <button onclick="triggerSync()" class="btn-secondary" title="구글 스프레드시트 및 최신 파일 즉시 동기화">
           🔄 최신 엑셀 즉시 불러오기
         </button>
         <button onclick="document.getElementById('masterDbInput').click()" class="btn-secondary" title="학원 종합관리 masterDB 엑셀 반영">
@@ -73,19 +77,11 @@
       </div>
     </div>
 
-    <!-- Drag & Drop Upload Zone -->
-    <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
-      <input type="file" id="fileInput" accept=".xlsx, .xls" style="display: none;" onchange="handleFileUpload(event)">
-      <div class="dropzone-icon">📁</div>
-      <div class="dropzone-text">결제선생에서 다운로드한 엑셀 파일(.xlsx)을 이곳에 끌어다 놓으세요</div>
-      <div class="dropzone-sub">구글 스프레드시트('학생신청현황_마스터DB' & '학원 관리 시스템 테스트의 테스트')가 2시간마다 자동 연동되며, 파일 직접 업로드나 [동기화] 버튼을 통해서도 즉시 갱신됩니다.</div>
-    </div>
-
     <!-- Main Content Grid -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(520px, 1fr)); gap: 24px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(520px, 1fr)); gap: 24px; align-items: stretch;">
       
       <!-- Panel 1: Course Students & List -->
-      <div class="panel">
+      <div class="panel" style="display: flex; flex-direction: column;">
         <div class="panel-title-row">
           <div class="panel-title">👥 강좌별 수강생 명단 (가나다순)</div>
           <div class="btn-group">
@@ -100,15 +96,15 @@
           <select id="courseSelect" class="form-input" style="padding: 10px; font-weight: 600;" onchange="loadCourseStudents()">
             <option value="">강좌를 선택하세요...</option>
           </select>
-          <select id="statusFilter" class="form-input" style="width: 140px; padding: 10px;" onchange="loadCourseStudents()">
+          <select id="statusFilter" class="form-input" style="width: 155px; padding: 10px; font-weight: 600;" onchange="loadCourseStudents()">
+            <option value="" selected>전체 (미납포함)</option>
             <option value="수납">수납 완료</option>
-            <option value="">전체 (미납포함)</option>
           </select>
         </div>
 
-        <div style="max-height: 420px; overflow-y: auto; border: 1px solid var(--gray-200); border-radius: var(--radius-sm);">
+        <div style="flex: 1; min-height: 620px; max-height: 720px; overflow-y: auto; border: 1px solid var(--gray-200); border-radius: var(--radius-sm);">
           <table class="data-table">
-            <thead>
+            <thead style="position: sticky; top: 0; z-index: 10; background: var(--gray-50);">
               <tr>
                 <th style="width: 45px;">No</th>
                 <th style="width: 80px;">학생명</th>
@@ -128,7 +124,7 @@
       </div>
 
       <!-- Panel 2: SMS Generator -->
-      <div class="panel">
+      <div class="panel" style="display: flex; flex-direction: column;">
         <div class="panel-title-row">
           <div class="panel-title">📱 개강 및 등원 안내문자(LMS) 자동 완성</div>
           <button onclick="copyMessageTemplate()" class="btn-sm" style="background: var(--accent); color: #fff; border-color: var(--accent);">📋 안내문자 전체 복사</button>
@@ -138,7 +134,7 @@
           💡 구글 캘린더의 대학별 논술고사 일정 및 강의 일정이 실시간 연동되어 자동 채워집니다.
         </div>
 
-        <textarea id="messageTemplate" class="template-box" placeholder="강좌를 선택하면 템플릿이 자동으로 작성됩니다..."></textarea>
+        <textarea id="messageTemplate" class="template-box" style="flex: 1; min-height: 620px; height: 620px;" placeholder="강좌를 선택하면 템플릿이 자동으로 작성됩니다..."></textarea>
       </div>
 
     </div>

@@ -576,7 +576,7 @@ body {
 /* Template Textarea */
 .template-box {
   width: 100%;
-  min-height: 280px;
+  min-height: 600px;
   padding: 16px;
   border: 1.5px solid var(--gray-300);
   border-radius: var(--radius-md);

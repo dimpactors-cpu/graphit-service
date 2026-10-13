@@ -322,28 +322,41 @@ async function triggerSync() {
 
 function setupDropzone() {
   const dropzone = document.getElementById("dropzone");
+  if (dropzone) {
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.add('dragover');
+      }, false);
+    });
 
-  ['dragenter', 'dragover'].forEach(eventName => {
-    dropzone.addEventListener(eventName, (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      dropzone.classList.add('dragover');
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.remove('dragover');
+      }, false);
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      if (files.length > 0) {
+        uploadFile(files[0]);
+      }
     }, false);
-  });
+  }
 
-  ['dragleave', 'drop'].forEach(eventName => {
-    dropzone.addEventListener(eventName, (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      dropzone.classList.remove('dragover');
-    }, false);
-  });
-
-  dropzone.addEventListener('drop', (e) => {
-    const dt = e.dataTransfer;
-    const files = dt.files;
-    if (files.length > 0) {
-      uploadFile(files[0]);
+  // Allow dragging & dropping Excel files anywhere on the admin page
+  window.addEventListener('dragover', (e) => e.preventDefault(), false);
+  window.addEventListener('drop', (e) => {
+    e.preventDefault();
+    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+        uploadFile(file);
+      }
     }
   }, false);
 }
