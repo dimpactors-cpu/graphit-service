@@ -335,7 +335,7 @@ def _init_schedule_cache():
                 reader = csv.reader(f)
                 rows = []
                 for r in reader:
-                    if len(r) >= 6 and r[0] and r[0] != "대학/강의명" and "일정표" not in r[0]:
+                    if len(r) >= 6 and r[0] and r[0] != "대학/강의명" and "일정표" not in r[0] and not r[0].startswith("*"):
                         rows.append({
                             "name": r[0].strip(),
                             "instructor": r[1].strip(),
@@ -393,7 +393,7 @@ def get_final_schedules_from_sheet():
         reader = csv.reader(io.StringIO(content))
         rows = []
         for r in reader:
-            if len(r) >= 6 and r[0] and r[0] != "대학/강의명" and "일정표" not in r[0]:
+            if len(r) >= 6 and r[0] and r[0] != "대학/강의명" and "일정표" not in r[0] and not r[0].startswith("*"):
                 rows.append({
                     "name": r[0].strip(),
                     "instructor": r[1].strip(),
@@ -403,13 +403,27 @@ def get_final_schedules_from_sheet():
                     "exam_date": r[5].strip(),
                 })
         if rows:
+            # Merge with local final_schedule.csv to ensure 11.23~12.05 post-CSAT universities are never lost
+            existing_names = {r["name"] for r in rows}
+            local_cache_path = os.path.join(DATA_DIR, "final_schedule.csv")
+            if os.path.exists(local_cache_path):
+                try:
+                    with open(local_cache_path, "r", encoding="utf-8") as f:
+                        for lr in csv.reader(f):
+                            if len(lr) >= 6 and lr[0] and lr[0] != "대학/강의명" and "일정표" not in lr[0] and not lr[0].startswith("*"):
+                                if lr[0].strip() not in existing_names:
+                                    rows.append({
+                                        "name": lr[0].strip(),
+                                        "instructor": lr[1].strip(),
+                                        "session1": lr[2].strip(),
+                                        "session2": lr[3].strip(),
+                                        "session3": lr[4].strip(),
+                                        "exam_date": lr[5].strip(),
+                                    })
+                                    existing_names.add(lr[0].strip())
+                except Exception:
+                    pass
             schedule_cache["rows"] = rows
-            try:
-                local_cache_path = os.path.join(DATA_DIR, "final_schedule.csv")
-                with open(local_cache_path, "w", encoding="utf-8") as f:
-                    f.write(content)
-            except Exception:
-                pass
 
         schedule_cache["time"] = now
     except Exception as e:
@@ -494,6 +508,9 @@ async def api_schedule(request: Request, course: str = Query("")):
                     matched = row
                     break
                 if "인문사회" in s_name and "인문사회" in course:
+                    matched = row
+                    break
+                if ("일반" in s_name or "일반-인문" in s_name) and ("일반" in course or "일반-인문" in course):
                     matched = row
                     break
                 continue

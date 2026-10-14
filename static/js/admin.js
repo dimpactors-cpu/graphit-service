@@ -1,4 +1,5 @@
 let currentCourseStudents = [];
+let currentCourseName = "";
 
 document.addEventListener("DOMContentLoaded", () => {
   checkAuth();
@@ -70,6 +71,7 @@ async function loadCourses() {
     const res = await fetch("/api/admin/courses");
     const data = await res.json();
     const select = document.getElementById("courseSelect");
+    const prevVal = select.value || currentCourseName;
     select.innerHTML = '<option value="">강좌를 선택하세요...</option>';
     if (data.success && data.courses) {
       data.courses.forEach(c => {
@@ -78,6 +80,10 @@ async function loadCourses() {
         opt.textContent = c;
         select.appendChild(opt);
       });
+      if (prevVal && data.courses.includes(prevVal)) {
+        select.value = prevVal;
+        currentCourseName = prevVal;
+      }
     }
   } catch (err) {
     console.error("Failed to load courses", err);
@@ -92,9 +98,11 @@ async function loadCourseStudents() {
   if (!course) {
     tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--gray-400); padding: 30px;">강좌를 선택해 주세요.</td></tr>';
     currentCourseStudents = [];
+    currentCourseName = "";
     document.getElementById("messageTemplate").value = "";
     return;
   }
+  currentCourseName = course;
 
   tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--gray-500); padding: 20px;">명단을 불러오는 중...</td></tr>';
 
@@ -317,7 +325,16 @@ function copyFullTable() {
     showToast("복사할 학생 명단이 없습니다.");
     return;
   }
-  const course = document.getElementById("courseSelect").value || "강좌";
+  let course = (document.getElementById("courseSelect").value || currentCourseName || "").trim();
+  if (!course && currentCourseStudents.length > 0) {
+    course = (currentCourseStudents[0].course || "").trim();
+  }
+  if (!course) {
+    const sel = document.getElementById("courseSelect");
+    if (sel && sel.selectedIndex >= 0 && sel.options[sel.selectedIndex]?.value) {
+      course = sel.options[sel.selectedIndex].value.trim();
+    }
+  }
   const blocks = [];
   blocks.push(`[${course}]`);
   blocks.push("");
