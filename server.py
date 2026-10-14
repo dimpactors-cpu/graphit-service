@@ -356,7 +356,7 @@ def _init_schedule_cache():
                 reader = csv.reader(f)
                 y_rows = []
                 for r in reader:
-                    if len(r) >= 7 and r[1] and "강좌" not in r[1] and "일정표" not in r[0]:
+                    if len(r) >= 7 and r[1] and "강좌" not in r[1] and "일정표" not in r[0] and not r[0].startswith("*"):
                         y_rows.append({
                             "subject": r[0].strip(),
                             "class_name": r[1].strip(),
@@ -411,32 +411,6 @@ def get_final_schedules_from_sheet():
             except Exception:
                 pass
 
-        # gid=1001 (약술형 파이널)
-        req_yak = urllib.request.Request(GOOGLE_SHEET_YAKSUL_CSV_URL, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req_yak, timeout=3) as resp_yak:
-            content_yak = resp_yak.read().decode("utf-8")
-        reader_yak = csv.reader(io.StringIO(content_yak))
-        y_rows = []
-        for r in reader_yak:
-            if len(r) >= 7 and r[1] and "강좌" not in r[1] and "일정표" not in r[0]:
-                y_rows.append({
-                    "subject": r[0].strip(),
-                    "class_name": r[1].strip(),
-                    "instructor": r[2].strip(),
-                    "session1": r[3].strip(),
-                    "session2": r[4].strip(),
-                    "session3": r[5].strip(),
-                    "session4": r[6].strip(),
-                    "target_univ": r[7].strip() if len(r) > 7 else ""
-                })
-        if y_rows:
-            schedule_cache["yaksul_rows"] = y_rows
-            try:
-                with open(os.path.join(DATA_DIR, "yaksul_schedule.csv"), "w", encoding="utf-8") as f:
-                    f.write(content_yak)
-            except Exception:
-                pass
-
         schedule_cache["time"] = now
     except Exception as e:
         print(f"[Google Sheet Fetch Warning]: {e}")
@@ -454,41 +428,36 @@ async def api_schedule(request: Request, course: str = Query("")):
         # 1. 약술형 강좌 처리
         if "약술" in course:
             schedule_header = "■ 강의 일정: 총 4회 완성"
-            specific = None
-            for yr in yaksul_schedules:
-                if yr["class_name"] in course:
-                    specific = yr
-                    break
+            korean_block = (
+                "[국어 - 조희재T (토/일 13:00~16:00)]\n"
+                "- 1회차: 10/17(토) 13:00~16:00\n"
+                "- 2회차: 10/18(일) 13:00~16:00\n"
+                "- 3회차: 10/24(토) 13:00~16:00\n"
+                "- 4회차: 10/25(일) 13:00~16:00"
+            )
+            math_block = (
+                "[수학 - 장인환T (금/일 18:00~21:00)]\n"
+                "- 1회차: 10/16(금) 18:00~21:00\n"
+                "- 2회차: 10/18(일) 18:00~21:00\n"
+                "- 3회차: 10/23(금) 18:00~21:00\n"
+                "- 4회차: 10/25(일) 18:00~21:00"
+            )
 
-            if specific:
-                instructor = f"{specific['instructor']}({specific['subject']})"
-                lecture_schedule = f"- 1회차: {specific['session1']}\n\n- 2회차: {specific['session2']}\n\n- 3회차: {specific['session3']}\n\n- 4회차: {specific['session4']}"
-                matched = specific
+            if "국어" in course and "수학" not in course:
+                instructor = "조희재T(국어)"
+                lecture_schedule = korean_block
+            elif "수학" in course and "국어" not in course:
+                instructor = "장인환T(수학)"
+                lecture_schedule = math_block
             else:
                 instructor = "조희재T(국어), 장인환T(수학)"
-                matched = {"name": "약술형 파이널", "classes": yaksul_schedules}
-                
-                # Check if course is limited to 국어 or 수학
-                if "국어" in course and "수학" not in course:
-                    targets = [yr for yr in yaksul_schedules if yr["subject"] == "국어"]
-                elif "수학" in course and "국어" not in course:
-                    targets = [yr for yr in yaksul_schedules if yr["subject"] == "수학"]
-                else:
-                    targets = yaksul_schedules
+                lecture_schedule = f"{korean_block}\n\n{math_block}"
 
-                blocks = []
-                for yr in targets:
-                    ban_label = "A반" if "A반" in yr["class_name"] else ("B반" if "B반" in yr["class_name"] else "")
-                    header = f"[{yr['subject']} - {yr['instructor']} ({ban_label})]" if ban_label else f"[{yr['class_name']} - {yr['instructor']}]"
-                    b_lines = [
-                        header,
-                        f"- 1회차: {yr['session1']}",
-                        f"- 2회차: {yr['session2']}",
-                        f"- 3회차: {yr['session3']}",
-                        f"- 4회차: {yr['session4']}"
-                    ]
-                    blocks.append("\n".join(b_lines))
-                lecture_schedule = "\n\n".join(blocks)
+            matched = {
+                "name": "약술형 파이널",
+                "instructor": instructor,
+                "classes": yaksul_schedules
+            }
 
             return {
                 "success": True,
