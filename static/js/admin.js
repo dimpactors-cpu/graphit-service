@@ -310,13 +310,29 @@ function copyFullTable() {
     showToast("복사할 학생 명단이 없습니다.");
     return;
   }
-  const header = "순번\t학생명\t학생연락처\t학부모연락처\t신청일시\t상태";
-  const rows = currentCourseStudents.map((s, idx) => 
-    `${idx + 1}\t${s.name}\t${s.student_phone || '-'}\t${s.parent_phone || s.phone || '-'}\t${s.date || '-'}\t${s.status || '미납'}`
-  );
-  const tsv = [header, ...rows].join("\n");
-  navigator.clipboard.writeText(tsv).then(() => {
-    showToast(`학생 ${currentCourseStudents.length}명의 전체 명단(엑셀 표 형식)이 복사되었습니다.`);
+  const course = document.getElementById("courseSelect").value || "강좌";
+  const blocks = [];
+  blocks.push(`[${course}]`);
+  blocks.push("");
+
+  currentCourseStudents.forEach((s, idx) => {
+    const sPhone = (s.student_phone && s.student_phone.trim() !== "-" && s.student_phone.trim() !== "") 
+      ? s.student_phone.trim() 
+      : "-";
+    const pPhone = (s.parent_phone && s.parent_phone.trim() !== "-" && s.parent_phone.trim() !== "") 
+      ? s.parent_phone.trim() 
+      : ((s.phone && s.phone.trim() !== "-" && s.phone.trim() !== "") ? s.phone.trim() : "-");
+    const namePart = s.name ? ` ${s.name}` : "";
+
+    blocks.push(`수강생${idx + 1}.${namePart}`);
+    blocks.push(`학생 ${sPhone}`);
+    blocks.push(`학부모 ${pPhone}`);
+    blocks.push("");
+  });
+
+  const text = blocks.join("\n").trim();
+  navigator.clipboard.writeText(text).then(() => {
+    showToast(`수강생 ${currentCourseStudents.length}명의 명단이 양식에 맞춰 복사되었습니다.`);
   });
 }
 
