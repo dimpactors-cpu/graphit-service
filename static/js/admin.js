@@ -148,6 +148,9 @@ function getCleanClassTitle(courseName) {
       return "홍익대 파이널 B반";
     }
   }
+  if (name.includes("약술형") || name.includes("약술")) {
+    return "약술형 파이널반";
+  }
   if (!name.endsWith("반") && !name.includes("패키지")) {
     name += "반";
   }
@@ -157,6 +160,7 @@ function getCleanClassTitle(courseName) {
 async function generateMessageTemplate(courseName, students) {
   const classTitle = getCleanClassTitle(courseName);
   let instructor = "";
+  let scheduleHeader = "■ 강의 일정: 총 3회 완성";
   let lectureSchedule = "- 1회차: 00월 00일(요일) 00:00 ~ 00:00\n\n- 2회차: 00월 00일(요일) 00:00 ~ 00:00\n\n- 3회차: 00월 00일(요일) 00:00 ~ 00:00";
 
   try {
@@ -165,6 +169,9 @@ async function generateMessageTemplate(courseName, students) {
     if (data.success) {
       if (data.instructor) {
         instructor = data.instructor;
+      }
+      if (data.schedule_header) {
+        scheduleHeader = data.schedule_header;
       }
       if (data.lecture_schedule) {
         lectureSchedule = data.lecture_schedule;
@@ -197,11 +204,11 @@ async function generateMessageTemplate(courseName, students) {
   }
 
   // 6. 강의 일정 헤더
-  parts.push("■ 강의 일정: 총 3회 완성");
+  parts.push(scheduleHeader);
 
-  // 7. 각 회차별 일정 (각 회차마다 빈 줄 간격)
-  const sessionLines = lectureSchedule.split("\n").map(s => s.trim()).filter(Boolean);
-  sessionLines.forEach(line => parts.push(line));
+  // 7. 각 회차별 일정 (각 회차 및 블록마다 빈 줄 간격)
+  const sessionBlocks = lectureSchedule.split(/\n\s*\n/).map(s => s.trim()).filter(Boolean);
+  sessionBlocks.forEach(b => parts.push(b));
 
   // 섹션 구분 빈 줄
   parts.push("");

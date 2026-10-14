@@ -322,14 +322,15 @@ async def api_upload(request: Request, file: UploadFile = File(...)):
         return {"success": False, "message": str(e)}
 
 DATA_DIR = find_dir("data")
-GOOGLE_SHEET_SCHEDULE_CSV_URL = "https://docs.google.com/spreadsheets/d/1OCiAw0U8j7fbD8Epbi5vpd1LtQpVG_rLl-kDbbWcW08/export?format=csv"
-schedule_cache = {"time": 0, "rows": []}
+GOOGLE_SHEET_SCHEDULE_CSV_URL = "https://docs.google.com/spreadsheets/d/1OCiAw0U8j7fbD8Epbi5vpd1LtQpVG_rLl-kDbbWcW08/export?format=csv&gid=0"
+GOOGLE_SHEET_YAKSUL_CSV_URL = "https://docs.google.com/spreadsheets/d/1OCiAw0U8j7fbD8Epbi5vpd1LtQpVG_rLl-kDbbWcW08/export?format=csv&gid=1001"
+schedule_cache = {"time": 0, "rows": [], "yaksul_rows": []}
 
 def _init_schedule_cache():
+    import csv
     local_cache_path = os.path.join(DATA_DIR, "final_schedule.csv")
     if os.path.exists(local_cache_path):
         try:
-            import csv
             with open(local_cache_path, "r", encoding="utf-8") as f:
                 reader = csv.reader(f)
                 rows = []
@@ -344,27 +345,53 @@ def _init_schedule_cache():
                             "exam_date": r[5].strip(),
                         })
                 if rows:
-                    schedule_cache["time"] = time.time()
                     schedule_cache["rows"] = rows
         except Exception:
             pass
+
+    yaksul_cache_path = os.path.join(DATA_DIR, "yaksul_schedule.csv")
+    if os.path.exists(yaksul_cache_path):
+        try:
+            with open(yaksul_cache_path, "r", encoding="utf-8") as f:
+                reader = csv.reader(f)
+                y_rows = []
+                for r in reader:
+                    if len(r) >= 7 and r[1] and "강좌" not in r[1] and "일정표" not in r[0]:
+                        y_rows.append({
+                            "subject": r[0].strip(),
+                            "class_name": r[1].strip(),
+                            "instructor": r[2].strip(),
+                            "session1": r[3].strip(),
+                            "session2": r[4].strip(),
+                            "session3": r[5].strip(),
+                            "session4": r[6].strip(),
+                            "target_univ": r[7].strip() if len(r) > 7 else ""
+                        })
+                if y_rows:
+                    schedule_cache["yaksul_rows"] = y_rows
+        except Exception:
+            pass
+
+    if schedule_cache["rows"]:
+        schedule_cache["time"] = time.time()
 
 _init_schedule_cache()
 
 def get_final_schedules_from_sheet():
     now = time.time()
     # If cache is valid (2 hours), return immediately
-    if now - schedule_cache["time"] < 7200 and schedule_cache["rows"]:
-        return schedule_cache["rows"]
+    if now - schedule_cache["time"] < 7200 and schedule_cache["rows"] and schedule_cache.get("yaksul_rows"):
+        return schedule_cache["rows"], schedule_cache["yaksul_rows"]
     
     # If cache exists but is older than 2 hours, try fetching live Google Sheet with fast timeout
-    rows = []
+    import csv, io
     try:
+        # gid=0 (대학별 파이널)
         req = urllib.request.Request(GOOGLE_SHEET_SCHEDULE_CSV_URL, headers={"User-Agent": "Mozilla/5.0"})
         with urllib.request.urlopen(req, timeout=3) as resp:
             content = resp.read().decode("utf-8")
-        import csv, io
         reader = csv.reader(io.StringIO(content))
+        rows = []
         for r in reader:
             if len(r) >= 6 and r[0] and r[0] != "대학/강의명" and "일정표" not in r[0]:
                 rows.append({
@@ -376,20 +403,45 @@ def get_final_schedules_from_sheet():
                     "exam_date": r[5].strip(),
                 })
         if rows:
-            schedule_cache["time"] = now
             schedule_cache["rows"] = rows
-            # Cache to disk
             try:
                 local_cache_path = os.path.join(DATA_DIR, "final_schedule.csv")
                 with open(local_cache_path, "w", encoding="utf-8") as f:
                     f.write(content)
             except Exception:
                 pass
-            return rows
+
+        # gid=1001 (약술형 파이널)
+        req_yak = urllib.request.Request(GOOGLE_SHEET_YAKSUL_CSV_URL, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req_yak, timeout=3) as resp_yak:
+            content_yak = resp_yak.read().decode("utf-8")
+        reader_yak = csv.reader(io.StringIO(content_yak))
+        y_rows = []
+        for r in reader_yak:
+            if len(r) >= 7 and r[1] and "강좌" not in r[1] and "일정표" not in r[0]:
+                y_rows.append({
+                    "subject": r[0].strip(),
+                    "class_name": r[1].strip(),
+                    "instructor": r[2].strip(),
+                    "session1": r[3].strip(),
+                    "session2": r[4].strip(),
+                    "session3": r[5].strip(),
+                    "session4": r[6].strip(),
+                    "target_univ": r[7].strip() if len(r) > 7 else ""
+                })
+        if y_rows:
+            schedule_cache["yaksul_rows"] = y_rows
+            try:
+                with open(os.path.join(DATA_DIR, "yaksul_schedule.csv"), "w", encoding="utf-8") as f:
+                    f.write(content_yak)
+            except Exception:
+                pass
+
+        schedule_cache["time"] = now
     except Exception as e:
         print(f"[Google Sheet Fetch Warning]: {e}")
         
-    return schedule_cache.get("rows", [])
+    return schedule_cache.get("rows", []), schedule_cache.get("yaksul_rows", [])
 
 @app.get("/api/admin/schedule")
 async def api_schedule(request: Request, course: str = Query("")):
@@ -397,8 +449,60 @@ async def api_schedule(request: Request, course: str = Query("")):
         return JSONResponse(status_code=401, content={"success": False, "message": "관리자 로그인이 필요합니다."})
     
     try:
-        sheet_schedules = get_final_schedules_from_sheet()
+        sheet_schedules, yaksul_schedules = get_final_schedules_from_sheet()
         
+        # 1. 약술형 강좌 처리
+        if "약술" in course:
+            schedule_header = "■ 강의 일정: 총 4회 완성"
+            specific = None
+            for yr in yaksul_schedules:
+                if yr["class_name"] in course:
+                    specific = yr
+                    break
+
+            if specific:
+                instructor = f"{specific['instructor']}({specific['subject']})"
+                lecture_schedule = f"- 1회차: {specific['session1']}\n\n- 2회차: {specific['session2']}\n\n- 3회차: {specific['session3']}\n\n- 4회차: {specific['session4']}"
+                matched = specific
+            else:
+                instructor = "조희재T(국어), 장인환T(수학)"
+                matched = {"name": "약술형 파이널", "classes": yaksul_schedules}
+                
+                # Check if course is limited to 국어 or 수학
+                if "국어" in course and "수학" not in course:
+                    targets = [yr for yr in yaksul_schedules if yr["subject"] == "국어"]
+                elif "수학" in course and "국어" not in course:
+                    targets = [yr for yr in yaksul_schedules if yr["subject"] == "수학"]
+                else:
+                    targets = yaksul_schedules
+
+                blocks = []
+                for yr in targets:
+                    ban_label = "A반" if "A반" in yr["class_name"] else ("B반" if "B반" in yr["class_name"] else "")
+                    header = f"[{yr['subject']} - {yr['instructor']} ({ban_label})]" if ban_label else f"[{yr['class_name']} - {yr['instructor']}]"
+                    b_lines = [
+                        header,
+                        f"- 1회차: {yr['session1']}",
+                        f"- 2회차: {yr['session2']}",
+                        f"- 3회차: {yr['session3']}",
+                        f"- 4회차: {yr['session4']}"
+                    ]
+                    blocks.append("\n".join(b_lines))
+                lecture_schedule = "\n\n".join(blocks)
+
+            return {
+                "success": True,
+                "course": course,
+                "matched": matched,
+                "instructor": instructor,
+                "schedule_header": schedule_header,
+                "exam_date": "",
+                "lecture_schedule": lecture_schedule,
+                "all_schedules": sheet_schedules,
+                "yaksul_schedules": yaksul_schedules
+            }
+
+        # 2. 대학별 파이널 강좌 매칭
         matched = None
         for row in sheet_schedules:
             s_name = row["name"]
@@ -428,6 +532,7 @@ async def api_schedule(request: Request, course: str = Query("")):
             matched = row
             break
 
+        schedule_header = "■ 강의 일정: 총 3회 완성"
         if matched:
             lecture_schedule = f"- 1회차: {matched['session1']}\n\n- 2회차: {matched['session2']}\n\n- 3회차: {matched['session3']}"
             instructor = matched["instructor"]
@@ -442,6 +547,7 @@ async def api_schedule(request: Request, course: str = Query("")):
             "course": course,
             "matched": matched,
             "instructor": instructor,
+            "schedule_header": schedule_header,
             "exam_date": exam_date,
             "lecture_schedule": lecture_schedule,
             "all_schedules": sheet_schedules

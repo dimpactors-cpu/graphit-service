@@ -14,6 +14,11 @@ MASTER_CONTACTS_FILE = os.path.join(DATA_DIR, "contacts_master.json")
 
 os.makedirs(DATA_DIR, exist_ok=True)
 
+# Name aliases / typos correction mapping
+NAME_CORRECTIONS: Dict[str, str] = {
+    "유희헌": "유시헌",
+}
+
 class DataManager:
     def __init__(self):
         import time
@@ -45,6 +50,9 @@ class DataManager:
                     data = json.load(f)
                     if isinstance(data, dict) and "records" in data and data["records"]:
                         self.raw_records = data["records"]
+                        for r in self.raw_records:
+                            if r.get("name") in NAME_CORRECTIONS:
+                                r["name"] = NAME_CORRECTIONS[r["name"]]
                         self.last_file_name = data.get("last_file_name", "구글시트: 학생신청현황_마스터DB")
                         self.last_sync_time = data.get("last_sync_time", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
                         print(f"[DataManager] Fast-loaded {len(self.raw_records)} records from JSON cache")
@@ -498,6 +506,7 @@ class DataManager:
 
             raw_date = get_val(0)
             name = get_val(1)
+            name = NAME_CORRECTIONS.get(name, name)
             raw_phone = get_val(2)
             amount = get_val(3, "0")
             course = get_val(4)
@@ -570,7 +579,7 @@ class DataManager:
             self.check_and_sync_bills_sheet()
             self.sync_from_latest_download()
             
-        clean_name = name.strip()
+        clean_name = NAME_CORRECTIONS.get(name.strip(), name.strip())
         clean_tail = re.sub(r"\D", "", phone_tail.strip())
         if len(clean_tail) < 4:
             clean_tail = clean_tail.zfill(4)
@@ -580,7 +589,8 @@ class DataManager:
         
         # Step 1: Find student matching rows and collect course change notices
         for r in self.raw_records:
-            if r["name"] == clean_name and r["phone_tail"] == clean_tail:
+            r_name = NAME_CORRECTIONS.get(r["name"], r["name"])
+            if r_name == clean_name and r["phone_tail"] == clean_tail:
                 student_rows.append(r)
                 
                 notice = r.get("notice", "")
@@ -693,7 +703,8 @@ class DataManager:
             notice = r.get("notice", "")
             match = re.search(r"(#[^\s→\->]+(?:\s+[^\s→\->]+)*)\s*(?:→|->)", notice)
             if match:
-                key = (r["name"], r["phone_tail"])
+                r_name = NAME_CORRECTIONS.get(r["name"], r["name"])
+                key = (r_name, r["phone_tail"])
                 if key not in student_changes:
                     student_changes[key] = []
                 student_changes[key].append(match.group(1).strip())
@@ -705,7 +716,8 @@ class DataManager:
             if course_name not in r["course"] and r["course"] not in course_name:
                 continue
                 
-            key = (r["name"], r["phone_tail"])
+            r_name = NAME_CORRECTIONS.get(r["name"], r["name"])
+            key = (r_name, r["phone_tail"])
             if key in student_changes:
                 if any(c in r["course"] or r["course"] in c for c in student_changes[key]):
                     continue
@@ -721,12 +733,12 @@ class DataManager:
             if status_filter and status != status_filter:
                 continue
                 
-            master_info = self.master_contacts.get(r["name"], {})
+            master_info = self.master_contacts.get(r_name, {})
             s_phone = master_info.get("student_phone") or "-"
             p_phone = master_info.get("parent_phone") or r["phone"] or "-"
 
             students.append({
-                "name": r["name"],
+                "name": r_name,
                 "phone": r["phone"],
                 "student_phone": s_phone,
                 "parent_phone": p_phone,
