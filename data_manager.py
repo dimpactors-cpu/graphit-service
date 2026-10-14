@@ -664,7 +664,7 @@ class DataManager:
         }
 
     def get_courses(self) -> List[str]:
-        """Return list of distinct final courses ('#' and '파이널' included)"""
+        """Return list of distinct final courses ('#' and '파이널' included), merging 약술형 courses"""
         if self.auto_sync_enabled:
             self.check_and_sync_bills_sheet()
             self.sync_from_latest_download()
@@ -672,7 +672,11 @@ class DataManager:
         courses = set()
         for r in self.raw_records:
             if "#" in r["course"] and "파이널" in r["course"]:
-                courses.add(r["course"])
+                c = r["course"]
+                if "약술" in c:
+                    courses.add("#약술형 파이널 (국어, 수학)")
+                else:
+                    courses.add(c)
         return sorted(list(courses))
 
     def load_master_db_from_bytes(self, content: bytes, filename: str) -> bool:
@@ -697,6 +701,11 @@ class DataManager:
             self.check_and_sync_bills_sheet()
             self.sync_from_latest_download()
             
+        def is_course_match(target: str, actual: str) -> bool:
+            if "약술" in target and "약술" in actual:
+                return True
+            return target in actual or actual in target
+
         # Collect changed old courses across all records
         student_changes = {}
         for r in self.raw_records:
@@ -713,13 +722,13 @@ class DataManager:
         for r in self.raw_records:
             if "#" not in r["course"] or "파이널" not in r["course"]:
                 continue
-            if course_name not in r["course"] and r["course"] not in course_name:
+            if not is_course_match(course_name, r["course"]):
                 continue
                 
             r_name = NAME_CORRECTIONS.get(r["name"], r["name"])
             key = (r_name, r["phone_tail"])
             if key in student_changes:
-                if any(c in r["course"] or r["course"] in c for c in student_changes[key]):
+                if any(is_course_match(c, r["course"]) for c in student_changes[key]):
                     continue
                     
             status = r["status"]
