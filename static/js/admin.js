@@ -275,6 +275,36 @@ function copyParentPhones() {
   });
 }
 
+function copyBothPhones() {
+  if (currentCourseStudents.length === 0) {
+    showToast("복사할 학생 명단이 없습니다.");
+    return;
+  }
+  const list = [];
+  const seen = new Set();
+  currentCourseStudents.forEach(s => {
+    const sPhone = (s.student_phone || '').trim();
+    const pPhone = (s.parent_phone || s.phone || '').trim();
+    if (sPhone && sPhone !== '-' && !seen.has(sPhone)) {
+      seen.add(sPhone);
+      list.push(sPhone);
+    }
+    if (pPhone && pPhone !== '-' && !seen.has(pPhone)) {
+      seen.add(pPhone);
+      list.push(pPhone);
+    }
+  });
+
+  if (list.length === 0) {
+    showToast("복사할 학생 및 학부모 연락처가 없습니다.");
+    return;
+  }
+  const text = list.join("\n");
+  navigator.clipboard.writeText(text).then(() => {
+    showToast(`학생+학부모 연락처 총 ${list.length}개가 번호만 복사되었습니다.`);
+  });
+}
+
 function copyFullTable() {
   if (currentCourseStudents.length === 0) {
     showToast("복사할 학생 명단이 없습니다.");
