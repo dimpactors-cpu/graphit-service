@@ -26,7 +26,7 @@ class DataManager:
         self.last_sync_time: Optional[str] = None
         self.last_file_name: Optional[str] = None
         self.last_file_mtime: Optional[float] = None
-        self.auto_sync_enabled: bool = True
+        self.auto_sync_enabled: bool = False
         self.master_contacts: Dict[str, Dict[str, str]] = {}
         self.last_bills_sheet_sync_time: float = 0.0
         self.last_master_sync: float = 0.0
@@ -37,9 +37,6 @@ class DataManager:
         
         # 2. Fast startup: load from precompiled JSON cache (1ms) or latest CSV (6ms)
         self.load_cached_records()
-
-        # 3. Check Downloads folder if newer (local only)
-        self.sync_from_latest_download()
 
     def load_cached_records(self) -> bool:
         """Ultra-fast startup: load parsed records from JSON cache (1ms) or fallback CSV/Excel"""
@@ -81,12 +78,12 @@ class DataManager:
     def sync_from_google_sheet_bills(self, force: bool = False) -> bool:
         """
         Fetch and parse latest billing records from Google Spreadsheet '학생신청현황_마스터DB'
-        Runs every 2 hours (7200 seconds) or when force=True.
+        Runs every 5 minutes (300 seconds) or when force=True.
         """
         import time
         now = time.time()
-        # 2-hour interval check (7200 seconds)
-        if not force and hasattr(self, "last_bills_sheet_sync_time") and (now - self.last_bills_sheet_sync_time < 7200) and self.raw_records:
+        # 5-minute interval check (300 seconds)
+        if not force and hasattr(self, "last_bills_sheet_sync_time") and (now - self.last_bills_sheet_sync_time < 300) and self.raw_records:
             return True
 
         import urllib.request
@@ -168,7 +165,7 @@ class DataManager:
         """
         import time
         now = time.time()
-        if not force and hasattr(self, "last_master_sync") and (now - self.last_master_sync < 7200) and self.master_contacts:
+        if not force and hasattr(self, "last_master_sync") and (now - self.last_master_sync < 300) and self.master_contacts:
             return True
 
         import urllib.request
@@ -397,11 +394,11 @@ class DataManager:
             pass
 
     def check_and_sync_google_sheets(self):
-        """Check if 2 hours (7200s) have passed for Google Sheets in a non-blocking background thread"""
+        """Check if 5 minutes (300s) have passed for Google Sheets in a non-blocking background thread"""
         import time, threading
         now = time.time()
-        needs_bills = (now - getattr(self, "last_bills_sheet_sync_time", 0) >= 7200)
-        needs_master = (now - getattr(self, "last_master_sync", 0) >= 7200)
+        needs_bills = (now - getattr(self, "last_bills_sheet_sync_time", 0) >= 300)
+        needs_master = (now - getattr(self, "last_master_sync", 0) >= 300)
 
         if not (needs_bills or needs_master):
             return
@@ -409,9 +406,9 @@ class DataManager:
         # If we have no data at all, fetch synchronously
         if not self.raw_records or not self.master_contacts:
             if needs_bills:
-                self.sync_from_google_sheet_bills()
+                self.sync_from_google_sheet_bills(force=True)
             if needs_master:
-                self.sync_master_db_from_google_sheet()
+                self.sync_master_db_from_google_sheet(force=True)
             return
 
         # If we already have data, run sync in a background daemon thread so user requests are never delayed!
@@ -454,6 +451,13 @@ class DataManager:
 
     def sync_from_latest_download(self) -> bool:
         """Automatically find and parse latest excel file from Downloads or bundle"""
+        if not getattr(self, "auto_sync_enabled", False):
+            return False
+
+        # If currently loaded from Google Sheet, never overwrite with local download
+        if self.raw_records and self.last_file_name and "구글시트" in self.last_file_name:
+            return True
+
         latest_file = self.find_latest_download_file()
         if not latest_file:
             bundled = os.path.join(DATA_DIR, "master_bills.xlsx")
@@ -465,8 +469,8 @@ class DataManager:
         if self.last_file_name == os.path.basename(latest_file) and self.last_file_mtime == file_mtime:
             return True
             
-        # If currently loaded from Google Sheet and it's newer than the download file, don't overwrite with older download
-        if self.last_file_name and "구글시트" in self.last_file_name and file_mtime < getattr(self, "last_bills_sheet_sync_time", 0):
+        # If currently loaded from Google Sheet, don't overwrite
+        if self.last_file_name and "구글시트" in self.last_file_name:
             return True
 
         self.last_file_mtime = file_mtime

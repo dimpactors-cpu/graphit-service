@@ -105,34 +105,17 @@ class GoogleLoginRequest(BaseModel):
 class PasswordLoginRequest(BaseModel):
     password: str
 
-# Background Watcher for Downloads folder (runs only in local mode)
-def background_download_watcher():
-    if not os.path.exists(os.path.join(os.environ.get("USERPROFILE", ""), "Downloads")):
-        return
-    print("[BackgroundWatcher] Started monitoring Downloads folder...")
-    while True:
-        try:
-            if data_manager.auto_sync_enabled:
-                data_manager.sync_from_latest_download()
-        except Exception as e:
-            print(f"[BackgroundWatcher Error]: {e}")
-        time.sleep(3)
-
-# Start watcher thread for Downloads folder
-watcher_thread = threading.Thread(target=background_download_watcher, daemon=True)
-watcher_thread.start()
-
-# Background Watcher for Google Sheets ('학생신청현황_마스터DB' & '학원 관리 시스템 테스트의 테스트') - runs every 2 hours
+# Background Watcher for Google Sheets ('학생신청현황_마스터DB' & '학원 관리 시스템 테스트의 테스트') - runs immediately and every 5 minutes
 def background_sheets_sync_watcher():
-    print("[BackgroundWatcher] Started 2-hour Google Sheets sync worker...")
+    print("[BackgroundWatcher] Started Google Sheets real-time sync worker (interval: 5 min)...")
     while True:
         try:
-            time.sleep(7200) # every 2 hours
-            print("[BackgroundWatcher] Running scheduled 2-hour sync for 학생신청현황_마스터DB and 학생 연락처DB...")
+            print("[BackgroundWatcher] Real-time sync for 학생신청현황_마스터DB and 2. Counseling_Logs...")
             data_manager.sync_from_google_sheet_bills(force=True)
             data_manager.sync_master_db_from_google_sheet(force=True)
         except Exception as e:
             print(f"[Background Sheet Sync Error]: {e}")
+        time.sleep(300) # every 5 minutes
 
 sheets_sync_thread = threading.Thread(target=background_sheets_sync_watcher, daemon=True)
 sheets_sync_thread.start()
@@ -177,6 +160,7 @@ async def read_admin(request: Request):
 @app.post("/api/search")
 async def api_search(req: SearchRequest):
     try:
+        data_manager.check_and_sync_google_sheets()
         results = data_manager.search_student(req.name, req.phone_tail)
         return {"success": True, "data": results}
     except Exception as e:
@@ -259,6 +243,7 @@ async def api_stats(request: Request):
     if not get_current_user(request):
         return JSONResponse(status_code=401, content={"success": False, "message": "관리자 로그인이 필요합니다."})
     try:
+        data_manager.check_and_sync_google_sheets()
         stats = data_manager.get_admin_stats()
         return {"success": True, "stats": stats}
     except Exception as e:
@@ -269,6 +254,7 @@ async def api_courses(request: Request):
     if not get_current_user(request):
         return JSONResponse(status_code=401, content={"success": False, "message": "관리자 로그인이 필요합니다."})
     try:
+        data_manager.check_and_sync_google_sheets()
         courses = data_manager.get_courses()
         return {"success": True, "courses": courses}
     except Exception as e:
@@ -283,6 +269,7 @@ async def api_course_students(
     if not get_current_user(request):
         return JSONResponse(status_code=401, content={"success": False, "message": "관리자 로그인이 필요합니다."})
     try:
+        data_manager.check_and_sync_google_sheets()
         students = data_manager.get_course_students(course, status_filter=status if status else "")
         return {"success": True, "students": students}
     except Exception as e:
