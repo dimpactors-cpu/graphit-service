@@ -373,20 +373,33 @@ function copyMessageTemplate() {
 
 
 async function triggerSync() {
+  const btn = document.querySelector(".sync-badge-wrap button");
+  const originalText = btn ? btn.innerHTML : "";
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = "⏳ 동기화 진행 중...";
+  }
+  showToast("구글 스프레드시트(수납내역 & 2. Counseling_Logs) 최신 데이터를 불러오는 중입니다...");
+
   try {
     const res = await fetch("/api/admin/sync", { method: "POST" });
     const data = await res.json();
     if (data.success) {
-      showToast("최신 엑셀 데이터를 성공적으로 불러왔습니다.");
-      loadStats();
-      loadCourses();
-      loadCourseStudents();
+      showToast(`최신 데이터 동기화 완료! (수납 ${data.count || 0}건 / 연락처 ${data.contacts_count || 0}명)`);
+      await loadStats();
+      await loadCourses();
+      await loadCourseStudents();
     } else {
-      showToast("동기화 실패: " + data.message);
+      showToast("동기화 실패: " + (data.message || "알 수 없는 오류"));
     }
   } catch (err) {
     console.error(err);
-    showToast("동기화 중 오류가 발생했습니다.");
+    showToast("동기화 중 네트워크 오류가 발생했습니다.");
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
   }
 }
 

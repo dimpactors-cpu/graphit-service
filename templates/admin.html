@@ -34,22 +34,10 @@
           최신 동기화 파일: <strong id="lastFileName">-</strong> (<span id="lastSyncTime">-</span>)
         </div>
       </div>
-      <div class="sync-badge-wrap">
-        <div class="sync-indicator">
-          <span class="dot"></span>
-          <span>다운로드 폴더 자동 감시 활성화</span>
-        </div>
-        <button onclick="document.getElementById('fileInput').click()" class="btn-secondary" title="결제선생 수납 엑셀 파일(.xlsx) 직접 업로드">
-          📤 결제선생 엑셀 업로드
-        </button>
-        <input type="file" id="fileInput" accept=".xlsx, .xls" style="display: none;" onchange="handleFileUpload(event)">
-        <button onclick="triggerSync()" class="btn-secondary" title="구글 스프레드시트 및 최신 파일 즉시 동기화">
+      <div class="sync-badge-wrap" style="display: flex; align-items: center; gap: 8px;">
+        <button onclick="triggerSync()" class="btn-primary" style="padding: 10px 18px; font-weight: 700; font-size: 14px; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25); cursor: pointer;" title="구글 스프레드시트(발송수납내역 & 2. Counseling_Logs) 실시간 즉시 동기화">
           🔄 최신 엑셀 즉시 불러오기
         </button>
-        <button onclick="document.getElementById('masterDbInput').click()" class="btn-secondary" title="학원 종합관리 masterDB 엑셀 반영">
-          📑 masterDB 반영
-        </button>
-        <input type="file" id="masterDbInput" accept=".xlsx, .xls" style="display: none;" onchange="handleMasterDbUpload(event)">
       </div>
     </div>
 

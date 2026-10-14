@@ -28,8 +28,8 @@ class DataManager:
         self.last_file_mtime: Optional[float] = None
         self.auto_sync_enabled: bool = True
         self.master_contacts: Dict[str, Dict[str, str]] = {}
-        self.last_bills_sheet_sync_time: float = time.time()
-        self.last_master_sync: float = time.time()
+        self.last_bills_sheet_sync_time: float = 0.0
+        self.last_master_sync: float = 0.0
         self._is_syncing: bool = False
         
         # 1. Fast load masterDB contacts from JSON cache (instant, < 1ms)
@@ -177,6 +177,10 @@ class DataManager:
         
         candidates = [
             {
+                "name": "학원 관리 시스템 테스트의 테스트 (2. Counseling_Logs)",
+                "url": "https://docs.google.com/spreadsheets/d/1xEhr4GvzHKhba9bB9u750vTTBT7mB-c3JK9B4cJUXxQ/export?format=csv&gid=1562262980"
+            },
+            {
                 "name": "학원 관리 시스템 테스트의 테스트 (1. Students)",
                 "url": "https://docs.google.com/spreadsheets/d/1xEhr4GvzHKhba9bB9u750vTTBT7mB-c3JK9B4cJUXxQ/export?format=csv&gid=186735437"
             },
@@ -261,16 +265,19 @@ class DataManager:
         for r in rows[1:]:
             if len(r) > name_col:
                 name = str(r[name_col] or "").strip()
+                if not name or len(name) < 2:
+                    continue
+                if name in NAME_CORRECTIONS:
+                    name = NAME_CORRECTIONS[name]
                 s_phone = self.clean_phone_number(r[s_col]) if s_col < len(r) else ""
                 p_phone = self.clean_phone_number(r[p_col]) if p_col < len(r) else ""
-                if name and len(name) >= 2:
-                    if name not in self.master_contacts:
-                        self.master_contacts[name] = {"student_phone": "", "parent_phone": ""}
-                    if s_phone:
-                        self.master_contacts[name]["student_phone"] = s_phone
-                    if p_phone:
-                        self.master_contacts[name]["parent_phone"] = p_phone
-                    count += 1
+                if name not in self.master_contacts:
+                    self.master_contacts[name] = {"student_phone": "", "parent_phone": ""}
+                if s_phone:
+                    self.master_contacts[name]["student_phone"] = s_phone
+                if p_phone:
+                    self.master_contacts[name]["parent_phone"] = p_phone
+                count += 1
 
         # Cache to disk
         try:

@@ -13,7 +13,7 @@
   },
   "노재인": {
     "student_phone": "010-6615-0718",
-    "parent_phone": ""
+    "parent_phone": "123"
   },
   "임지유": {
     "student_phone": "010-3214-2798",
@@ -116,7 +116,7 @@
     "parent_phone": "010-6352-5020"
   },
   "오서연": {
-    "student_phone": "",
+    "student_phone": "010-5321-6191",
     "parent_phone": "010-3796-6191"
   },
   "김은재": {
@@ -818,5 +818,13 @@
   "조정호": {
     "student_phone": "010-2501-0695",
     "parent_phone": "010-7602-0695"
+  },
+  "이용석a": {
+    "student_phone": "010-3573-2128",
+    "parent_phone": "010-2778-2127"
+  },
+  "곽현수": {
+    "student_phone": "010-8326-0699",
+    "parent_phone": ""
   }
 }
