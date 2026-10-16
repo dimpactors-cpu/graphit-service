@@ -81,14 +81,20 @@
           </div>
         </div>
 
-        <div style="display: flex; gap: 12px; margin-bottom: 16px;">
-          <select id="courseSelect" class="form-input" style="padding: 10px; font-weight: 600;" onchange="loadCourseStudents()">
+        <div style="display: flex; gap: 10px; margin-bottom: 16px; align-items: center; flex-wrap: wrap;">
+          <select id="courseSelect" class="form-input" style="flex: 1; min-width: 220px; padding: 10px; font-weight: 600;" onchange="loadCourseStudents()">
             <option value="">강좌를 선택하세요...</option>
           </select>
-          <select id="statusFilter" class="form-input" style="width: 155px; padding: 10px; font-weight: 600;" onchange="loadCourseStudents()">
+          <select id="statusFilter" class="form-input" style="width: 145px; padding: 10px; font-weight: 600;" onchange="loadCourseStudents()">
             <option value="" selected>전체 (미납포함)</option>
             <option value="수납">수납 완료</option>
           </select>
+          <button onclick="downloadCourseAttendance()" class="btn-primary" style="background: #059669; border-color: #059669; padding: 9px 15px; font-size: 13px; font-weight: 700; white-space: nowrap; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(5, 150, 105, 0.25); cursor: pointer;" title="현재 선택된 강좌의 강사용 출석부 엑셀(.xlsx) 파일 생성 및 다운로드">
+            📑 출석부 만들기
+          </button>
+          <button onclick="downloadAllAttendance()" class="btn-secondary" style="padding: 9px 12px; font-size: 13px; font-weight: 600; white-space: nowrap; display: flex; align-items: center; gap: 5px; cursor: pointer;" title="모든 개설 강좌가 탭별로 정리된 전체 종합 출석부 엑셀(.xlsx) 다운로드">
+            📚 전체 종합본
+          </button>
         </div>
 
         <div style="flex: 1; min-height: 620px; max-height: 720px; overflow-y: auto; border: 1px solid var(--gray-200); border-radius: var(--radius-sm);">

@@ -221,6 +221,11 @@ class DataManager:
         name_col = -1
         s_col = -1
         p_col = -1
+        school_col = -1
+        grade_col = -1
+        rel_col = -1
+        memo_col = -1
+        notes_col = -1
 
         for idx, col_name in enumerate(header):
             c_clean = str(col_name).strip().lower()
@@ -238,6 +243,21 @@ class DataManager:
             elif any(k in c_clean for k in ["보호자", "학부모", "부모", "parent"]) and any(k in c_clean for k in ["연락처", "전화", "휴대폰", "phone", "mobile", "tel"]):
                 if p_col == -1:
                     p_col = idx
+            elif any(k in c_clean for k in ["학교명", "재학학교", "학교"]):
+                if school_col == -1:
+                    school_col = idx
+            elif "학년" in c_clean:
+                if grade_col == -1:
+                    grade_col = idx
+            elif any(k in c_clean for k in ["보호자 관계", "보호자관계", "관계"]):
+                if rel_col == -1:
+                    rel_col = idx
+            elif "상담내용" in c_clean or "상담" in c_clean:
+                if memo_col == -1:
+                    memo_col = idx
+            elif any(k in c_clean for k in ["특이사항", "특이", "비고"]):
+                if notes_col == -1:
+                    notes_col = idx
 
         # Additional fallback checks if s_col or p_col was not matched
         if s_col == -1 or p_col == -1:
@@ -269,11 +289,38 @@ class DataManager:
                 s_phone = self.clean_phone_number(r[s_col]) if s_col < len(r) else ""
                 p_phone = self.clean_phone_number(r[p_col]) if p_col < len(r) else ""
                 if name not in self.master_contacts:
-                    self.master_contacts[name] = {"student_phone": "", "parent_phone": ""}
+                    self.master_contacts[name] = {
+                        "student_phone": "",
+                        "parent_phone": "",
+                        "school": "",
+                        "grade": "",
+                        "relationship": "",
+                        "notes": ""
+                    }
                 if s_phone:
                     self.master_contacts[name]["student_phone"] = s_phone
                 if p_phone:
                     self.master_contacts[name]["parent_phone"] = p_phone
+
+                if school_col != -1 and school_col < len(r) and r[school_col]:
+                    val = str(r[school_col]).strip()
+                    if val and val != "미상":
+                        self.master_contacts[name]["school"] = val
+                if grade_col != -1 and grade_col < len(r) and r[grade_col]:
+                    val = str(r[grade_col]).strip()
+                    if val:
+                        self.master_contacts[name]["grade"] = val
+                if rel_col != -1 and rel_col < len(r) and r[rel_col]:
+                    val = str(r[rel_col]).strip()
+                    if val:
+                        self.master_contacts[name]["relationship"] = val
+
+                c_memo = str(r[memo_col]).strip() if (memo_col != -1 and memo_col < len(r) and r[memo_col]) else ""
+                c_notes = str(r[notes_col]).strip() if (notes_col != -1 and notes_col < len(r) and r[notes_col]) else ""
+                chosen_note = (c_notes if c_notes else c_memo).replace('\n', ' ').strip()
+                if chosen_note:
+                    self.master_contacts[name]["notes"] = chosen_note
+
                 count += 1
 
         # Cache to disk
@@ -757,6 +804,14 @@ class DataManager:
             s_phone = master_info.get("student_phone") or "-"
             p_phone = master_info.get("parent_phone") or r["phone"] or "-"
 
+            # Format school / grade nicely, e.g. "진선여고 3", "동대부여고 N수"
+            school = master_info.get("school", "")
+            grade = master_info.get("grade", "")
+            if school and grade and grade not in school:
+                school_grade = f"{school} {grade}".strip()
+            else:
+                school_grade = school or grade or "-"
+
             students.append({
                 "name": r_name,
                 "phone": r["phone"],
@@ -766,7 +821,11 @@ class DataManager:
                 "course": r["course"],
                 "status": status,
                 "date": r["date"],
-                "amount": r["amount"]
+                "pay_date": r.get("pay_date", ""),
+                "amount": r["amount"],
+                "school_grade": school_grade,
+                "relationship": master_info.get("relationship", "-"),
+                "notes": master_info.get("notes", "")
             })
             
         # Sort by Korean name (가나다순)

@@ -124,7 +124,10 @@ async function loadCourseStudents() {
           html += `
             <tr>
               <td>${idx + 1}</td>
-              <td><strong>${escapeHtml(s.name)}</strong></td>
+              <td>
+                <strong>${escapeHtml(s.name)}</strong>
+                ${s.school_grade && s.school_grade !== '-' ? `<div style="font-size: 11px; color: var(--gray-500); font-weight: normal; margin-top: 2px;">${escapeHtml(s.school_grade)}</div>` : ''}
+              </td>
               <td>${sPhone}</td>
               <td>${pPhone}</td>
               <td style="font-size: 13px; color: var(--gray-600);">${escapeHtml(s.date || "-")}</td>
@@ -558,4 +561,19 @@ function escapeHtml(text) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+function downloadCourseAttendance() {
+  const course = (document.getElementById("courseSelect").value || currentCourseName || "").trim();
+  if (!course) {
+    alert("출석부를 만들 강좌를 먼저 선택해 주세요.\n(전체 강좌 출석부를 한 번에 받으시려면 옆의 '전체 종합본' 버튼을 눌러주세요.)");
+    return;
+  }
+  showToast(`[${course}] 강사용 출석부 엑셀 파일을 생성 중입니다...`);
+  window.location.href = `/api/admin/attendance-sheet?course=${encodeURIComponent(course)}`;
+}
+
+function downloadAllAttendance() {
+  showToast("전체 개설 강좌 종합 출석부 엑셀을 생성 중입니다... (잠시만 기다려주세요)");
+  window.location.href = `/api/admin/attendance-sheet?all_courses=true`;
 }

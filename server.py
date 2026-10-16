@@ -8,9 +8,11 @@ import re
 import csv
 import urllib.request
 import urllib.error
+import urllib.parse
+from datetime import datetime
 import uvicorn
 from fastapi import FastAPI, UploadFile, File, Request, Query
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import Optional
@@ -577,6 +579,42 @@ async def api_sync(request: Request):
         }
     except Exception as e:
         return {"success": False, "message": str(e)}
+
+@app.get("/api/admin/attendance-sheet")
+async def api_attendance_sheet(
+    request: Request,
+    course: str = Query(""),
+    all_courses: bool = Query(False)
+):
+    if not get_current_user(request):
+        return JSONResponse(status_code=401, content={"success": False, "message": "관리자 로그인이 필요합니다."})
+    
+    try:
+        from attendance_generator import generate_single_course_attendance_excel, generate_all_courses_attendance_excel
+        data_manager.check_and_sync_google_sheets()
+        
+        if all_courses or not course:
+            excel_buffer = generate_all_courses_attendance_excel()
+            today_str = datetime.now().strftime("%Y%m%d")
+            filename = f"디임팩트학원_파이널_종합출석부_{today_str}.xlsx"
+        else:
+            excel_buffer = generate_single_course_attendance_excel(course)
+            clean_name = course.replace('#', '').strip()
+            filename = f"디임팩트학원_[{clean_name}]_출석부.xlsx"
+            
+        encoded_filename = urllib.parse.quote(filename)
+        headers = {
+            "Content-Disposition": f"attachment; filename*=UTF-8''{encoded_filename}",
+            "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        }
+        return Response(
+            content=excel_buffer.getvalue(),
+            headers=headers,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+    except Exception as e:
+        print(f"[Error generating attendance sheet]: {e}")
+        return JSONResponse(status_code=500, content={"success": False, "message": str(e)})
 
 if __name__ == "__main__":
     print("=" * 60)
