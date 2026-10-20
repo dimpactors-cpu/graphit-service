@@ -78,12 +78,12 @@ class DataManager:
     def sync_from_google_sheet_bills(self, force: bool = False) -> bool:
         """
         Fetch and parse latest billing records from Google Spreadsheet '학생신청현황_마스터DB'
-        Runs every 5 minutes (300 seconds) or when force=True.
+        Runs every 1 minute (60 seconds) or when force=True.
         """
         import time
         now = time.time()
-        # 5-minute interval check (300 seconds)
-        if not force and hasattr(self, "last_bills_sheet_sync_time") and (now - self.last_bills_sheet_sync_time < 300) and self.raw_records:
+        # 1-minute interval check (60 seconds)
+        if not force and hasattr(self, "last_bills_sheet_sync_time") and (now - self.last_bills_sheet_sync_time < 60) and self.raw_records:
             return True
 
         import urllib.request
@@ -165,7 +165,7 @@ class DataManager:
         """
         import time
         now = time.time()
-        if not force and hasattr(self, "last_master_sync") and (now - self.last_master_sync < 300) and self.master_contacts:
+        if not force and hasattr(self, "last_master_sync") and (now - self.last_master_sync < 60) and self.master_contacts:
             return True
 
         import urllib.request
@@ -441,24 +441,25 @@ class DataManager:
             pass
 
     def check_and_sync_google_sheets(self):
-        """Check if 5 minutes (300s) have passed for Google Sheets in a non-blocking background thread"""
+        """Check if 1 minute (60s) has passed for Google Sheets in a non-blocking background thread"""
         import time, threading
         now = time.time()
-        needs_bills = (now - getattr(self, "last_bills_sheet_sync_time", 0) >= 300)
-        needs_master = (now - getattr(self, "last_master_sync", 0) >= 300)
+        needs_bills = (now - getattr(self, "last_bills_sheet_sync_time", 0) >= 60)
+        needs_master = (now - getattr(self, "last_master_sync", 0) >= 60)
 
         if not (needs_bills or needs_master):
             return
 
-        # If we have no data at all, fetch synchronously
-        if not self.raw_records or not self.master_contacts:
+        # If we have no data at all OR this process has never synced yet (last_bills_sheet_sync_time == 0.0),
+        # sync synchronously so the first request always has real-time, up-to-date payment status!
+        if not self.raw_records or not self.master_contacts or getattr(self, "last_bills_sheet_sync_time", 0.0) == 0.0:
             if needs_bills:
                 self.sync_from_google_sheet_bills(force=True)
             if needs_master:
                 self.sync_master_db_from_google_sheet(force=True)
             return
 
-        # If we already have data, run sync in a background daemon thread so user requests are never delayed!
+        # If we already have fresh data, run sync in a background daemon thread so user requests are never delayed!
         if getattr(self, "_is_syncing", False):
             return
         
@@ -542,54 +543,147 @@ class DataManager:
             print(f"[Error loading excel bytes]: {e}")
             return False
 
+    @staticmethod
+    def is_final_course(course: str) -> bool:
+        if not course or not isinstance(course, str):
+            return False
+        c = course.strip()
+        if "파이널" not in c:
+            return False
+        # Exclude regular CSAT classes like "수능국어 파이널반" or "10월 수능국어 파이널반"
+        if "수능국어" in c or "수능" in c:
+            return False
+        # Match '#' or essay/special keywords
+        if "#" in c or "논술" in c or "특강" in c or "패키지" in c or "반" in c:
+            return True
+        return False
+
     def _process_dataframe(self, df: pd.DataFrame, source_name: str):
-        """Process raw dataframe according to 결제선생 17-column format"""
+        """Process raw dataframe dynamically supporting both 17-col and 19-col 결제선생/Google Sheets formats"""
         records = []
-        
-        # Normalize column names if available, or fall back to column positions
-        # Columns expected:
-        # 0: 발송일시, 1: 이름, 2: 전화번호, 3: 금액(원), 4: 품목, 5: 안내메시지, 6: 발송인,
-        # 7: 재발송 횟수, 8: 수납상태, 9: 결제수단, 10: 카드사, 11: 결제일시, 12: 승인번호,
-        # 13: 취소일시, 14: 취소승인번호, 15: 파기일시, 16: 파기사유
         num_cols = len(df.columns)
         
+        # Build dynamic column mapping from headers
+        col_map = {}
+        for col_idx, col_name in enumerate(df.columns):
+            c_clean = str(col_name).strip().replace(" ", "").lower()
+            if not c_clean:
+                continue
+            if any(k in c_clean for k in ["발송일시", "발송시간", "발송일"]):
+                col_map.setdefault("date", col_idx)
+            elif any(k in c_clean for k in ["이름", "수강생", "성명", "학생명"]):
+                col_map.setdefault("name", col_idx)
+            elif any(k in c_clean for k in ["전화번호", "휴대폰", "연락처", "핸드폰"]):
+                col_map.setdefault("phone", col_idx)
+            elif "청구금액" in c_clean:
+                col_map.setdefault("bill_amount", col_idx)
+            elif "결제금액" in c_clean:
+                col_map.setdefault("paid_amount", col_idx)
+            elif any(k in c_clean for k in ["금액", "수납액", "수강료"]):
+                col_map.setdefault("amount", col_idx)
+            elif any(k in c_clean for k in ["품목", "강좌명", "강좌", "수업명", "수업"]):
+                col_map.setdefault("course", col_idx)
+            elif any(k in c_clean for k in ["안내메시지", "안내문구", "메시지"]):
+                col_map.setdefault("notice", col_idx)
+            elif any(k in c_clean for k in ["발송인", "담당자"]):
+                col_map.setdefault("sender", col_idx)
+            elif "재발송" in c_clean:
+                col_map.setdefault("resend_cnt", col_idx)
+            elif any(k in c_clean for k in ["수납상태", "상태", "결제상태"]):
+                col_map.setdefault("status", col_idx)
+            elif any(k in c_clean for k in ["수납방법", "결제수단"]):
+                col_map.setdefault("pay_method", col_idx)
+            elif any(k in c_clean for k in ["카드사", "카드"]):
+                col_map.setdefault("card_company", col_idx)
+            elif any(k in c_clean for k in ["결제일시", "수납일시", "결제일"]):
+                col_map.setdefault("pay_date", col_idx)
+            elif "승인번호" in c_clean and "취소" not in c_clean:
+                col_map.setdefault("approval_no", col_idx)
+            elif "취소일시" in c_clean or "취소일" in c_clean:
+                col_map.setdefault("cancel_date", col_idx)
+            elif "취소승인" in c_clean:
+                col_map.setdefault("cancel_approval_no", col_idx)
+            elif "파기일시" in c_clean or "파기일" in c_clean:
+                col_map.setdefault("cancel_date_p", col_idx)
+            elif any(k in c_clean for k in ["파기사유", "취소사유", "환불사유"]):
+                col_map.setdefault("cancel_reason", col_idx)
+
+        is_19_col = (num_cols >= 19)
+        def idx_or_default(key: str, default_pos: int) -> int:
+            return col_map.get(key, default_pos)
+
+        idx_date = idx_or_default("date", 0)
+        idx_name = idx_or_default("name", 1)
+        idx_phone = idx_or_default("phone", 2)
+        idx_bill = idx_or_default("bill_amount", 3 if is_19_col else -1)
+        idx_paid = idx_or_default("paid_amount", 4 if is_19_col else -1)
+        idx_amt = idx_or_default("amount", -1 if is_19_col else 3)
+        idx_course = idx_or_default("course", 5 if is_19_col else 4)
+        idx_notice = idx_or_default("notice", 6 if is_19_col else 5)
+        idx_sender = idx_or_default("sender", 7 if is_19_col else 6)
+        idx_resend = idx_or_default("resend_cnt", 8 if is_19_col else 7)
+        idx_status = idx_or_default("status", 9 if is_19_col else 8)
+        idx_method = idx_or_default("pay_method", 10 if is_19_col else 9)
+        idx_card = idx_or_default("card_company", 12 if is_19_col else 10)
+        idx_paydate = idx_or_default("pay_date", 13 if is_19_col else 11)
+        idx_appno = idx_or_default("approval_no", 14 if is_19_col else 12)
+        idx_cdate = idx_or_default("cancel_date", 15 if is_19_col else 13)
+        idx_cappno = idx_or_default("cancel_approval_no", 16 if is_19_col else 14)
+        idx_pdate = idx_or_default("cancel_date_p", 17 if is_19_col else 15)
+        idx_creason = idx_or_default("cancel_reason", 18 if is_19_col else 16)
+
+        def parse_amt_val(val: Any) -> int:
+            if not val or pd.isna(val):
+                return 0
+            try:
+                clean = re.sub(r"[^\d.]", "", str(val))
+                return int(float(clean)) if clean else 0
+            except:
+                return 0
+
         for idx, row in df.iterrows():
             def get_val(col_idx, default=""):
-                if col_idx < num_cols:
+                if 0 <= col_idx < num_cols:
                     val = row.iloc[col_idx]
                     if pd.isna(val):
                         return default
                     return str(val).strip()
                 return default
 
-            raw_date = get_val(0)
-            name = get_val(1)
+            raw_date = get_val(idx_date)
+            name = get_val(idx_name)
             name = NAME_CORRECTIONS.get(name, name)
-            raw_phone = get_val(2)
-            amount = get_val(3, "0")
-            course = get_val(4)
-            notice = get_val(5)
-            sender = get_val(6)
-            resend_cnt = get_val(7, "0")
-            status = get_val(8)
-            pay_method = get_val(9)
-            card_company = get_val(10)
-            pay_date = get_val(11)
-            approval_no = get_val(12)
-            cancel_date = get_val(13)
-            cancel_approval_no = get_val(14)
-            cancel_date_p = get_val(15)
-            cancel_reason = get_val(16)
+            raw_phone = get_val(idx_phone)
+
+            b_amt = parse_amt_val(get_val(idx_bill)) if idx_bill >= 0 else 0
+            p_amt = parse_amt_val(get_val(idx_paid)) if idx_paid >= 0 else 0
+            a_amt = parse_amt_val(get_val(idx_amt)) if idx_amt >= 0 else 0
+            amount_int = b_amt or a_amt or p_amt
+
+            course = get_val(idx_course)
+            notice = get_val(idx_notice)
+            sender = get_val(idx_sender)
+            resend_cnt = get_val(idx_resend, "0")
+            status = get_val(idx_status)
+            pay_method = get_val(idx_method)
+            card_company = get_val(idx_card)
+            pay_date = get_val(idx_paydate)
+            approval_no = get_val(idx_appno)
+            cancel_date = get_val(idx_cdate)
+            cancel_approval_no = get_val(idx_cappno)
+            cancel_date_p = get_val(idx_pdate)
+            cancel_reason = get_val(idx_creason)
+
+            # Auto infer status if missing
+            if not status or status.lower() in ("nan", "none", ""):
+                if pay_date or p_amt > 0:
+                    status = "수납"
+                else:
+                    status = "미납"
             
             # Clean phone
             digits_phone = re.sub(r"\D", "", raw_phone)
             phone_tail = digits_phone[-4:] if len(digits_phone) >= 4 else digits_phone.zfill(4)
-            
-            # Format amount cleanly
-            try:
-                amount_int = int(float(re.sub(r"[^\d.]", "", amount))) if amount else 0
-            except:
-                amount_int = 0
                 
             records.append({
                 "row_index": idx,
@@ -665,8 +759,8 @@ class DataManager:
             cancel_reason = r["cancel_reason"]
             date_val = r["date"]
             
-            # Rule 1: Must be a final course ('#' and '파이널' required)
-            if "#" not in course or "파이널" not in course:
+            # Rule 1: Must be a final course
+            if not self.is_final_course(course):
                 continue
                 
             # Rule 2: Exclude if it's an old course from change notice
@@ -697,7 +791,7 @@ class DataManager:
             self.check_and_sync_bills_sheet()
             self.sync_from_latest_download()
             
-        final_records = [r for r in self.raw_records if "#" in r["course"] and "파이널" in r["course"]]
+        final_records = [r for r in self.raw_records if self.is_final_course(r["course"])]
         total_count = len(final_records)
         total_amount = sum(r["amount"] for r in final_records)
         
@@ -722,14 +816,14 @@ class DataManager:
         }
 
     def get_courses(self) -> List[str]:
-        """Return list of distinct final courses ('#' and '파이널' included), merging 약술형 courses"""
+        """Return list of distinct final courses, merging 약술형 courses"""
         if self.auto_sync_enabled:
             self.check_and_sync_bills_sheet()
             self.sync_from_latest_download()
 
         courses = set()
         for r in self.raw_records:
-            if "#" in r["course"] and "파이널" in r["course"]:
+            if self.is_final_course(r["course"]):
                 c = r["course"]
                 if "약술" in c:
                     courses.add("#약술형 파이널 (국어, 수학)")
@@ -760,9 +854,11 @@ class DataManager:
             self.sync_from_latest_download()
             
         def is_course_match(target: str, actual: str) -> bool:
+            if not target or not actual:
+                return False
             if "약술" in target and "약술" in actual:
                 return True
-            return target in actual or actual in target
+            return target == actual or target in actual or actual in target
 
         # Collect changed old courses across all records
         student_changes = {}
@@ -778,7 +874,7 @@ class DataManager:
                 
         students = []
         for r in self.raw_records:
-            if "#" not in r["course"] or "파이널" not in r["course"]:
+            if not self.is_final_course(r["course"]):
                 continue
             if not is_course_match(course_name, r["course"]):
                 continue

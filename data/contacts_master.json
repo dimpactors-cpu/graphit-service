@@ -1643,5 +1643,13 @@
     "grade": "재수",
     "relationship": "모",
     "notes": "2026-10-15"
+  },
+  "김예린": {
+    "student_phone": "010-2177-7102",
+    "parent_phone": "010-8833-3272",
+    "school": "서문여고",
+    "grade": "3",
+    "relationship": "모",
+    "notes": "2026-10-19"
   }
 }

@@ -107,9 +107,9 @@ class GoogleLoginRequest(BaseModel):
 class PasswordLoginRequest(BaseModel):
     password: str
 
-# Background Watcher for Google Sheets ('학생신청현황_마스터DB' & '학원 관리 시스템 테스트의 테스트') - runs immediately and every 5 minutes
+# Background Watcher for Google Sheets ('학생신청현황_마스터DB' & '학원 관리 시스템 테스트의 테스트') - runs immediately and every 1 minute
 def background_sheets_sync_watcher():
-    print("[BackgroundWatcher] Started Google Sheets real-time sync worker (interval: 5 min)...")
+    print("[BackgroundWatcher] Started Google Sheets real-time sync worker (interval: 1 min)...")
     while True:
         try:
             print("[BackgroundWatcher] Real-time sync for 학생신청현황_마스터DB and 2. Counseling_Logs...")
@@ -117,7 +117,7 @@ def background_sheets_sync_watcher():
             data_manager.sync_master_db_from_google_sheet(force=True)
         except Exception as e:
             print(f"[Background Sheet Sync Error]: {e}")
-        time.sleep(300) # every 5 minutes
+        time.sleep(60) # every 1 minute
 
 sheets_sync_thread = threading.Thread(target=background_sheets_sync_watcher, daemon=True)
 sheets_sync_thread.start()
