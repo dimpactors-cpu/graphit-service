@@ -532,6 +532,7 @@ def extract_schedule_info_for_course(course: str, sheet_schedules: List[Dict[str
     """
     Extracts sessions, instructor, exam date, room from matched sheet schedules.
     """
+    course = data_manager.normalize_course_name(course)
     # 1. 약술형
     if "약술" in course:
         instructor = "조희재T(국어), 장인환T(수학)"

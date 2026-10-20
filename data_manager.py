@@ -20,6 +20,79 @@ NAME_CORRECTIONS: Dict[str, str] = {
 }
 
 class DataManager:
+    CANONICAL_COURSES: List[str] = [
+        "#가톨릭대 파이널반_이태규T",
+        "#건국대 파이널반_조희재T",
+        "#경기대 파이널반_조희재T",
+        "#경희대 파이널반_이태규T",
+        "#고려대 파이널반_이태규T",
+        "#광운대 파이널반_조희재T",
+        "#단국대 파이널반_조희재T",
+        "#덕성여대 파이널반_조희재T",
+        "#동국대 파이널반_조희재T",
+        "#서강대 파이널반_이태규T",
+        "#성균관대 파이널반_이태규T",
+        "#세종대 파이널반_이태규T",
+        "#숙명여대 파이널반_이태규T",
+        "#숭실대 파이널반_이태규T",
+        "#아주대 파이널반_이태규T",
+        "#약술형 파이널 (국어, 수학)",
+        "#이화여대 파이널반_이태규T",
+        "#인하대 파이널반_이태규T",
+        "#중앙대(일반-상경) 파이널반_이태규T",
+        "#중앙대(일반-인문) 파이널반_이태규T",
+        "#중앙대(창의-경영경제계열) 파이널반_조희재/장인환T",
+        "#중앙대(창의-인문사회계열) 파이널반",
+        "#한국외대 파이널반_이태규T",
+        "#한양대 파이널반_이태규T",
+        "#항공대 파이널반_이태규T",
+        "#홍익대 파이널반(A)_이태규T",
+        "#홍익대 파이널반(B)_이태규T",
+    ]
+
+    @classmethod
+    def normalize_course_name(cls, course: str) -> str:
+        """
+        Normalize course names (including newly formatted names from billing sheets)
+        to existing standard canonical final courses.
+        e.g. '인문논술 - (특강) 덕성여대 파이널 (2026-11)' -> '#덕성여대 파이널반_조희재T'
+             '인문논술 - (특강) 인하대 파이널 (2026-11)' -> '#인하대 파이널반_이태규T'
+        """
+        if not course or not isinstance(course, str):
+            return ""
+        c = course.strip()
+        
+        # 1. 약술형 통합
+        if "약술" in c:
+            return "#약술형 파이널 (국어, 수학)"
+            
+        # 2. 중앙대 세부 계열 매칭
+        if "중앙대" in c:
+            if "경영경제" in c:
+                return "#중앙대(창의-경영경제계열) 파이널반_조희재/장인환T"
+            elif "인문사회" in c:
+                return "#중앙대(창의-인문사회계열) 파이널반"
+            elif "상경" in c:
+                return "#중앙대(일반-상경) 파이널반_이태규T"
+            else:
+                return "#중앙대(일반-인문) 파이널반_이태규T"
+                
+        # 3. 홍익대 A/B반 매칭
+        if "홍익대" in c or "홍대" in c:
+            if "B" in c or "b" in c:
+                return "#홍익대 파이널반(B)_이태규T"
+            return "#홍익대 파이널반(A)_이태규T"
+
+        # 4. 대학명 추출 및 기존 강좌 매칭 (예: "인문논술 - (특강) 덕성여대 파이널 (2026-11)" -> "#덕성여대 파이널반_조희재T")
+        m = re.search(r'([가-힣]+대)', c)
+        if m:
+            univ = m.group(1)
+            for canon in cls.CANONICAL_COURSES:
+                if univ in canon:
+                    return canon
+
+        return c
+
     def __init__(self):
         import time
         self.raw_records: List[Dict[str, Any]] = []
@@ -50,6 +123,8 @@ class DataManager:
                         for r in self.raw_records:
                             if r.get("name") in NAME_CORRECTIONS:
                                 r["name"] = NAME_CORRECTIONS[r["name"]]
+                            if "course" in r:
+                                r["course"] = self.normalize_course_name(r["course"])
                         self.last_file_name = data.get("last_file_name", "구글시트: 학생신청현황_마스터DB")
                         self.last_sync_time = data.get("last_sync_time", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
                         print(f"[DataManager] Fast-loaded {len(self.raw_records)} records from JSON cache")
@@ -660,7 +735,8 @@ class DataManager:
             a_amt = parse_amt_val(get_val(idx_amt)) if idx_amt >= 0 else 0
             amount_int = b_amt or a_amt or p_amt
 
-            course = get_val(idx_course)
+            raw_course = get_val(idx_course)
+            course = self.normalize_course_name(raw_course)
             notice = get_val(idx_notice)
             sender = get_val(idx_sender)
             resend_cnt = get_val(idx_resend, "0")
@@ -693,6 +769,7 @@ class DataManager:
                 "phone_tail": phone_tail,
                 "amount": amount_int,
                 "course": course,
+                "raw_course": raw_course,
                 "notice": notice,
                 "status": status,
                 "pay_method": pay_method,
@@ -749,7 +826,7 @@ class DataManager:
                 # Pattern: #기존반 → #변경반 or #기존반 -> #변경반
                 match = re.search(r"(#[^\s→\->]+(?:\s+[^\s→\->]+)*)\s*(?:→|->)", notice)
                 if match:
-                    changed_old_courses.append(match.group(1).strip())
+                    changed_old_courses.append(self.normalize_course_name(match.group(1).strip()))
 
         # Step 2: Filter results
         results = []
@@ -824,11 +901,7 @@ class DataManager:
         courses = set()
         for r in self.raw_records:
             if self.is_final_course(r["course"]):
-                c = r["course"]
-                if "약술" in c:
-                    courses.add("#약술형 파이널 (국어, 수학)")
-                else:
-                    courses.add(c)
+                courses.add(self.normalize_course_name(r["course"]))
         return sorted(list(courses))
 
     def load_master_db_from_bytes(self, content: bytes, filename: str) -> bool:
@@ -856,9 +929,11 @@ class DataManager:
         def is_course_match(target: str, actual: str) -> bool:
             if not target or not actual:
                 return False
-            if "약술" in target and "약술" in actual:
+            norm_target = self.normalize_course_name(target)
+            norm_actual = self.normalize_course_name(actual)
+            if "약술" in norm_target and "약술" in norm_actual:
                 return True
-            return target == actual or target in actual or actual in target
+            return norm_target == norm_actual or norm_target in norm_actual or norm_actual in norm_target
 
         # Collect changed old courses across all records
         student_changes = {}
@@ -870,7 +945,7 @@ class DataManager:
                 key = (r_name, r["phone_tail"])
                 if key not in student_changes:
                     student_changes[key] = []
-                student_changes[key].append(match.group(1).strip())
+                student_changes[key].append(self.normalize_course_name(match.group(1).strip()))
                 
         students = []
         for r in self.raw_records:

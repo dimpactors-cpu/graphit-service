@@ -427,6 +427,7 @@ async def api_schedule(request: Request, course: str = Query("")):
     
     try:
         sheet_schedules, yaksul_schedules = get_final_schedules_from_sheet()
+        course = data_manager.normalize_course_name(course)
         
         # 1. 약술형 강좌 처리
         if "약술" in course:
