@@ -9,7 +9,8 @@ import SiteFooter from "@/components/SiteFooter";
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectUrl = searchParams.get("url") || "/mypage";
+  const redirectUrl =
+    searchParams.get("url") || searchParams.get("redirect") || "/mypage";
 
   const [mbId, setMbId] = useState("");
   const [mbPassword, setMbPassword] = useState("");
@@ -129,7 +130,14 @@ export default function LoginPage() {
 
             <div className="mt-5 pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-600">
               <span>아직 회원이 아니신가요?</span>
-              <Link href="/register" className="font-bold text-[#0066F9] hover:underline">
+              <Link
+                href={
+                  redirectUrl && redirectUrl !== "/mypage"
+                    ? `/register?url=${encodeURIComponent(redirectUrl)}`
+                    : "/register"
+                }
+                className="font-bold text-[#0066F9] hover:underline"
+              >
                 회원가입하기 →
               </Link>
             </div>

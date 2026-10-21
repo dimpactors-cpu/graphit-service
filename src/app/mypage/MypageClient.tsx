@@ -142,13 +142,21 @@ export default function MypageClient({
                 </div>
 
                 {currentGroup && (
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span className="px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-bold">
                       코드: {currentGroup.gr_code}
                     </span>
                     <span className="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold">
                       신청 {currentGroup.students.length} / 정원 {currentGroup.gr_cnt}명
                     </span>
+                    <a
+                      href={`/api/admin/excel?type=test&stx=${encodeURIComponent(
+                        currentGroup.gr_code
+                      )}`}
+                      className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold transition"
+                    >
+                      📥 수강생 결과 엑셀 다운로드
+                    </a>
                   </div>
                 )}
               </div>
@@ -309,8 +317,12 @@ export default function MypageClient({
                     const isStarted =
                       !isCompleted && (item.answeredQuestions > 0 || item.test_status === '진행중');
                     const imgSrc = item.it_img1
-                      ? `/data/item/${item.it_img1}`
-                      : '/img/no_img.png';
+                      ? item.it_img1.startsWith('data:') ||
+                        item.it_img1.startsWith('http') ||
+                        item.it_img1.startsWith('/')
+                        ? item.it_img1
+                        : `/data/item/${item.it_img1}`
+                      : '/data/common/mobile_logo_img.png';
 
                     return (
                       <div

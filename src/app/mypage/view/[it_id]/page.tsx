@@ -75,9 +75,17 @@ export default async function MypageViewItemPage({
             {shopItem && (
               <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 mb-6">
                 <img
-                  src={shopItem.it_img1 ? `/data/item/${shopItem.it_img1}` : '/img/no_img.png'}
+                  src={
+                    shopItem.it_img1
+                      ? shopItem.it_img1.startsWith('data:') ||
+                        shopItem.it_img1.startsWith('http') ||
+                        shopItem.it_img1.startsWith('/')
+                        ? shopItem.it_img1
+                        : `/data/item/${shopItem.it_img1}`
+                      : '/data/common/mobile_logo_img.png'
+                  }
                   alt={shopItem.it_name}
-                  className="w-16 h-16 rounded-xl object-cover border border-slate-200 bg-white"
+                  className="w-16 h-16 rounded-xl object-contain p-1 border border-slate-200 bg-white"
                 />
                 <div>
                   <h2 className="text-lg font-extrabold text-slate-900">{shopItem.it_name}</h2>

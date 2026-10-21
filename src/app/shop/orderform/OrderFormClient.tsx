@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { ShopItemRow, MemberRow } from "@/lib/db";
 
@@ -8,16 +8,20 @@ export default function OrderFormClient({
   item,
   member,
   sampleGroupCodes,
+  initialGroupCode = "",
 }: {
   item: ShopItemRow;
   member: MemberRow | null;
   sampleGroupCodes: { group_code: string; it_id: string; group_end: string }[];
+  initialGroupCode?: string;
 }) {
   const router = useRouter();
 
-  const [groupCode, setGroupCode] = useState("");
+  const [groupCode, setGroupCode] = useState(initialGroupCode);
   const [codeVerified, setCodeVerified] = useState(false);
   const [verifiedGroupName, setVerifiedGroupName] = useState("");
+  const [resolvedItId, setResolvedItId] = useState(String(item.it_id));
+  const [resolvedItName, setResolvedItName] = useState(item.it_name);
   const [odName, setOdName] = useState(member?.mb_name || "");
   const [odHp, setOdHp] = useState(member?.mb_hp || member?.mb_tel || "");
   const [odEmail, setOdEmail] = useState(member?.mb_email || member?.mb_id || "");
@@ -28,6 +32,31 @@ export default function OrderFormClient({
 
   const originalPrice = Number(item.it_price || 0);
   const finalPrice = codeVerified ? 0 : originalPrice;
+
+  useEffect(() => {
+    if (initialGroupCode && initialGroupCode.trim() && !codeVerified) {
+      fetch("/api/group-code/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          group_code: initialGroupCode.trim(),
+          it_id: item.it_id,
+        }),
+      })
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.ok && data.result === "ok") {
+            setCodeVerified(true);
+            setGroupCode(data.group_code);
+            setVerifiedGroupName(data.group_name || "");
+            if (data.it_id) setResolvedItId(String(data.it_id));
+            if (data.it_name) setResolvedItName(data.it_name);
+            setSettleCase("무통장");
+          }
+        })
+        .catch(() => {});
+    }
+  }, [initialGroupCode, item.it_id]);
 
   async function handleVerifyCode() {
     if (!groupCode.trim()) {
@@ -46,6 +75,8 @@ export default function OrderFormClient({
       setCodeVerified(true);
       setGroupCode(data.group_code);
       setVerifiedGroupName(data.group_name || "");
+      if (data.it_id) setResolvedItId(String(data.it_id));
+      if (data.it_name) setResolvedItName(data.it_name);
       setSettleCase("무통장");
     } else {
       setGroupCode("");
@@ -63,6 +94,7 @@ export default function OrderFormClient({
     setSubmitting(true);
     try {
       let finalGroupCode = codeVerified ? groupCode.trim() : "";
+      let submitItId = resolvedItId || String(item.it_id);
       if (!codeVerified && groupCode.trim()) {
         const vRes = await fetch("/api/group-code/verify", {
           method: "POST",
@@ -72,6 +104,7 @@ export default function OrderFormClient({
         const vData = await vRes.json();
         if (vData.ok && vData.result === "ok") {
           finalGroupCode = vData.group_code;
+          if (vData.it_id) submitItId = String(vData.it_id);
           setCodeVerified(true);
         } else {
           alert(vData.message || "입력하신 단체코드를 다시 확인해주세요.");
@@ -84,7 +117,7 @@ export default function OrderFormClient({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          it_id: item.it_id,
+          it_id: submitItId,
           group_code: finalGroupCode,
           od_name: odName,
           od_hp: odHp,
@@ -102,7 +135,8 @@ export default function OrderFormClient({
         return;
       }
       window.location.href =
-        data.redirect_url || `/test?it_id=${encodeURIComponent(String(item.it_id))}&fresh=1`;
+        data.redirect_url ||
+        `/test?it_id=${encodeURIComponent(submitItId)}&fresh=1`;
     } catch (err: any) {
       alert(err?.message || "오류가 발생했습니다.");
       setSubmitting(false);
@@ -122,7 +156,9 @@ export default function OrderFormClient({
               <span className="text-xs font-bold text-[#0066F9] bg-blue-50 px-2 py-0.5 rounded">
                 {item.it_4 || "GRAPHME"}
               </span>
-              <h3 className="text-lg font-bold text-gray-900 mt-1">{item.it_name}</h3>
+              <h3 className="text-lg font-bold text-gray-900 mt-1">
+                {resolvedItName || item.it_name}
+              </h3>
               <p className="text-xs text-gray-500 mt-0.5">대상: {item.it_1}</p>
             </div>
             <div className="text-right">

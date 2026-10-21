@@ -27,6 +27,7 @@ export async function POST(req: NextRequest) {
       if (body.it_use !== undefined) item.it_use = Number(body.it_use);
       if (body.it_basic !== undefined) item.it_basic = body.it_basic;
       if (body.it_explan !== undefined) item.it_explan = body.it_explan;
+      if (body.it_img1 !== undefined) item.it_img1 = body.it_img1;
       item.it_update_time = now;
 
       await saveDb(db);
@@ -44,7 +45,7 @@ export async function POST(req: NextRequest) {
         it_use: 1,
         it_time: now,
         it_update_time: now,
-        it_img1: "",
+        it_img1: body.it_img1 || "",
         it_img2: "",
         it_img3: "",
         it_1: body.it_1 || "",

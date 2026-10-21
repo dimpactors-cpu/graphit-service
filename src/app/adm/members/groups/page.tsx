@@ -56,5 +56,10 @@ export default async function AdminGroupMembersPage() {
       };
     });
 
-  return <GroupMembersClient groups={groups} />;
+  const shopItems = db.g5_shop_item.map((it) => ({
+    it_id: String(it.it_id),
+    it_name: it.it_name,
+  }));
+
+  return <GroupMembersClient groups={groups} items={shopItems} />;
 }

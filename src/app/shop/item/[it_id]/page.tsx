@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
-import { getDb } from "@/lib/db";
+import { getDb, resolveImageUrl } from "@/lib/db";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 
@@ -21,9 +21,7 @@ export default async function ShopItemDetailPage({
   }
 
   const qCount = db.graphit_item.filter((gi) => String(gi.it_id) === String(item.it_id)).length;
-  const imgSrc = item.it_img1
-    ? `/data/item/${item.it_img1}`
-    : "/data/common/mobile_logo_img.png";
+  const imgSrc = resolveImageUrl(item.it_img1, "/data/item", "/data/common/mobile_logo_img.png");
 
   return (
     <div className="min-h-screen flex flex-col bg-white">

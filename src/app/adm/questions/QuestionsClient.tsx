@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminLayout from '@/components/AdminLayout';
 import { GraphitQaRow } from '@/lib/db';
+import { fileToDataUrl } from '@/lib/imageUpload';
 
 export default function QuestionsClient({
   questions,
@@ -389,17 +390,65 @@ export default function QuestionsClient({
 
               <div>
                 <label className="block font-bold text-slate-600 mb-1">
-                  첨부 이미지 파일명 (/data/test/ 내 파일명)
+                  문항 첨부 이미지 (직접 업로드 또는 /data/test/ 내 파일명)
                 </label>
-                <input
-                  type="text"
-                  value={editing.qa_file || ''}
-                  onChange={(e) =>
-                    setEditing({ ...editing, qa_file: e.target.value })
-                  }
-                  placeholder="예: 3551888116_xxx.png"
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 font-mono"
-                />
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={
+                        editing.qa_file?.startsWith('data:')
+                          ? '[직접 업로드된 문항 이미지]'
+                          : editing.qa_file || ''
+                      }
+                      onChange={(e) =>
+                        setEditing({ ...editing, qa_file: e.target.value })
+                      }
+                      placeholder="예: 3551888116_xxx.png"
+                      className="flex-1 rounded-xl border border-slate-300 px-3 py-2 font-mono"
+                    />
+                    <label className="cursor-pointer px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white font-bold shrink-0 inline-flex items-center">
+                      <span>📁 이미지 파일 업로드</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const dataUrl = await fileToDataUrl(file, 1000);
+                          setEditing((prev) =>
+                            prev ? { ...prev, qa_file: dataUrl } : prev
+                          );
+                        }}
+                      />
+                    </label>
+                    {editing.qa_file && (
+                      <button
+                        type="button"
+                        onClick={() => setEditing({ ...editing, qa_file: '' })}
+                        className="px-3 py-2 rounded-xl border border-rose-200 text-rose-600 font-bold"
+                      >
+                        제거
+                      </button>
+                    )}
+                  </div>
+                  {editing.qa_file && (
+                    <div className="p-2 rounded-xl bg-slate-50 border border-slate-200 flex justify-center">
+                      <img
+                        src={
+                          editing.qa_file.startsWith('data:') ||
+                          editing.qa_file.startsWith('http') ||
+                          editing.qa_file.startsWith('/')
+                            ? editing.qa_file
+                            : `/data/test/${editing.qa_file}`
+                        }
+                        alt="문항 이미지 미리보기"
+                        className="max-h-40 object-contain rounded"
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
 
               {editing.qa_type !== 'y' && (

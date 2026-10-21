@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     } = body;
 
     const db = await getDb();
-    const item =
+    let item =
       db.g5_shop_item.find((it) => String(it.it_id) === String(it_id)) ||
       db.g5_shop_item[0];
     if (!item) {
@@ -62,6 +62,14 @@ export async function POST(req: NextRequest) {
             .toUpperCase() === codeClean.toUpperCase()
       );
       resolvedGroupCode = gRow ? gRow.group_code : codeClean;
+      if (gRow?.it_id) {
+        const groupItem = db.g5_shop_item.find(
+          (it) => String(it.it_id) === String(gRow.it_id)
+        );
+        if (groupItem) {
+          item = groupItem;
+        }
+      }
       const gOwner = gRow
         ? db.g5_member.find(
             (m) => m.mb_id === gRow.mb_id && Number(m.mb_level) === 3

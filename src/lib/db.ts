@@ -191,6 +191,97 @@ export interface ContentRow {
   co_mobile_content: string;
 }
 
+export interface BannerItemConfig {
+  id: string;
+  position: "top" | "bottom";
+  title: string;
+  image_url: string;
+  bg_color: string;
+  link_url: string;
+  open_new_tab: boolean;
+  is_visible: boolean;
+}
+
+export interface SiteConfig {
+  site_title: string;
+  logo_url: string;
+  logo_width: number;
+  top_banner: {
+    image_url: string;
+    bg_color: string;
+    link_url: string;
+    alt_text: string;
+    is_visible: boolean;
+  };
+  bottom_banner: {
+    image_url: string;
+    bg_color: string;
+    link_url: string;
+    alt_text: string;
+    open_new_tab: boolean;
+    is_visible: boolean;
+  };
+  extra_banners?: BannerItemConfig[];
+  footer: {
+    company_name: string;
+    ceo_name: string;
+    address: string;
+    biz_no: string;
+    email: string;
+    tel: string;
+    sales_no: string;
+  };
+}
+
+export const DEFAULT_SITE_CONFIG: SiteConfig = {
+  site_title: "그래프잇 (Graphit)",
+  logo_url: "/data/common/mobile_logo_img.png",
+  logo_width: 152,
+  top_banner: {
+    image_url: "/data/banner/1.png",
+    bg_color: "#FFCFDE",
+    link_url: "/shop/item/1698900476",
+    alt_text: "차원이 다른 디테일 - 그래프미 올인원 패키지",
+    is_visible: true,
+  },
+  bottom_banner: {
+    image_url: "/data/banner/2.png",
+    bg_color: "#D5E1EF",
+    link_url: "https://pf.kakao.com/_HxhcYxj/chat",
+    alt_text: "검사문의 · 단체문의 바로가기",
+    open_new_tab: true,
+    is_visible: true,
+  },
+  extra_banners: [],
+  footer: {
+    company_name: "주식회사 에스엘더블유랩",
+    ceo_name: "이용석",
+    address: "서울 광진구 용마산로 1길 21, 2층",
+    biz_no: "592-86-02423",
+    email: "corp@graphit.world",
+    tel: "02-6956-0285",
+    sales_no: "2023-서울광진-1794",
+  },
+};
+
+export function resolveImageUrl(
+  raw: string | null | undefined,
+  folderPrefix: string,
+  fallback = "/data/common/mobile_logo_img.png"
+): string {
+  if (!raw || !String(raw).trim()) return fallback;
+  const val = String(raw).trim();
+  if (
+    val.startsWith("data:") ||
+    val.startsWith("http://") ||
+    val.startsWith("https://") ||
+    val.startsWith("/")
+  ) {
+    return val;
+  }
+  return `${folderPrefix.replace(/\/$/, "")}/${val}`;
+}
+
 export interface DatabaseState {
   g5_member: MemberRow[];
   g5_shop_item: ShopItemRow[];
@@ -202,6 +293,29 @@ export interface DatabaseState {
   graphit_qa: GraphitQaRow[];
   graphit_test: GraphitTestRow[];
   graphit_item_test: GraphitItemTestRow[];
+  site_config?: SiteConfig;
+}
+
+export function getSiteConfig(db: DatabaseState): SiteConfig {
+  if (!db.site_config) {
+    return JSON.parse(JSON.stringify(DEFAULT_SITE_CONFIG)) as SiteConfig;
+  }
+  return {
+    ...DEFAULT_SITE_CONFIG,
+    ...db.site_config,
+    top_banner: {
+      ...DEFAULT_SITE_CONFIG.top_banner,
+      ...(db.site_config.top_banner || {}),
+    },
+    bottom_banner: {
+      ...DEFAULT_SITE_CONFIG.bottom_banner,
+      ...(db.site_config.bottom_banner || {}),
+    },
+    footer: {
+      ...DEFAULT_SITE_CONFIG.footer,
+      ...(db.site_config.footer || {}),
+    },
+  };
 }
 
 declare global {
@@ -379,6 +493,7 @@ interface CompactDelta {
   gi?: GraphitItemRow[]; // added/updated mappings
   dgi?: number[]; // deleted item_nos
   a?: GraphitItemTestRow[]; // recent added answers
+  sc?: SiteConfig; // site configuration (logo, banners, footer)
 }
 
 function readCookieDelta(): CompactDelta | null {
@@ -514,11 +629,20 @@ function mergeDeltas(
     gi: Array.from(giMap.values()),
     dgi: Array.from(dgiSet),
     a: Array.from(aMap.values()),
+    sc: inc.sc || b.sc,
   };
 }
 
 function applyDeltaToState(state: DatabaseState, delta: CompactDelta | null): DatabaseState {
   if (!delta) return state;
+
+  if (delta.sc) {
+    state.site_config = {
+      ...DEFAULT_SITE_CONFIG,
+      ...(state.site_config || {}),
+      ...delta.sc,
+    };
+  }
 
   // Apply group deletions & additions without wiping existing non-deleted groups in state
   const delSet = new Set((delta.dg || []).map((c) => String(c).trim().toUpperCase()));
@@ -701,7 +825,70 @@ function extractDeltaFromState(
   const aAll = state.graphit_item_test.filter(
     (ans) => Number(ans.seq_no) > seedMaxSeqNo
   );
-  const a = forCookie ? aAll.slice(-60) : aAll;
+  const a = forCookie ? aAll.slice(-40) : aAll;
+
+  if (forCookie) {
+    return {
+      g,
+      dg,
+      m,
+      t,
+      o,
+      a,
+    };
+  }
+
+  // Extract modified/added/deleted questions, items, mappings, and site_config for remote persistence
+  const seedQaMap = new Map(seed.graphit_qa.map((q) => [Number(q.qa_no), q]));
+  const currentQaNos = new Set(state.graphit_qa.map((q) => Number(q.qa_no)));
+  const dq = Array.from(seedQaMap.keys()).filter((no) => !currentQaNos.has(no));
+  const q = state.graphit_qa.filter((qa) => {
+    const s = seedQaMap.get(Number(qa.qa_no));
+    if (!s) return true;
+    return (
+      qa.qa_code !== s.qa_code ||
+      qa.qa_type !== s.qa_type ||
+      qa.qa_subject !== s.qa_subject ||
+      qa.qa_content !== s.qa_content ||
+      qa.qa_file !== s.qa_file ||
+      qa.qa_q1 !== s.qa_q1 ||
+      qa.qa_q2 !== s.qa_q2 ||
+      qa.qa_q3 !== s.qa_q3 ||
+      qa.qa_q4 !== s.qa_q4 ||
+      qa.qa_q5 !== s.qa_q5
+    );
+  });
+
+  const seedItemMap = new Map(seed.g5_shop_item.map((it) => [String(it.it_id), it]));
+  const i = state.g5_shop_item.filter((it) => {
+    const s = seedItemMap.get(String(it.it_id));
+    if (!s) return true;
+    return (
+      it.it_name !== s.it_name ||
+      Number(it.it_price) !== Number(s.it_price) ||
+      Number(it.it_use) !== Number(s.it_use) ||
+      it.it_img1 !== s.it_img1 ||
+      it.it_basic !== s.it_basic ||
+      it.it_explan !== s.it_explan ||
+      it.it_1 !== s.it_1 ||
+      it.it_2 !== s.it_2 ||
+      it.it_3 !== s.it_3 ||
+      it.it_4 !== s.it_4
+    );
+  });
+
+  const seedGiMap = new Map(seed.graphit_item.map((gi) => [Number(gi.item_no), gi]));
+  const currentGiNos = new Set(state.graphit_item.map((gi) => Number(gi.item_no)));
+  const dgi = Array.from(seedGiMap.keys()).filter((no) => !currentGiNos.has(no));
+  const gi = state.graphit_item.filter((row) => {
+    const s = seedGiMap.get(Number(row.item_no));
+    if (!s) return true;
+    return (
+      Number(row.item_seq) !== Number(s.item_seq) ||
+      Number(row.item_timer) !== Number(s.item_timer) ||
+      Number(row.qa_no) !== Number(s.qa_no)
+    );
+  });
 
   return {
     ...prev,
@@ -710,7 +897,13 @@ function extractDeltaFromState(
     m,
     t,
     o,
+    q,
+    dq,
+    i,
+    gi,
+    dgi,
     a,
+    sc: state.site_config || prev.sc,
   };
 }
 

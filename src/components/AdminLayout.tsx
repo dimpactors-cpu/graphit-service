@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { href: '/adm/questions', label: '문항관리' },
   { href: '/adm/checkups', label: '검사관리' },
   { href: '/adm/orders', label: '주문내역' },
+  { href: '/adm/banners', label: '배너·로고 설정' },
   { href: '/adm/db-sync', label: '클라우드 DB 연동' },
 ];
 

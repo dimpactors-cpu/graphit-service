@@ -68,23 +68,31 @@ export default function AdminDashboardClient({
       title="관리자 대시보드 (DASHBOARD)"
       subtitle="전체 회원 현황, 수강생 검사 신청이력, 단체코드 현황 및 엑셀 데이터 추출을 한눈에 관리합니다."
       actions={
-        <Link
-          href="/adm/db-sync"
-          className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border transition ${
-            stats.isCloudDbConnected
-              ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-              : 'bg-amber-50 border-amber-200 text-amber-800 hover:bg-amber-100'
-          }`}
-        >
-          <span
-            className={`w-2 h-2 rounded-full ${
-              stats.isCloudDbConnected ? 'bg-emerald-500' : 'bg-amber-500'
+        <div className="flex items-center gap-2">
+          <Link
+            href="/adm/banners"
+            className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold shadow-sm transition"
+          >
+            🎨 배너·로고·디자인 설정
+          </Link>
+          <Link
+            href="/adm/db-sync"
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border transition ${
+              stats.isCloudDbConnected
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                : 'bg-amber-50 border-amber-200 text-amber-800 hover:bg-amber-100'
             }`}
-          />
-          {stats.isCloudDbConnected
-            ? 'Cloud PostgreSQL 연동됨'
-            : '로컬 백업 DB 모드 (클라우드 DB 연동 설정 가능)'}
-        </Link>
+          >
+            <span
+              className={`w-2 h-2 rounded-full ${
+                stats.isCloudDbConnected ? 'bg-emerald-500' : 'bg-amber-500'
+              }`}
+            />
+            {stats.isCloudDbConnected
+              ? 'Cloud PostgreSQL 연동됨'
+              : '로컬 백업 DB 모드 (클라우드 DB 연동 설정 가능)'}
+          </Link>
+        </div>
       }
     >
       {/* Top KPI Cards */}

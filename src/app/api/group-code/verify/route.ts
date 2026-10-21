@@ -29,6 +29,9 @@ export async function POST(req: NextRequest) {
         (m) => m.mb_id === groupRow.mb_id && Number(m.mb_level) === 3
       );
       const groupName = owner?.mb_8 || groupRow.mb_id || "";
+      const matchedItem = db.g5_shop_item.find(
+        (it) => String(it.it_id) === String(groupRow.it_id)
+      );
 
       return NextResponse.json({
         ok: true,
@@ -37,6 +40,7 @@ export async function POST(req: NextRequest) {
         group_name: groupName,
         group_end: groupRow.group_end,
         it_id: String(groupRow.it_id),
+        it_name: matchedItem?.it_name || "",
         is_expired_date: groupRow.group_end ? groupRow.group_end < today : false,
         message: "인증되었습니다.",
       });

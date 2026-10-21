@@ -52,7 +52,9 @@ export default function RegisterPage() {
         setLoading(false);
         return;
       }
-      router.push("/mypage");
+      const params = new URLSearchParams(window.location.search);
+      const nextUrl = params.get("url") || params.get("redirect") || "/mypage";
+      router.push(nextUrl);
       router.refresh();
     } catch (err: any) {
       setError(err?.message || "오류가 발생했습니다.");

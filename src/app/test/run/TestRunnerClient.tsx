@@ -244,7 +244,13 @@ export default function TestRunnerClient({
           {currentQ.qa_file && (
             <div className="my-6 flex justify-center bg-slate-50/70 rounded-2xl p-4 border border-slate-200/80">
               <img
-                src={`/data/test/${currentQ.qa_file}`}
+                src={
+                  currentQ.qa_file.startsWith('data:') ||
+                  currentQ.qa_file.startsWith('http') ||
+                  currentQ.qa_file.startsWith('/')
+                    ? currentQ.qa_file
+                    : `/data/test/${currentQ.qa_file}`
+                }
                 alt={`문항 ${currentIndex + 1} 이미지`}
                 className="max-h-[460px] w-auto object-contain rounded-lg select-none"
                 draggable={false}

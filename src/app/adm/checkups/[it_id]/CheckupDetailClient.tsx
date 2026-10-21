@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import AdminLayout from '@/components/AdminLayout';
+import { fileToDataUrl } from '@/lib/imageUpload';
 
 export interface MappedQuestionRow {
   item_no: number;
@@ -32,6 +33,9 @@ interface CheckupDetailClientProps {
     it_name: string;
     it_price: number;
     it_use: number;
+    it_img1?: string;
+    it_basic?: string;
+    it_explan?: string;
     it_1: string;
     it_2: string;
     it_3: string;
@@ -54,7 +58,16 @@ export default function CheckupDetailClient({
   const [it3, setIt3] = useState(item.it_3);
   const [itPrice, setItPrice] = useState(String(item.it_price));
   const [itUse, setItUse] = useState(String(item.it_use));
+  const [itImg1, setItImg1] = useState(item.it_img1 || '');
+  const [itBasic, setItBasic] = useState(item.it_basic || '');
   const [savingInfo, setSavingInfo] = useState(false);
+
+  const resolveThumb = (raw: string) => {
+    if (!raw) return '/data/common/mobile_logo_img.png';
+    if (raw.startsWith('data:') || raw.startsWith('http') || raw.startsWith('/'))
+      return raw;
+    return `/data/item/${raw}`;
+  };
 
   const [mappings, setMappings] = useState<MappedQuestionRow[]>(initialMappings);
   const [savingMappings, setSavingMappings] = useState(false);
@@ -100,6 +113,8 @@ export default function CheckupDetailClient({
           it_3: it3,
           it_price: Number(itPrice || 0),
           it_use: Number(itUse),
+          it_img1: itImg1,
+          it_basic: itBasic,
         }),
       });
       const data = await res.json();
@@ -295,6 +310,48 @@ export default function CheckupDetailClient({
               className="w-full rounded-xl border border-slate-300 px-3 py-2"
             />
           </div>
+          <div>
+            <label className="block font-bold text-slate-500 mb-1">
+              한줄 요약 설명
+            </label>
+            <input
+              type="text"
+              value={itBasic}
+              onChange={(e) => setItBasic(e.target.value)}
+              placeholder="검사 요약 설명"
+              className="w-full rounded-xl border border-slate-300 px-3 py-2"
+            />
+          </div>
+        </div>
+
+        <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs">
+          <div className="flex items-center gap-3">
+            <img
+              src={resolveThumb(itImg1)}
+              alt="검사 대표 이미지"
+              className="w-16 h-16 rounded-xl object-contain border border-slate-200 bg-slate-50 p-1"
+            />
+            <div>
+              <div className="font-bold text-slate-700">검사 대표 썸네일 이미지</div>
+              <div className="text-slate-400">
+                메인 화면 카드 및 검사 상세 페이지에 표시되는 대표 이미지입니다.
+              </div>
+            </div>
+          </div>
+          <label className="cursor-pointer px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold transition shrink-0">
+            <span>📁 대표 썸네일 이미지 변경 업로드</span>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                const dataUrl = await fileToDataUrl(file, 800);
+                setItImg1(dataUrl);
+              }}
+            />
+          </label>
         </div>
       </form>
 

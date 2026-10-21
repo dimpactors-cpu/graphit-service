@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AdminLayout from '@/components/AdminLayout';
+import { fileToDataUrl } from '@/lib/imageUpload';
 
 export interface CheckupSummary {
   it_id: string;
@@ -28,7 +29,16 @@ export default function CheckupsClient({ items }: { items: CheckupSummary[] }) {
   const [it2, setIt2] = useState('만 15세 이상');
   const [it3, setIt3] = useState('50');
   const [itPrice, setItPrice] = useState('50000');
+  const [itImg1, setItImg1] = useState('');
+  const [itBasic, setItBasic] = useState('');
   const [saving, setSaving] = useState(false);
+
+  const resolveThumb = (raw: string) => {
+    if (!raw) return '/data/common/mobile_logo_img.png';
+    if (raw.startsWith('data:') || raw.startsWith('http') || raw.startsWith('/'))
+      return raw;
+    return `/data/item/${raw}`;
+  };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,13 +55,15 @@ export default function CheckupsClient({ items }: { items: CheckupSummary[] }) {
           it_2: it2.trim(),
           it_3: it3.trim(),
           it_price: Number(itPrice || 0),
+          it_img1: itImg1,
+          it_basic: itBasic.trim(),
         }),
       });
       const data = await res.json();
       if (data.ok) {
         alert('신규 검사 프로그램이 생성되었습니다.');
         setShowModal(false);
-        router.refresh();
+        window.location.reload();
       } else {
         alert(data.message || '생성 실패');
       }
@@ -94,9 +106,9 @@ export default function CheckupsClient({ items }: { items: CheckupSummary[] }) {
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex items-center gap-3">
                   <img
-                    src={it.it_img1 ? `/data/item/${it.it_img1}` : '/img/no_img.png'}
+                    src={resolveThumb(it.it_img1)}
                     alt={it.it_name}
-                    className="w-14 h-14 rounded-xl object-cover border border-slate-200 bg-slate-50"
+                    className="w-14 h-14 rounded-xl object-contain p-1 border border-slate-200 bg-slate-50"
                   />
                   <div>
                     <span className="inline-block px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-mono text-[11px] font-bold">
@@ -242,6 +254,46 @@ export default function CheckupsClient({ items }: { items: CheckupSummary[] }) {
                     onChange={(e) => setItPrice(e.target.value)}
                     className="w-full rounded-xl border border-slate-300 px-3 py-2 font-bold"
                   />
+                </div>
+              </div>
+              <div>
+                <label className="block font-bold text-slate-600 mb-1">
+                  한줄 소개 (선택)
+                </label>
+                <input
+                  type="text"
+                  value={itBasic}
+                  onChange={(e) => setItBasic(e.target.value)}
+                  placeholder="예: 적성과 인지 역량을 진단하는 검사입니다."
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block font-bold text-slate-600 mb-1">
+                  검사 대표 썸네일 이미지 업로드 (선택)
+                </label>
+                <div className="flex items-center gap-3">
+                  {itImg1 && (
+                    <img
+                      src={resolveThumb(itImg1)}
+                      alt="미리보기"
+                      className="w-12 h-12 rounded-lg object-contain border border-slate-200 bg-slate-50"
+                    />
+                  )}
+                  <label className="cursor-pointer px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white font-bold inline-block">
+                    <span>📁 썸네일 이미지 파일 선택</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const dataUrl = await fileToDataUrl(file, 800);
+                        setItImg1(dataUrl);
+                      }}
+                    />
+                  </label>
                 </div>
               </div>
               <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">

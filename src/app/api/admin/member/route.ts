@@ -74,6 +74,31 @@ export async function POST(req: NextRequest) {
     };
 
     db.g5_member.unshift(newMember);
+
+    if (body.initial_group_code && String(body.initial_group_code).trim() !== "") {
+      const codeClean = String(body.initial_group_code).trim();
+      const exists = db.graphit_group.some(
+        (g) => String(g.group_code).trim().toUpperCase() === codeClean.toUpperCase()
+      );
+      if (!exists) {
+        const maxGroupNo = db.graphit_group.reduce(
+          (acc, g) => Math.max(acc, Number(g.group_no || 0)),
+          0
+        );
+        db.graphit_group.unshift({
+          group_no: maxGroupNo + 1,
+          group_code: codeClean,
+          group_end: String(body.initial_group_end || "2026-12-31"),
+          group_member: Number(body.initial_group_member || 30),
+          mb_id: newMember.mb_id,
+          it_id: String(body.initial_it_id || db.g5_shop_item[0]?.it_id || "1698900476"),
+          reg_datetime: now,
+        });
+        newMember.mb_7 = codeClean;
+        newMember.group_code = codeClean;
+      }
+    }
+
     await saveDb(db);
 
     return NextResponse.json({ ok: true, member: newMember });
