@@ -1,7 +1,11 @@
 import fs from "fs";
 import path from "path";
+import zlib from "zlib";
+import { cookies } from "next/headers";
 import { Pool } from "pg";
 import seedDataRaw from "@/data/seed-db.json";
+
+const DELTA_COOKIE_NAME = "graphit_db_delta";
 
 export interface MemberRow {
   mb_no: number | string;
@@ -350,6 +354,235 @@ CREATE TABLE IF NOT EXISTS g5_shop_order (
 );
 `;
 
+interface CompactDelta {
+  g?: GraphitGroupRow[]; // added/updated groups
+  dg?: string[]; // deleted group codes
+  m?: MemberRow[]; // added/updated members
+  t?: GraphitTestRow[]; // added/updated tests
+  o?: ShopOrderRow[]; // added/updated orders
+  q?: GraphitQaRow[]; // added/updated questions
+  dq?: number[]; // deleted qa_nos
+  i?: Partial<ShopItemRow>[]; // added/updated items
+  gi?: GraphitItemRow[]; // added/updated mappings
+  dgi?: number[]; // deleted item_nos
+  a?: GraphitItemTestRow[]; // recent added answers
+}
+
+function readCookieDelta(): CompactDelta | null {
+  try {
+    const raw = cookies().get(DELTA_COOKIE_NAME)?.value;
+    if (!raw) return null;
+    const buf = Buffer.from(raw, "base64url");
+    const jsonStr = zlib.inflateRawSync(buf).toString("utf-8");
+    return JSON.parse(jsonStr) as CompactDelta;
+  } catch {
+    return null;
+  }
+}
+
+function applyDeltaToState(state: DatabaseState, delta: CompactDelta | null): DatabaseState {
+  if (!delta) return state;
+  const seed = seedDataRaw as unknown as DatabaseState;
+
+  // Reconstruct graphit_group deterministically from seed + delta
+  const delSet = new Set((delta.dg || []).map((c) => String(c).toUpperCase()));
+  const baseGroups = seed.graphit_group
+    .filter((g) => !delSet.has(String(g.group_code).toUpperCase()))
+    .map((g) => ({ ...g }));
+
+  if (delta.g && delta.g.length > 0) {
+    for (const grp of delta.g) {
+      if (delSet.has(String(grp.group_code).toUpperCase())) continue;
+      const idx = baseGroups.findIndex(
+        (x) =>
+          Number(x.group_no) === Number(grp.group_no) ||
+          String(x.group_code).toUpperCase() === String(grp.group_code).toUpperCase()
+      );
+      if (idx >= 0) {
+        baseGroups[idx] = grp;
+      } else {
+        baseGroups.unshift(grp);
+      }
+    }
+  }
+  state.graphit_group = baseGroups;
+
+  if (delta.m && delta.m.length > 0) {
+    for (const mem of delta.m) {
+      const idx = state.g5_member.findIndex((x) => x.mb_id === mem.mb_id);
+      if (idx >= 0) {
+        state.g5_member[idx] = { ...state.g5_member[idx], ...mem };
+      } else {
+        state.g5_member.unshift(mem);
+      }
+    }
+  }
+
+  if (delta.t && delta.t.length > 0) {
+    for (const tst of delta.t) {
+      const idx = state.graphit_test.findIndex(
+        (x) => Number(x.test_no) === Number(tst.test_no)
+      );
+      if (idx >= 0) {
+        state.graphit_test[idx] = { ...state.graphit_test[idx], ...tst };
+      } else {
+        state.graphit_test.unshift(tst);
+      }
+    }
+  }
+
+  if (delta.o && delta.o.length > 0) {
+    for (const ord of delta.o) {
+      const idx = state.g5_shop_order.findIndex(
+        (x) => String(x.od_id) === String(ord.od_id)
+      );
+      if (idx >= 0) {
+        state.g5_shop_order[idx] = { ...state.g5_shop_order[idx], ...ord };
+      } else {
+        state.g5_shop_order.unshift(ord);
+      }
+    }
+  }
+
+  if (delta.dq && delta.dq.length > 0) {
+    const delQa = new Set(delta.dq.map(Number));
+    state.graphit_qa = state.graphit_qa.filter((q) => !delQa.has(Number(q.qa_no)));
+  }
+  if (delta.q && delta.q.length > 0) {
+    for (const qa of delta.q) {
+      const idx = state.graphit_qa.findIndex((x) => Number(x.qa_no) === Number(qa.qa_no));
+      if (idx >= 0) {
+        state.graphit_qa[idx] = qa;
+      } else {
+        state.graphit_qa.unshift(qa);
+      }
+    }
+  }
+
+  if (delta.i && delta.i.length > 0) {
+    for (const it of delta.i) {
+      const idx = state.g5_shop_item.findIndex((x) => String(x.it_id) === String(it.it_id));
+      if (idx >= 0) {
+        state.g5_shop_item[idx] = { ...state.g5_shop_item[idx], ...it };
+      } else {
+        state.g5_shop_item.unshift(it as ShopItemRow);
+      }
+    }
+  }
+
+  if (delta.dgi && delta.dgi.length > 0) {
+    const delGi = new Set(delta.dgi.map(Number));
+    state.graphit_item = state.graphit_item.filter((gi) => !delGi.has(Number(gi.item_no)));
+  }
+  if (delta.gi && delta.gi.length > 0) {
+    for (const mapping of delta.gi) {
+      const idx = state.graphit_item.findIndex(
+        (x) => Number(x.item_no) === Number(mapping.item_no)
+      );
+      if (idx >= 0) {
+        state.graphit_item[idx] = mapping;
+      } else {
+        state.graphit_item.push(mapping);
+      }
+    }
+  }
+
+  if (delta.a && delta.a.length > 0) {
+    for (const ans of delta.a) {
+      const idx = state.graphit_item_test.findIndex(
+        (x) =>
+          x.mb_id === ans.mb_id &&
+          String(x.it_id) === String(ans.it_id) &&
+          Number(x.item_seq) === Number(ans.item_seq)
+      );
+      if (idx >= 0) {
+        state.graphit_item_test[idx] = ans;
+      } else {
+        state.graphit_item_test.push(ans);
+      }
+    }
+  }
+
+  return state;
+}
+
+function writeCookieDelta(state: DatabaseState): void {
+  try {
+    const seed = seedDataRaw as unknown as DatabaseState;
+    const prevDelta = readCookieDelta() || {};
+
+    const seedGroupCodes = new Set(
+      seed.graphit_group.map((g) => String(g.group_code).toUpperCase())
+    );
+    const currentGroupCodes = new Set(
+      state.graphit_group.map((g) => String(g.group_code).toUpperCase())
+    );
+
+    const dg = Array.from(seedGroupCodes).filter((c) => !currentGroupCodes.has(c));
+    const g = state.graphit_group.filter(
+      (grp) => !seedGroupCodes.has(String(grp.group_code).toUpperCase())
+    );
+
+    const seedMemberMap = new Map(seed.g5_member.map((m) => [m.mb_id, m]));
+    const m = state.g5_member
+      .filter((mem) => {
+        const s = seedMemberMap.get(mem.mb_id);
+        if (!s) return true;
+        return (
+          mem.mb_name !== s.mb_name ||
+          mem.mb_password !== s.mb_password ||
+          mem.mb_hp !== s.mb_hp ||
+          mem.mb_7 !== s.mb_7 ||
+          mem.mb_8 !== s.mb_8 ||
+          mem.mb_10 !== s.mb_10 ||
+          mem.mb_leave_date !== s.mb_leave_date
+        );
+      })
+      .slice(0, 15);
+
+    const seedTestNos = new Set(seed.graphit_test.map((t) => Number(t.test_no)));
+    const t = state.graphit_test
+      .filter((tst) => !seedTestNos.has(Number(tst.test_no)))
+      .slice(0, 15);
+
+    const seedOrderIds = new Set(seed.g5_shop_order.map((o) => String(o.od_id)));
+    const o = state.g5_shop_order
+      .filter((ord) => !seedOrderIds.has(String(ord.od_id)))
+      .slice(0, 15);
+
+    const seedMaxSeqNo = seed.graphit_item_test.reduce(
+      (acc, r) => Math.max(acc, Number(r.seq_no || 0)),
+      0
+    );
+    const a = state.graphit_item_test
+      .filter((ans) => Number(ans.seq_no) > seedMaxSeqNo)
+      .slice(-80);
+
+    const delta: CompactDelta = {
+      ...prevDelta,
+      g,
+      dg,
+      m,
+      t,
+      o,
+      a,
+    };
+
+    const compressed = zlib
+      .deflateRawSync(Buffer.from(JSON.stringify(delta), "utf-8"))
+      .toString("base64url");
+
+    cookies().set(DELTA_COOKIE_NAME, compressed, {
+      httpOnly: true,
+      path: "/",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 30,
+    });
+  } catch {
+    // Ignore when called outside request context
+  }
+}
+
 function loadInitialStateFromDisk(): DatabaseState {
   const runtimePath = getRuntimeFilePath();
   if (fs.existsSync(runtimePath)) {
@@ -378,10 +611,9 @@ export async function getDb(): Promise<DatabaseState> {
       const res = await pool.query("SELECT payload FROM graphit_app_state WHERE id = 'main' LIMIT 1");
       if (res.rows.length > 0 && res.rows[0].payload) {
         global.__graphitDbCache = res.rows[0].payload as DatabaseState;
-        return global.__graphitDbCache;
+        return applyDeltaToState(global.__graphitDbCache, readCookieDelta());
       } else {
-        // Seed into Cloud DB on first connect
-        const initial = loadInitialStateFromDisk();
+        const initial = applyDeltaToState(loadInitialStateFromDisk(), readCookieDelta());
         await pool.query(
           "INSERT INTO graphit_app_state (id, payload, updated_at) VALUES ('main', $1, NOW()) ON CONFLICT (id) DO UPDATE SET payload = EXCLUDED.payload, updated_at = NOW()",
           [JSON.stringify(initial)]
@@ -397,11 +629,14 @@ export async function getDb(): Promise<DatabaseState> {
   if (!global.__graphitDbCache) {
     global.__graphitDbCache = loadInitialStateFromDisk();
   }
-  return global.__graphitDbCache;
+  return applyDeltaToState(global.__graphitDbCache, readCookieDelta());
 }
 
 export async function saveDb(state: DatabaseState): Promise<void> {
   global.__graphitDbCache = state;
+
+  // Save to compressed delta cookie so all Vercel serverless instances immediately share state
+  writeCookieDelta(state);
 
   // Save to local/tmp runtime file
   try {

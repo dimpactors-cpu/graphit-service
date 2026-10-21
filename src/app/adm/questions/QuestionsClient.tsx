@@ -67,7 +67,7 @@ export default function QuestionsClient({
       if (data.ok) {
         alert('문항이 저장되었습니다.');
         setEditing(null);
-        router.refresh();
+        window.location.reload();
       } else {
         alert(data.message || '저장 실패');
       }

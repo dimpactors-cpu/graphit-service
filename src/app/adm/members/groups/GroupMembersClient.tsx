@@ -88,7 +88,7 @@ export default function GroupMembersClient({
         setNewId('');
         setNewGroupName('');
         setNewManagerName('');
-        router.refresh();
+        window.location.reload();
       } else {
         alert(data.message || '등록 실패');
       }

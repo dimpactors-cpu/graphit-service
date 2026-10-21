@@ -140,10 +140,12 @@ export default function GroupMemberDetailClient({
       });
       const data = await res.json();
       if (data.ok) {
-        alert(`단체코드 [${newCode.trim()}] 가 등록되었습니다.`);
-        setSelectedCode(newCode.trim());
+        const createdCode = newCode.trim();
+        alert(`단체코드 [${createdCode}] 가 등록되었습니다.`);
         setNewCode('');
-        router.refresh();
+        window.location.href = `/adm/members/groups/${encodeURIComponent(
+          member.mb_id
+        )}?group_code=${encodeURIComponent(createdCode)}`;
       } else {
         alert(data.message || '단체코드 등록 실패');
       }
@@ -164,7 +166,9 @@ export default function GroupMemberDetailClient({
       const data = await res.json();
       if (data.ok) {
         alert('단체코드가 삭제되었습니다.');
-        router.refresh();
+        window.location.href = `/adm/members/groups/${encodeURIComponent(
+          member.mb_id
+        )}`;
       } else {
         alert(data.message || '삭제할 수 없습니다.');
       }
