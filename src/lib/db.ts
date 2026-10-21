@@ -1004,7 +1004,7 @@ async function writeRemoteDelta(state: DatabaseState): Promise<void> {
         "base64"
       );
       const bodyObj: Record<string, string> = {
-        message: "Sync runtime delta",
+        message: "Sync runtime delta [skip ci]",
         content: contentBase64,
         branch: "db-state",
       };
