@@ -1,6 +1,6 @@
 import React from 'react';
 import { getSessionUser } from '@/lib/auth';
-import { getDb } from '@/lib/db';
+import { getDb, getSiteConfig } from '@/lib/db';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
 
@@ -13,11 +13,12 @@ export default async function ContentPage({
 }) {
   const user = getSessionUser();
   const db = await getDb();
+  const siteConfig = getSiteConfig(db);
   const content = db.g5_content.find((c) => c.co_id === params.co_id);
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
-      <SiteHeader user={user} />
+      <SiteHeader user={user} siteConfig={siteConfig} />
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-10">
         <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-10 shadow-sm">
           <h1 className="text-2xl font-extrabold text-slate-900 border-b border-slate-100 pb-4 mb-6">

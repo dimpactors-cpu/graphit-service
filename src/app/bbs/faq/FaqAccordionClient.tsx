@@ -9,6 +9,25 @@ interface FaqItem {
   wr_datetime: string;
 }
 
+function cleanFaqText(raw: string): string {
+  return String(raw || '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&amp;/gi, '&')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/\r\n/g, '\n')
+    .split('\n')
+    .map((line) => line.replace(/[ \t]+/g, ' ').trim())
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 export default function FaqAccordionClient({ faqs }: { faqs: FaqItem[] }) {
   const [openId, setOpenId] = useState<string | number | null>(
     faqs[0]?.wr_id ?? null
@@ -33,7 +52,7 @@ export default function FaqAccordionClient({ faqs }: { faqs: FaqItem[] }) {
                   Q{idx + 1}
                 </span>
                 <span className="text-sm sm:text-base font-bold text-slate-900">
-                  {faq.wr_subject}
+                  {cleanFaqText(faq.wr_subject)}
                 </span>
               </div>
               <span className="text-slate-400 font-bold text-lg">
@@ -42,7 +61,7 @@ export default function FaqAccordionClient({ faqs }: { faqs: FaqItem[] }) {
             </button>
             {isOpen && (
               <div className="px-5 py-4 bg-slate-50/70 border-t border-slate-100 text-sm text-slate-700 leading-relaxed whitespace-pre-line">
-                {faq.wr_content.replace(/<[^>]*>/g, '')}
+                {cleanFaqText(faq.wr_content)}
               </div>
             )}
           </div>

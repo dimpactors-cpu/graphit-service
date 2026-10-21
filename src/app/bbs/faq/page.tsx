@@ -1,6 +1,6 @@
 import React from 'react';
 import { getSessionUser } from '@/lib/auth';
-import { getDb } from '@/lib/db';
+import { getDb, getSiteConfig } from '@/lib/db';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
 import MypageSidebar from '@/components/MypageSidebar';
@@ -11,6 +11,7 @@ export const dynamic = 'force-dynamic';
 export default async function FaqPage() {
   const user = getSessionUser();
   const db = await getDb();
+  const siteConfig = getSiteConfig(db);
   const memberRow = user ? db.g5_member.find((m) => m.mb_id === user.mb_id) : null;
 
   const faqs = [...db.g5_write_faq].sort(
@@ -19,7 +20,7 @@ export default async function FaqPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
-      <SiteHeader user={user} />
+      <SiteHeader user={user} siteConfig={siteConfig} />
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex flex-col lg:flex-row gap-8 items-start">
           {memberRow && (
