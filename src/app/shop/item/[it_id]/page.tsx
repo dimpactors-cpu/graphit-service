@@ -71,15 +71,6 @@ export default async function ShopItemDetailPage({
                       총 {qCount}문항 / 평균 {item.it_3 || 60}분 내외
                     </span>
                   </div>
-                  <div className="flex items-center">
-                    <span className="w-32 text-gray-500 font-medium">판매 가격</span>
-                    <span className="text-xl font-extrabold text-[#0066F9]">
-                      {Number(item.it_price || 0).toLocaleString()}원
-                      <span className="text-xs font-normal text-gray-500 ml-2">
-                        (단체코드 인증 시 0원)
-                      </span>
-                    </span>
-                  </div>
                 </div>
               </div>
 
@@ -88,7 +79,7 @@ export default async function ShopItemDetailPage({
                   href={`/shop/orderform?it_id=${item.it_id}`}
                   className="flex-1 text-center bg-[#0066F9] hover:bg-[#0052cc] text-white font-bold py-3.5 px-6 rounded-xl text-base transition shadow-sm"
                 >
-                  검사 신청하기 (개인 결제 / 단체코드 인증)
+                  검사 신청하기
                 </Link>
                 <Link
                   href="/mypage"

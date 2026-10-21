@@ -145,7 +145,7 @@ export default function OrderFormClient({
 
   return (
     <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      {/* 좌측: 주문상품 및 신청자 정보 */}
+      {/* 좌측: 신청검사 및 수강생 정보 */}
       <div className="lg:col-span-8 space-y-6">
         <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
           <h2 className="text-base font-bold text-[#191919] border-b pb-3 mb-4">
@@ -161,18 +161,12 @@ export default function OrderFormClient({
               </h3>
               <p className="text-xs text-gray-500 mt-0.5">대상: {item.it_1}</p>
             </div>
-            <div className="text-right">
-              <div className="text-xs text-gray-400">상품금액</div>
-              <div className="text-lg font-bold text-gray-900">
-                {originalPrice.toLocaleString()}원
-              </div>
-            </div>
           </div>
         </div>
 
         <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
           <h2 className="text-base font-bold text-[#191919] border-b pb-3 mb-4">
-            주문하시는 분 (수강생 정보)
+            신청하시는 분 (수강생 정보)
           </h2>
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -286,87 +280,17 @@ export default function OrderFormClient({
             </div>
             {codeVerified && (
               <p className="mt-2 text-xs text-green-700 font-semibold">
-                ✓ 단체코드({groupCode}{verifiedGroupName ? ` · ${verifiedGroupName}` : ""}) 인증 완료 (결제금액 0원)
+                ✓ 단체코드({groupCode}{verifiedGroupName ? ` · ${verifiedGroupName}` : ""}) 인증 완료
               </p>
             )}
-
-            {sampleGroupCodes.length > 0 && !codeVerified && (
-              <div className="mt-2.5 pt-2 border-t border-gray-100">
-                <span className="block text-[11px] text-gray-400 mb-1">
-                  등록된 단체코드 클릭 시 자동 입력:
-                </span>
-                <div className="flex flex-wrap gap-1">
-                  {sampleGroupCodes.map((g) => (
-                    <button
-                      key={g.group_code}
-                      type="button"
-                      onClick={() => setGroupCode(g.group_code)}
-                      className="text-[11px] bg-gray-100 hover:bg-blue-50 text-gray-700 hover:text-[#0066F9] px-2 py-0.5 rounded border border-gray-200"
-                    >
-                      {g.group_code}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
-
-          {/* 금액 요약 */}
-          <div className="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
-            <div className="grid grid-cols-2 text-center py-3">
-              <div className="border-r border-gray-100">
-                <span className="block text-xs text-gray-500 font-semibold">주문금액</span>
-                <strong className="text-sm text-gray-900">{originalPrice.toLocaleString()}원</strong>
-              </div>
-              <div>
-                <span className="block text-xs text-gray-500 font-semibold">단체할인</span>
-                <strong className="text-sm text-[#0066F9]">
-                  {codeVerified ? `-${originalPrice.toLocaleString()}원` : "0원"}
-                </strong>
-              </div>
-            </div>
-            <div className="p-4 flex items-center justify-between">
-              <span className="text-sm font-bold text-gray-700">총 결제금액</span>
-              <strong id="ct_tot_price" className="text-xl font-extrabold text-[#ff006c]">
-                {finalPrice.toLocaleString()}원
-              </strong>
-            </div>
-          </div>
-
-          {/* 결제수단 선택 (단체코드 미인증 시 노출) */}
-          {!codeVerified && finalPrice > 0 && (
-            <div id="od_pay_sl" className="mt-4 bg-white p-4 rounded-lg border border-gray-200">
-              <div className="text-xs font-bold text-gray-700 mb-2">결제수단 선택</div>
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                {["신용카드", "계좌이체", "가상계좌", "무통장"].map((method) => (
-                  <label
-                    key={method}
-                    className={`flex items-center gap-2 p-2.5 border rounded cursor-pointer font-medium ${
-                      settleCase === method
-                        ? "border-[#ff006c] bg-pink-50/30 text-[#ff006c]"
-                        : "border-gray-200 text-gray-700"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="od_settle_case"
-                      value={method}
-                      checked={settleCase === method}
-                      onChange={() => setSettleCase(method)}
-                    />
-                    {method}
-                  </label>
-                ))}
-              </div>
-            </div>
-          )}
 
           <button
             type="submit"
             disabled={submitting}
-            className="mt-4 w-full py-3.5 bg-[#0066F9] hover:bg-[#0052cc] text-white font-bold text-base rounded-lg shadow transition disabled:opacity-50"
+            className="mt-2 w-full py-3.5 bg-[#0066F9] hover:bg-[#0052cc] text-white font-bold text-base rounded-lg shadow transition disabled:opacity-50"
           >
-            {submitting ? "처리 중..." : "주문 / 검사 신청 완료하기"}
+            {submitting ? "처리 중..." : "검사 신청 완료하기"}
           </button>
         </div>
       </div>

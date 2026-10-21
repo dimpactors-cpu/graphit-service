@@ -12,9 +12,8 @@ export default async function HomePage() {
   const db = await getDb();
   const siteConfig = getSiteConfig(db);
 
-  // Active items (plus all items in ca_id 10)
+  // Active items
   const activeItems = db.g5_shop_item.filter((it) => Number(it.it_use) === 1);
-  const allItems = db.g5_shop_item;
   const extraTopBanners = (siteConfig.extra_banners || []).filter(
     (b) => b.position === "top" && b.is_visible
   );
@@ -129,20 +128,10 @@ export default async function HomePage() {
                       </p>
                     </div>
 
-                    <div className="mt-5 pt-4 border-t border-gray-100 flex items-center justify-between">
-                      <div>
-                        <span className="text-xs text-gray-400 block">
-                          검사 비용 (단체코드 0원)
-                        </span>
-                        <strong className="text-lg font-extrabold text-[#191919]">
-                          {Number(item.it_price || 0) === 0
-                            ? "무료 (인터벌)"
-                            : `${Number(item.it_price).toLocaleString()}원`}
-                        </strong>
-                      </div>
+                    <div className="mt-5 pt-4 border-t border-gray-100 flex items-center justify-end">
                       <Link
                         href={`/shop/item/${item.it_id}`}
-                        className="bg-[#0066F9] hover:bg-[#0052cc] text-white text-sm font-semibold px-4 py-2 rounded-lg transition"
+                        className="w-full text-center bg-[#0066F9] hover:bg-[#0052cc] text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition"
                       >
                         신청하기 →
                       </Link>
@@ -156,7 +145,7 @@ export default async function HomePage() {
           {/* 단체코드 빠른 입력 바 */}
           <QuickGroupCodeBar />
 
-          {/* 전체 등록 검사 및 빠른 메뉴 */}
+          {/* 신청이력 및 마이페이지 빠른 메뉴 */}
           <div className="mt-6 bg-gray-50 border border-gray-200 rounded-xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <h4 className="font-bold text-sm sm:text-base text-gray-800">
@@ -173,14 +162,7 @@ export default async function HomePage() {
               >
                 검사내역 / 신청이력 조회
               </Link>
-              {user && user.mb_level >= 9 ? (
-                <Link
-                  href="/adm"
-                  className="bg-[#e14d64] hover:bg-[#c83b52] text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-lg transition"
-                >
-                  관리자 현황판
-                </Link>
-              ) : (
+              {!user && (
                 <Link
                   href="/login"
                   className="border border-gray-300 bg-white hover:bg-gray-100 text-gray-700 text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-lg transition"
@@ -190,30 +172,6 @@ export default async function HomePage() {
               )}
             </div>
           </div>
-
-          {/* 비노출(과거) 검사 아카이브 목록 */}
-          <details className="mt-6 text-xs text-gray-500">
-            <summary className="cursor-pointer font-medium hover:text-gray-800">
-              전체 등록 검사 프로그램 목록 보기 ({allItems.length}종)
-            </summary>
-            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-              {allItems.map((it) => (
-                <Link
-                  key={it.it_id}
-                  href={`/shop/item/${it.it_id}`}
-                  className="p-3 rounded border border-gray-200 hover:border-[#0066F9] bg-white flex items-center justify-between"
-                >
-                  <div>
-                    <div className="font-semibold text-gray-800">{it.it_name}</div>
-                    <div className="text-[11px] text-gray-400">
-                      {it.it_4} · {it.it_1}
-                    </div>
-                  </div>
-                  <span className="text-[#0066F9] font-semibold">상세 →</span>
-                </Link>
-              ))}
-            </div>
-          </details>
         </div>
       </section>
 

@@ -322,6 +322,8 @@ declare global {
   // eslint-disable-next-line no-var
   var __graphitDbCache: DatabaseState | undefined;
   // eslint-disable-next-line no-var
+  var __graphitRemoteDeltaCache: CompactDelta | undefined;
+  // eslint-disable-next-line no-var
   var __graphitPgPool: Pool | undefined;
   // eslint-disable-next-line no-var
   var __graphitPgInitialized: boolean | undefined;
@@ -522,13 +524,46 @@ async function fetchRemoteDeltaWithSha(): Promise<{
       },
       cache: "no-store",
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      if (global.__graphitRemoteDeltaCache) {
+        return { sha: "", delta: global.__graphitRemoteDeltaCache };
+      }
+      return null;
+    }
     const data = await res.json();
-    if (!data || !data.content) return null;
-    const jsonStr = Buffer.from(data.content, "base64").toString("utf-8");
+    if (!data) return null;
+
+    let base64Content = data.content;
+    if (!base64Content && data.git_url) {
+      const blobRes = await fetch(data.git_url, {
+        method: "GET",
+        headers: {
+          Authorization: `token ${getGhToken()}`,
+          Accept: "application/vnd.github.v3+json",
+          "User-Agent": "graphit-service",
+        },
+        cache: "no-store",
+      });
+      if (blobRes.ok) {
+        const blobData = await blobRes.json();
+        base64Content = blobData?.content;
+      }
+    }
+
+    if (!base64Content) {
+      if (global.__graphitRemoteDeltaCache) {
+        return { sha: data.sha || "", delta: global.__graphitRemoteDeltaCache };
+      }
+      return null;
+    }
+    const jsonStr = Buffer.from(base64Content, "base64").toString("utf-8");
     const delta = JSON.parse(jsonStr) as CompactDelta;
+    global.__graphitRemoteDeltaCache = delta;
     return { sha: data.sha, delta };
   } catch {
+    if (global.__graphitRemoteDeltaCache) {
+      return { sha: "", delta: global.__graphitRemoteDeltaCache };
+    }
     return null;
   }
 }
@@ -564,10 +599,11 @@ function mergeDeltas(
   }
 
   const mMap = new Map<string, MemberRow>();
-  for (const mem of b.m || []) mMap.set(mem.mb_id, mem);
+  for (const mem of b.m || []) mMap.set(mem.mb_id.toLowerCase(), mem);
   for (const mem of inc.m || []) {
-    const prev = mMap.get(mem.mb_id);
-    mMap.set(mem.mb_id, prev ? { ...prev, ...mem } : mem);
+    const key = mem.mb_id.toLowerCase();
+    const prev = mMap.get(key);
+    mMap.set(key, prev ? { ...prev, ...mem } : mem);
   }
 
   const tMap = new Map<number, GraphitTestRow>();
@@ -668,7 +704,9 @@ function applyDeltaToState(state: DatabaseState, delta: CompactDelta | null): Da
 
   if (delta.m && delta.m.length > 0) {
     for (const mem of delta.m) {
-      const idx = state.g5_member.findIndex((x) => x.mb_id === mem.mb_id);
+      const idx = state.g5_member.findIndex(
+        (x) => x.mb_id.toLowerCase() === mem.mb_id.toLowerCase()
+      );
       if (idx >= 0) {
         state.g5_member[idx] = { ...state.g5_member[idx], ...mem };
       } else {
@@ -790,18 +828,25 @@ function extractDeltaFromState(
     (grp) => !seedGroupCodes.has(String(grp.group_code).trim().toUpperCase())
   );
 
-  const seedMemberMap = new Map(seed.g5_member.map((m) => [m.mb_id, m]));
+  const seedMemberMap = new Map(seed.g5_member.map((m) => [m.mb_id.toLowerCase(), m]));
   const mAll = state.g5_member.filter((mem) => {
-    const s = seedMemberMap.get(mem.mb_id);
+    const s = seedMemberMap.get(mem.mb_id.toLowerCase());
     if (!s) return true;
     return (
       mem.mb_name !== s.mb_name ||
+      mem.mb_nick !== s.mb_nick ||
+      mem.mb_email !== s.mb_email ||
+      Number(mem.mb_level) !== Number(s.mb_level) ||
       mem.mb_password !== s.mb_password ||
       mem.mb_hp !== s.mb_hp ||
+      mem.mb_birth !== s.mb_birth ||
+      mem.mb_sex !== s.mb_sex ||
       mem.mb_7 !== s.mb_7 ||
       mem.mb_8 !== s.mb_8 ||
       mem.mb_10 !== s.mb_10 ||
-      mem.mb_leave_date !== s.mb_leave_date
+      mem.mb_leave_date !== s.mb_leave_date ||
+      mem.group_code !== s.group_code ||
+      mem.test_status !== s.test_status
     );
   });
   const m = forCookie ? mAll.slice(0, 12) : mAll;
@@ -929,7 +974,7 @@ function writeCookieDelta(state: DatabaseState): void {
 
 async function writeRemoteDelta(state: DatabaseState): Promise<void> {
   try {
-    for (let attempt = 0; attempt < 2; attempt++) {
+    for (let attempt = 0; attempt < 4; attempt++) {
       const remoteInfo = await fetchRemoteDeltaWithSha();
       const cookieDelta = readCookieDelta();
       const baseKnown = mergeDeltas(remoteInfo?.delta || null, cookieDelta);
@@ -952,6 +997,8 @@ async function writeRemoteDelta(state: DatabaseState): Promise<void> {
           (grp) => !dgSet.has(String(grp.group_code).trim().toUpperCase())
         );
       }
+
+      global.__graphitRemoteDeltaCache = finalDelta;
 
       const contentBase64 = Buffer.from(JSON.stringify(finalDelta), "utf-8").toString(
         "base64"
@@ -980,6 +1027,7 @@ async function writeRemoteDelta(state: DatabaseState): Promise<void> {
       if (putRes.ok) {
         return;
       }
+      await new Promise((r) => setTimeout(r, 150 * (attempt + 1)));
     }
   } catch (e) {
     console.error("Remote delta sync warning:", e);
@@ -1041,19 +1089,33 @@ export async function getDb(): Promise<DatabaseState> {
   const mergedDelta = mergeDeltas(remoteInfo?.delta || null, cookieDelta);
   const updatedState = applyDeltaToState(global.__graphitDbCache, mergedDelta);
 
-  // If the user's browser cookie has a group code not yet in remoteDelta, promote it to remoteDelta automatically!
-  if (cookieDelta?.g && cookieDelta.g.length > 0) {
+  // If the user's browser cookie has any group codes, members, tests, or orders not yet in remoteDelta, promote them to remoteDelta automatically!
+  if (cookieDelta) {
     const remoteCodes = new Set(
       (remoteInfo?.delta?.g || []).map((g) => String(g.group_code).trim().toUpperCase())
     );
     const remoteDeleted = new Set(
       (remoteInfo?.delta?.dg || []).map((c) => String(c).trim().toUpperCase())
     );
-    const hasUnsyncedCookieGroup = cookieDelta.g.some((g) => {
+    const remoteMemberIds = new Set(
+      (remoteInfo?.delta?.m || []).map((m) => String(m.mb_id).trim().toLowerCase())
+    );
+    const remoteTestNos = new Set(
+      (remoteInfo?.delta?.t || []).map((t) => Number(t.test_no))
+    );
+
+    const hasUnsyncedCookieGroup = (cookieDelta.g || []).some((g) => {
       const up = String(g.group_code).trim().toUpperCase();
       return !remoteCodes.has(up) && !remoteDeleted.has(up);
     });
-    if (hasUnsyncedCookieGroup) {
+    const hasUnsyncedCookieMember = (cookieDelta.m || []).some(
+      (m) => !remoteMemberIds.has(String(m.mb_id).trim().toLowerCase())
+    );
+    const hasUnsyncedCookieTest = (cookieDelta.t || []).some(
+      (t) => !remoteTestNos.has(Number(t.test_no))
+    );
+
+    if (hasUnsyncedCookieGroup || hasUnsyncedCookieMember || hasUnsyncedCookieTest) {
       await writeRemoteDelta(updatedState);
     }
   }

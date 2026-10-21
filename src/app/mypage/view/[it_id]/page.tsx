@@ -58,10 +58,10 @@ export default async function MypageViewItemPage({
             <div className="flex items-center justify-between border-b border-slate-100 pb-5 mb-6">
               <div>
                 <h1 className="text-2xl font-extrabold text-slate-900">
-                  #구매 내역 상세
+                  #신청 내역 상세
                 </h1>
                 <p className="text-sm text-slate-500 mt-1">
-                  {shopItem?.it_name || '그래프잇 진단검사'} 신청 및 결제 상세 내역입니다.
+                  {shopItem?.it_name || '그래프잇 진단검사'} 신청 상세 내역입니다.
                 </p>
               </div>
               <Link
@@ -100,10 +100,9 @@ export default async function MypageViewItemPage({
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600">
-                    <th className="py-3.5 px-4">신청번호(주문번호)</th>
+                    <th className="py-3.5 px-4">신청번호</th>
                     <th className="py-3.5 px-4">검사명</th>
-                    <th className="py-3.5 px-4">결제/신청방식</th>
-                    <th className="py-3.5 px-4 text-right">결제금액</th>
+                    <th className="py-3.5 px-4">신청방식</th>
                     <th className="py-3.5 px-4 text-center">진행상태</th>
                     <th className="py-3.5 px-4">신청일시</th>
                   </tr>
@@ -111,7 +110,7 @@ export default async function MypageViewItemPage({
                 <tbody className="divide-y divide-slate-100">
                   {myTestsForItem.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="py-12 text-center text-slate-400">
+                      <td colSpan={5} className="py-12 text-center text-slate-400">
                         해당 검사의 신청 내역이 없습니다.
                       </td>
                     </tr>
@@ -120,10 +119,7 @@ export default async function MypageViewItemPage({
                       const od = orderMap.get(String(t.od_id));
                       const settleCase = t.group_code
                         ? `단체코드 (${t.group_code})`
-                        : od?.od_settle_case || '일반신청';
-                      const price = t.group_code
-                        ? 0
-                        : Number(od?.od_receipt_price || od?.od_cart_price || shopItem?.it_price || 0);
+                        : '개인신청';
 
                       return (
                         <tr key={t.test_no} className="hover:bg-slate-50/70">
@@ -134,9 +130,6 @@ export default async function MypageViewItemPage({
                             {t.it_name || shopItem?.it_name}
                           </td>
                           <td className="py-3.5 px-4 text-slate-700">{settleCase}</td>
-                          <td className="py-3.5 px-4 text-right font-bold text-slate-900">
-                            {price.toLocaleString()}원
-                          </td>
                           <td className="py-3.5 px-4 text-center">
                             <span
                               className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-bold ${

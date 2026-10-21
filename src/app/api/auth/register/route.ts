@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { getDb, saveDb, formatKstNow } from "@/lib/db";
 import { createHash } from "@/lib/password";
 import { signToken, SESSION_COOKIE_NAME } from "@/lib/auth";
@@ -94,15 +95,14 @@ export async function POST(req: NextRequest) {
       mb_level: 2,
     });
 
-    const res = NextResponse.json({ ok: true, member: newMember });
-    res.cookies.set(SESSION_COOKIE_NAME, token, {
+    cookies().set(SESSION_COOKIE_NAME, token, {
       httpOnly: true,
       path: "/",
       sameSite: "lax",
       maxAge: 60 * 60 * 24 * 7,
     });
 
-    return res;
+    return NextResponse.json({ ok: true, member: newMember });
   } catch (err: any) {
     return NextResponse.json({ ok: false, message: err?.message || "회원가입 중 오류가 발생했습니다." }, { status: 500 });
   }

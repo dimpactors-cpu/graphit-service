@@ -33,9 +33,13 @@ export async function fileToDataUrl(
             return;
           }
           ctx.drawImage(img, 0, 0, w, h);
-          const mime = file.type === "image/png" ? "image/png" : "image/jpeg";
-          const compressed = canvas.toDataURL(mime, quality);
-          resolve(compressed.length < rawDataUrl.length ? compressed : rawDataUrl);
+          const webp = canvas.toDataURL("image/webp", quality);
+          if (webp.startsWith("data:image/webp") && webp.length < rawDataUrl.length) {
+            resolve(webp);
+            return;
+          }
+          const jpeg = canvas.toDataURL("image/jpeg", quality);
+          resolve(jpeg.length < rawDataUrl.length ? jpeg : rawDataUrl);
         } catch {
           resolve(rawDataUrl);
         }

@@ -410,7 +410,7 @@ export default function MypageClient({
                             href={`/mypage/view/${item.it_id}`}
                             className="text-xs font-semibold text-slate-500 hover:text-slate-800 px-2 py-1"
                           >
-                            구매상세보기 →
+                            신청상세보기 →
                           </Link>
                         </div>
                       </div>
