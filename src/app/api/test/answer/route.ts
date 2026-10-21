@@ -82,10 +82,43 @@ export async function POST(req: NextRequest) {
 
     await saveDb(db);
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       ok: true,
       status: is_complete ? "완료" : "진행중",
     });
+
+    try {
+      const rawCookie = req.cookies.get("graphit_my_tests")?.value;
+      if (rawCookie) {
+        const cookieTests = JSON.parse(
+          Buffer.from(rawCookie, "base64url").toString("utf-8")
+        );
+        const updated = cookieTests.map((t: any) => {
+          if (t.mb_id === user.mb_id && String(t.it_id) === String(it_id)) {
+            return {
+              ...t,
+              test_status: is_complete ? "완료" : "진행중",
+              end_datetime: is_complete ? now : t.end_datetime,
+            };
+          }
+          return t;
+        });
+        res.cookies.set(
+          "graphit_my_tests",
+          Buffer.from(JSON.stringify(updated), "utf-8").toString("base64url"),
+          {
+            httpOnly: true,
+            path: "/",
+            sameSite: "lax",
+            maxAge: 60 * 60 * 24 * 7,
+          }
+        );
+      }
+    } catch {
+      // ignore
+    }
+
+    return res;
   } catch (err: any) {
     return NextResponse.json({ ok: false, message: err?.message || "답변 저장 중 오류가 발생했습니다." }, { status: 500 });
   }

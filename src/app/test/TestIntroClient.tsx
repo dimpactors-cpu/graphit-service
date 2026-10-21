@@ -20,6 +20,7 @@ interface TestIntroClientProps {
   totalQuestions: number;
   answeredQuestions: number;
   nextSeq: number;
+  isFresh?: boolean;
 }
 
 export default function TestIntroClient({
@@ -28,6 +29,7 @@ export default function TestIntroClient({
   totalQuestions,
   answeredQuestions,
   nextSeq,
+  isFresh = false,
 }: TestIntroClientProps) {
   const router = useRouter();
   const [checked, setChecked] = useState<boolean[]>(
@@ -49,7 +51,11 @@ export default function TestIntroClient({
       alert('검사 유의사항을 모두 확인하고 체크해 주세요.');
       return;
     }
-    router.push(`/test/run?it_id=${encodeURIComponent(itId)}&seq=${nextSeq}`);
+    router.push(
+      `/test/run?it_id=${encodeURIComponent(itId)}&seq=${nextSeq}${
+        isFresh ? '&fresh=1' : ''
+      }`
+    );
   };
 
   return (

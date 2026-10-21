@@ -62,12 +62,30 @@ export default function OrderFormClient({
 
     setSubmitting(true);
     try {
+      let finalGroupCode = codeVerified ? groupCode.trim() : "";
+      if (!codeVerified && groupCode.trim()) {
+        const vRes = await fetch("/api/group-code/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ group_code: groupCode.trim(), it_id: item.it_id }),
+        });
+        const vData = await vRes.json();
+        if (vData.ok && vData.result === "ok") {
+          finalGroupCode = vData.group_code;
+          setCodeVerified(true);
+        } else {
+          alert(vData.message || "입력하신 단체코드를 다시 확인해주세요.");
+          setSubmitting(false);
+          return;
+        }
+      }
+
       const res = await fetch("/api/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           it_id: item.it_id,
-          group_code: codeVerified ? groupCode : "",
+          group_code: finalGroupCode,
           od_name: odName,
           od_hp: odHp,
           od_tel: odHp,
@@ -83,8 +101,8 @@ export default function OrderFormClient({
         setSubmitting(false);
         return;
       }
-      router.push("/mypage");
-      router.refresh();
+      window.location.href =
+        data.redirect_url || `/test?it_id=${encodeURIComponent(String(item.it_id))}&fresh=1`;
     } catch (err: any) {
       alert(err?.message || "오류가 발생했습니다.");
       setSubmitting(false);

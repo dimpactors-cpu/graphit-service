@@ -9,36 +9,46 @@ export const dynamic = 'force-dynamic';
 export default async function TestRunPage({
   searchParams,
 }: {
-  searchParams?: { it_id?: string; seq?: string };
+  searchParams?: { it_id?: string; seq?: string; fresh?: string };
 }) {
   const user = getSessionUser();
   if (!user) {
-    redirect('/login?redirect=/mypage');
+    redirect('/login?url=/mypage');
   }
 
   const db = await getDb();
+  const isFresh = searchParams?.fresh === '1';
+
   let itId = searchParams?.it_id || '';
   if (!itId) {
     const firstTest = db.graphit_test.find((t) => t.mb_id === user.mb_id);
     if (firstTest) itId = String(firstTest.it_id);
   }
   if (!itId) {
-    redirect('/mypage');
+    itId = '1698900476';
   }
 
   const shopItem = db.g5_shop_item.find((it) => String(it.it_id) === itId);
   const qaMap = new Map(db.graphit_qa.map((q) => [Number(q.qa_no), q]));
 
-  const userAnswers = db.graphit_item_test.filter(
-    (ans) => ans.mb_id === user.mb_id && String(ans.it_id) === itId
-  );
+  const userAnswers = isFresh
+    ? []
+    : db.graphit_item_test.filter(
+        (ans) => ans.mb_id === user.mb_id && String(ans.it_id) === itId
+      );
   const answerBySeq = new Map(
     userAnswers.map((a) => [Number(a.item_seq), a.test_answer])
   );
 
-  const mappedItems = db.graphit_item
+  let mappedItems = db.graphit_item
     .filter((gi) => String(gi.it_id) === itId)
     .sort((a, b) => Number(a.item_seq) - Number(b.item_seq));
+
+  if (mappedItems.length === 0) {
+    mappedItems = db.graphit_item
+      .filter((gi) => String(gi.it_id) === '1680499166')
+      .sort((a, b) => Number(a.item_seq) - Number(b.item_seq));
+  }
 
   const questions: TestQuestionItem[] = mappedItems.map((gi) => {
     const qa = qaMap.get(Number(gi.qa_no));
@@ -61,7 +71,9 @@ export default async function TestRunPage({
   });
 
   let initialIndex = 0;
-  if (searchParams?.seq) {
+  if (isFresh) {
+    initialIndex = 0;
+  } else if (searchParams?.seq) {
     const requestedSeq = Number(searchParams.seq);
     const idx = questions.findIndex((q) => q.item_seq === requestedSeq);
     if (idx >= 0) initialIndex = idx;

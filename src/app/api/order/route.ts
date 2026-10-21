@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { getDb, saveDb, formatKstNow } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
+
+export const MY_TESTS_COOKIE = "graphit_my_tests";
 
 export async function POST(req: NextRequest) {
   try {
     const user = getSessionUser();
     if (!user) {
-      return NextResponse.json({ ok: false, message: "로그인 후 이용하실 수 있습니다." }, { status: 401 });
+      return NextResponse.json(
+        { ok: false, message: "로그인 후 이용하실 수 있습니다." },
+        { status: 401 }
+      );
     }
 
     const body = await req.json();
@@ -26,9 +32,14 @@ export async function POST(req: NextRequest) {
     } = body;
 
     const db = await getDb();
-    const item = db.g5_shop_item.find((it) => String(it.it_id) === String(it_id));
+    const item =
+      db.g5_shop_item.find((it) => String(it.it_id) === String(it_id)) ||
+      db.g5_shop_item[0];
     if (!item) {
-      return NextResponse.json({ ok: false, message: "선택한 검사 상품을 찾을 수 없습니다." }, { status: 404 });
+      return NextResponse.json(
+        { ok: false, message: "선택한 검사 상품을 찾을 수 없습니다." },
+        { status: 404 }
+      );
     }
 
     const member = db.g5_member.find((m) => m.mb_id === user.mb_id);
@@ -40,20 +51,24 @@ export async function POST(req: NextRequest) {
     let resolvedGroupCode = "";
     let resolvedGroupName = "";
     let finalPrice = Number(item.it_price || 0);
-    let odStatus = "입금";
+    const odStatus = "입금";
 
     if (group_code && String(group_code).trim() !== "") {
       const codeClean = String(group_code).trim();
       const gRow = db.graphit_group.find(
-        (g) => String(g.group_code || "").trim().toUpperCase() === codeClean.toUpperCase()
+        (g) =>
+          String(g.group_code || "")
+            .trim()
+            .toUpperCase() === codeClean.toUpperCase()
       );
       resolvedGroupCode = gRow ? gRow.group_code : codeClean;
       const gOwner = gRow
-        ? db.g5_member.find((m) => m.mb_id === gRow.mb_id && Number(m.mb_level) === 3)
+        ? db.g5_member.find(
+            (m) => m.mb_id === gRow.mb_id && Number(m.mb_level) === 3
+          )
         : undefined;
       resolvedGroupName = gOwner?.mb_8 || "";
       finalPrice = 0;
-      odStatus = "입금";
     }
 
     const newOrder = {
@@ -75,7 +90,9 @@ export async function POST(req: NextRequest) {
       od_cancel_price: 0,
       od_misu: 0,
       od_status: odStatus,
-      od_settle_case: resolvedGroupCode ? "단체코드인증" : od_settle_case || "무통장",
+      od_settle_case: resolvedGroupCode
+        ? "단체코드인증"
+        : od_settle_case || "무통장",
       od_time: now,
       od_delivery_company: "",
       od_invoice: "",
@@ -83,7 +100,16 @@ export async function POST(req: NextRequest) {
 
     db.g5_shop_order.unshift(newOrder);
 
-    const maxTestNo = db.graphit_test.reduce((acc, t) => Math.max(acc, Number(t.test_no || 0)), 0);
+    // Clear previous answers for this (mb_id, it_id) so a newly applied test starts from question 1
+    db.graphit_item_test = db.graphit_item_test.filter(
+      (ans) =>
+        !(ans.mb_id === user.mb_id && String(ans.it_id) === String(item.it_id))
+    );
+
+    const maxTestNo = db.graphit_test.reduce(
+      (acc, t) => Math.max(acc, Number(t.test_no || 0)),
+      0
+    );
     const newTest = {
       test_no: maxTestNo + 1,
       mb_name: od_name || member?.mb_name || user.mb_name,
@@ -109,13 +135,55 @@ export async function POST(req: NextRequest) {
 
     await saveDb(db);
 
-    return NextResponse.json({
+    // Also persist to cookie so serverless functions on Vercel immediately see the new test
+    let existingCookieTests: any[] = [];
+    try {
+      const rawCookie = cookies().get(MY_TESTS_COOKIE)?.value;
+      if (rawCookie) {
+        existingCookieTests = JSON.parse(
+          Buffer.from(rawCookie, "base64url").toString("utf-8")
+        );
+      }
+    } catch {
+      existingCookieTests = [];
+    }
+
+    const updatedCookieTests = [
+      newTest,
+      ...existingCookieTests.filter(
+        (t) =>
+          !(t.mb_id === user.mb_id && String(t.it_id) === String(item.it_id))
+      ),
+    ].slice(0, 10);
+
+    const res = NextResponse.json({
       ok: true,
       od_id,
       test_no: newTest.test_no,
-      it_id: item.it_id,
+      it_id: String(item.it_id),
+      redirect_url: `/test?it_id=${encodeURIComponent(
+        String(item.it_id)
+      )}&test_idx=${newTest.test_no}&fresh=1`,
     });
+
+    res.cookies.set(
+      MY_TESTS_COOKIE,
+      Buffer.from(JSON.stringify(updatedCookieTests), "utf-8").toString(
+        "base64url"
+      ),
+      {
+        httpOnly: true,
+        path: "/",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 7,
+      }
+    );
+
+    return res;
   } catch (err: any) {
-    return NextResponse.json({ ok: false, message: err?.message || "신청 처리 중 오류가 발생했습니다." }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, message: err?.message || "신청 처리 중 오류가 발생했습니다." },
+      { status: 500 }
+    );
   }
 }
