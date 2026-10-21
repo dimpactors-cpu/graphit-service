@@ -1,9 +1,3 @@
 {
-  "version": 2,
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/api/index.py?__route_path=/$1"
-    }
-  ]
+  "framework": "nextjs"
 }
