@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { getDb, saveDb, formatKstNow } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 
-export const MY_TESTS_COOKIE = "graphit_my_tests";
+const MY_TESTS_COOKIE = "graphit_my_tests";
 
 export async function POST(req: NextRequest) {
   try {
