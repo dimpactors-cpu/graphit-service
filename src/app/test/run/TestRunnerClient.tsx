@@ -232,7 +232,8 @@ export default function TestRunnerClient({
           </div>
 
           <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 leading-snug mb-3 whitespace-pre-line">
-            {currentQ.qa_subject}
+            <span className="text-indigo-600 mr-1.5">Q.</span>
+            {String(currentQ.qa_subject || '').replace(/^\s*Q\.\s*/i, '')}
           </h2>
 
           {currentQ.qa_content && (
@@ -288,8 +289,11 @@ export default function TestRunnerClient({
               {options.map((optText, idx) => {
                 const optNum = String(idx + 1);
                 const isSelected = selectedAnswer === optNum;
+                const cleanedOpt = optText
+                  ? String(optText).replace(/^\s*[1-5]\s*\.\s*/, '').trim()
+                  : '';
                 const labelText =
-                  optText && optText.trim() !== '' ? optText : `${optNum}번`;
+                  cleanedOpt !== '' ? cleanedOpt : `${optNum}번`;
 
                 return (
                   <button

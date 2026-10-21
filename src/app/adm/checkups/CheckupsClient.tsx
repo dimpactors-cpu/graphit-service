@@ -22,6 +22,7 @@ export interface CheckupSummary {
 
 export default function CheckupsClient({ items }: { items: CheckupSummary[] }) {
   const router = useRouter();
+  const [itemList, setItemList] = useState<CheckupSummary[]>(items);
   const [showModal, setShowModal] = useState(false);
   const [itName, setItName] = useState('');
   const [it4, setIt4] = useState('');
@@ -61,9 +62,27 @@ export default function CheckupsClient({ items }: { items: CheckupSummary[] }) {
       });
       const data = await res.json();
       if (data.ok) {
+        if (data.item) {
+          setItemList((prev) => [
+            {
+              it_id: String(data.item.it_id),
+              it_name: data.item.it_name,
+              it_price: Number(data.item.it_price || 0),
+              it_use: Number(data.item.it_use ?? 1),
+              it_img1: data.item.it_img1 || '',
+              it_1: data.item.it_1 || '',
+              it_2: data.item.it_2 || '',
+              it_3: data.item.it_3 || '',
+              it_4: data.item.it_4 || '',
+              question_count: 0,
+              applicant_count: 0,
+            },
+            ...prev.filter((p) => String(p.it_id) !== String(data.item.it_id)),
+          ]);
+        }
         alert('신규 검사 프로그램이 생성되었습니다.');
         setShowModal(false);
-        window.location.reload();
+        router.refresh();
       } else {
         alert(data.message || '생성 실패');
       }
@@ -97,7 +116,7 @@ export default function CheckupsClient({ items }: { items: CheckupSummary[] }) {
       }
     >
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {items.map((it) => (
+        {itemList.map((it) => (
           <div
             key={it.it_id}
             className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex flex-col justify-between hover:border-indigo-300 transition"

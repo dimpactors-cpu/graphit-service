@@ -744,7 +744,16 @@ function applyDeltaToState(state: DatabaseState, delta: CompactDelta | null): Da
     state.graphit_qa = state.graphit_qa.filter((q) => !delQa.has(Number(q.qa_no)));
   }
   if (delta.q && delta.q.length > 0) {
-    for (const qa of delta.q) {
+    for (const rawQa of delta.q) {
+      const qa: GraphitQaRow = {
+        ...rawQa,
+        qa_subject: String(rawQa.qa_subject || "").replace(/^\s*Q\.\s*/i, "").trim(),
+        qa_q1: rawQa.qa_q1 ? String(rawQa.qa_q1).replace(/^\s*[1-5]\s*\.\s*/, "").trim() : rawQa.qa_q1,
+        qa_q2: rawQa.qa_q2 ? String(rawQa.qa_q2).replace(/^\s*[1-5]\s*\.\s*/, "").trim() : rawQa.qa_q2,
+        qa_q3: rawQa.qa_q3 ? String(rawQa.qa_q3).replace(/^\s*[1-5]\s*\.\s*/, "").trim() : rawQa.qa_q3,
+        qa_q4: rawQa.qa_q4 ? String(rawQa.qa_q4).replace(/^\s*[1-5]\s*\.\s*/, "").trim() : rawQa.qa_q4,
+        qa_q5: rawQa.qa_q5 ? String(rawQa.qa_q5).replace(/^\s*[1-5]\s*\.\s*/, "").trim() : rawQa.qa_q5,
+      };
       const idx = state.graphit_qa.findIndex((x) => Number(x.qa_no) === Number(qa.qa_no));
       if (idx >= 0) {
         state.graphit_qa[idx] = qa;
@@ -870,13 +879,40 @@ function extractDeltaFromState(
   );
   const a = forCookie ? aAll.slice(-40) : aAll;
 
+  const seedItemMap = new Map(seed.g5_shop_item.map((it) => [String(it.it_id), it]));
+  const iAll = state.g5_shop_item.filter((it) => {
+    const s = seedItemMap.get(String(it.it_id));
+    if (!s) return true;
+    return (
+      it.it_name !== s.it_name ||
+      Number(it.it_price) !== Number(s.it_price) ||
+      Number(it.it_use) !== Number(s.it_use) ||
+      it.it_img1 !== s.it_img1 ||
+      it.it_basic !== s.it_basic ||
+      it.it_explan !== s.it_explan ||
+      it.it_1 !== s.it_1 ||
+      it.it_2 !== s.it_2 ||
+      it.it_3 !== s.it_3 ||
+      it.it_4 !== s.it_4
+    );
+  });
+
   if (forCookie) {
+    const iCookie = iAll.slice(0, 10).map((it) => {
+      const copy: Partial<ShopItemRow> = { ...it };
+      delete copy.it_explan;
+      if (copy.it_img1 && copy.it_img1.startsWith("data:")) {
+        delete copy.it_img1;
+      }
+      return copy;
+    });
     return {
       g,
       dg,
       m,
       t,
       o,
+      i: iCookie,
       a,
     };
   }
@@ -902,23 +938,7 @@ function extractDeltaFromState(
     );
   });
 
-  const seedItemMap = new Map(seed.g5_shop_item.map((it) => [String(it.it_id), it]));
-  const i = state.g5_shop_item.filter((it) => {
-    const s = seedItemMap.get(String(it.it_id));
-    if (!s) return true;
-    return (
-      it.it_name !== s.it_name ||
-      Number(it.it_price) !== Number(s.it_price) ||
-      Number(it.it_use) !== Number(s.it_use) ||
-      it.it_img1 !== s.it_img1 ||
-      it.it_basic !== s.it_basic ||
-      it.it_explan !== s.it_explan ||
-      it.it_1 !== s.it_1 ||
-      it.it_2 !== s.it_2 ||
-      it.it_3 !== s.it_3 ||
-      it.it_4 !== s.it_4
-    );
-  });
+  const i = iAll;
 
   const seedGiMap = new Map(seed.graphit_item.map((gi) => [Number(gi.item_no), gi]));
   const currentGiNos = new Set(state.graphit_item.map((gi) => Number(gi.item_no)));
@@ -1095,6 +1115,9 @@ export async function getDb(): Promise<DatabaseState> {
     const remoteTestNos = new Set(
       (remoteInfo?.delta?.t || []).map((t) => Number(t.test_no))
     );
+    const remoteItemIds = new Set(
+      (remoteInfo?.delta?.i || []).map((it) => String(it.it_id))
+    );
 
     const hasUnsyncedCookieGroup = (cookieDelta.g || []).some((g) => {
       const up = String(g.group_code).trim().toUpperCase();
@@ -1106,8 +1129,16 @@ export async function getDb(): Promise<DatabaseState> {
     const hasUnsyncedCookieTest = (cookieDelta.t || []).some(
       (t) => !remoteTestNos.has(Number(t.test_no))
     );
+    const hasUnsyncedCookieItem = (cookieDelta.i || []).some(
+      (it) => it.it_id && !remoteItemIds.has(String(it.it_id))
+    );
 
-    if (hasUnsyncedCookieGroup || hasUnsyncedCookieMember || hasUnsyncedCookieTest) {
+    if (
+      hasUnsyncedCookieGroup ||
+      hasUnsyncedCookieMember ||
+      hasUnsyncedCookieTest ||
+      hasUnsyncedCookieItem
+    ) {
       await writeRemoteDelta(updatedState);
     }
   }
