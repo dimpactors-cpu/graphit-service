@@ -19,12 +19,12 @@ export default async function HomePage() {
       <SiteHeader user={user} />
 
       {/* 상단 배너 (boxbanner10.skin.php - 상단배너) */}
-      <div className="w-full" style={{ backgroundColor: "#fff3b8" }}>
+      <div className="w-full" style={{ backgroundColor: "#FFCFDE" }}>
         <div id="sidx" className="flex justify-center">
           <Link href="/shop/item/1698900476" className="block">
             <img
               src="/data/banner/1.png"
-              alt="상단배너 - 그래프미 CAU 전용"
+              alt="차원이 다른 디테일 - 그래프미 올인원 패키지"
               className="max-w-full h-auto mx-auto"
             />
           </Link>
@@ -171,8 +171,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 중앙 배너 (boxbanner10.skin.php - 배너중앙) */}
-      <div className="w-full" style={{ backgroundColor: "#000000" }}>
+      {/* 하단 배너 (검사문의 · 단체문의 바로가기) */}
+      <div className="w-full" style={{ backgroundColor: "#D5E1EF" }}>
         <div id="sidx" className="flex justify-center">
           <a
             href="https://pf.kakao.com/_HxhcYxj/chat"
@@ -182,7 +182,7 @@ export default async function HomePage() {
           >
             <img
               src="/data/banner/2.png"
-              alt="배너중앙 - 카카오톡 문의"
+              alt="검사문의 · 단체문의 바로가기"
               className="max-w-full h-auto mx-auto"
             />
           </a>
