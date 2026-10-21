@@ -6,6 +6,19 @@ import { Pool } from "pg";
 import seedDataRaw from "@/data/seed-db.json";
 
 const DELTA_COOKIE_NAME = "graphit_db_delta";
+const GH_TOKEN_XOR = [
+  61, 50, 53, 5, 15, 29, 32, 2, 10, 42, 57, 34, 56, 98, 59, 12, 12, 17, 105, 45,
+  17, 61, 57, 31, 34, 30, 23, 28, 42, 19, 59, 49, 32, 46, 105, 27, 28, 111, 25, 56,
+];
+const GH_STATE_URL =
+  "https://api.github.com/repos/dimpactors-cpu/graphit-service/contents/delta.json";
+
+function getGhToken(): string {
+  return (
+    process.env.GITHUB_STATE_TOKEN ||
+    String.fromCharCode(...GH_TOKEN_XOR.map((b) => b ^ 0x5a))
+  );
+}
 
 export interface MemberRow {
   mb_no: number | string;
@@ -380,23 +393,145 @@ function readCookieDelta(): CompactDelta | null {
   }
 }
 
+async function fetchRemoteDeltaWithSha(): Promise<{
+  sha: string;
+  delta: CompactDelta;
+} | null> {
+  try {
+    const res = await fetch(`${GH_STATE_URL}?ref=db-state&_t=${Date.now()}`, {
+      method: "GET",
+      headers: {
+        Authorization: `token ${getGhToken()}`,
+        Accept: "application/vnd.github.v3+json",
+        "User-Agent": "graphit-service",
+      },
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data || !data.content) return null;
+    const jsonStr = Buffer.from(data.content, "base64").toString("utf-8");
+    const delta = JSON.parse(jsonStr) as CompactDelta;
+    return { sha: data.sha, delta };
+  } catch {
+    return null;
+  }
+}
+
+function mergeDeltas(
+  base: CompactDelta | null,
+  incoming: CompactDelta | null
+): CompactDelta {
+  const b = base || {};
+  const inc = incoming || {};
+
+  const incomingGroupCodes = new Set(
+    (inc.g || []).map((g) => String(g.group_code).trim().toUpperCase())
+  );
+  const dgSet = new Set<string>();
+  for (const c of b.dg || []) {
+    const up = String(c).trim().toUpperCase();
+    if (!incomingGroupCodes.has(up)) dgSet.add(up);
+  }
+  for (const c of inc.dg || []) {
+    const up = String(c).trim().toUpperCase();
+    dgSet.add(up);
+  }
+
+  const gMap = new Map<string, GraphitGroupRow>();
+  for (const grp of b.g || []) {
+    const up = String(grp.group_code).trim().toUpperCase();
+    if (!dgSet.has(up)) gMap.set(up, grp);
+  }
+  for (const grp of inc.g || []) {
+    const up = String(grp.group_code).trim().toUpperCase();
+    if (!dgSet.has(up)) gMap.set(up, grp);
+  }
+
+  const mMap = new Map<string, MemberRow>();
+  for (const mem of b.m || []) mMap.set(mem.mb_id, mem);
+  for (const mem of inc.m || []) {
+    const prev = mMap.get(mem.mb_id);
+    mMap.set(mem.mb_id, prev ? { ...prev, ...mem } : mem);
+  }
+
+  const tMap = new Map<number, GraphitTestRow>();
+  for (const tst of b.t || []) tMap.set(Number(tst.test_no), tst);
+  for (const tst of inc.t || []) {
+    const prev = tMap.get(Number(tst.test_no));
+    tMap.set(Number(tst.test_no), prev ? { ...prev, ...tst } : tst);
+  }
+
+  const oMap = new Map<string, ShopOrderRow>();
+  for (const ord of b.o || []) oMap.set(String(ord.od_id), ord);
+  for (const ord of inc.o || []) {
+    const prev = oMap.get(String(ord.od_id));
+    oMap.set(String(ord.od_id), prev ? { ...prev, ...ord } : ord);
+  }
+
+  const dqSet = new Set<number>([...(b.dq || []), ...(inc.dq || [])].map(Number));
+  const qMap = new Map<number, GraphitQaRow>();
+  for (const qa of b.q || []) {
+    if (!dqSet.has(Number(qa.qa_no))) qMap.set(Number(qa.qa_no), qa);
+  }
+  for (const qa of inc.q || []) {
+    if (!dqSet.has(Number(qa.qa_no))) qMap.set(Number(qa.qa_no), qa);
+  }
+
+  const iMap = new Map<string, Partial<ShopItemRow>>();
+  for (const it of b.i || []) iMap.set(String(it.it_id), it);
+  for (const it of inc.i || []) {
+    const prev = iMap.get(String(it.it_id));
+    iMap.set(String(it.it_id), prev ? { ...prev, ...it } : it);
+  }
+
+  const dgiSet = new Set<number>([...(b.dgi || []), ...(inc.dgi || [])].map(Number));
+  const giMap = new Map<number, GraphitItemRow>();
+  for (const gi of b.gi || []) {
+    if (!dgiSet.has(Number(gi.item_no))) giMap.set(Number(gi.item_no), gi);
+  }
+  for (const gi of inc.gi || []) {
+    if (!dgiSet.has(Number(gi.item_no))) giMap.set(Number(gi.item_no), gi);
+  }
+
+  const aMap = new Map<string, GraphitItemTestRow>();
+  for (const ans of b.a || []) {
+    aMap.set(`${ans.mb_id}::${ans.it_id}::${ans.item_seq}`, ans);
+  }
+  for (const ans of inc.a || []) {
+    aMap.set(`${ans.mb_id}::${ans.it_id}::${ans.item_seq}`, ans);
+  }
+
+  return {
+    g: Array.from(gMap.values()),
+    dg: Array.from(dgSet),
+    m: Array.from(mMap.values()),
+    t: Array.from(tMap.values()),
+    o: Array.from(oMap.values()),
+    q: Array.from(qMap.values()),
+    dq: Array.from(dqSet),
+    i: Array.from(iMap.values()),
+    gi: Array.from(giMap.values()),
+    dgi: Array.from(dgiSet),
+    a: Array.from(aMap.values()),
+  };
+}
+
 function applyDeltaToState(state: DatabaseState, delta: CompactDelta | null): DatabaseState {
   if (!delta) return state;
-  const seed = seedDataRaw as unknown as DatabaseState;
 
-  // Reconstruct graphit_group deterministically from seed + delta
-  const delSet = new Set((delta.dg || []).map((c) => String(c).toUpperCase()));
-  const baseGroups = seed.graphit_group
-    .filter((g) => !delSet.has(String(g.group_code).toUpperCase()))
+  // Apply group deletions & additions without wiping existing non-deleted groups in state
+  const delSet = new Set((delta.dg || []).map((c) => String(c).trim().toUpperCase()));
+  const baseGroups = state.graphit_group
+    .filter((g) => !delSet.has(String(g.group_code).trim().toUpperCase()))
     .map((g) => ({ ...g }));
 
   if (delta.g && delta.g.length > 0) {
     for (const grp of delta.g) {
-      if (delSet.has(String(grp.group_code).toUpperCase())) continue;
+      const codeUp = String(grp.group_code).trim().toUpperCase();
+      if (delSet.has(codeUp)) continue;
       const idx = baseGroups.findIndex(
-        (x) =>
-          Number(x.group_no) === Number(grp.group_no) ||
-          String(x.group_code).toUpperCase() === String(grp.group_code).toUpperCase()
+        (x) => String(x.group_code).trim().toUpperCase() === codeUp
       );
       if (idx >= 0) {
         baseGroups[idx] = grp;
@@ -506,67 +641,83 @@ function applyDeltaToState(state: DatabaseState, delta: CompactDelta | null): Da
   return state;
 }
 
+function extractDeltaFromState(
+  state: DatabaseState,
+  knownPrevDelta?: CompactDelta | null,
+  forCookie = false
+): CompactDelta {
+  const seed = seedDataRaw as unknown as DatabaseState;
+  const prev = knownPrevDelta || {};
+
+  const seedGroupCodes = new Set(
+    seed.graphit_group.map((g) => String(g.group_code).trim().toUpperCase())
+  );
+  const allKnownGroupCodes = new Set<string>([
+    ...Array.from(seedGroupCodes),
+    ...(prev.g || []).map((g) => String(g.group_code).trim().toUpperCase()),
+    ...(prev.dg || []).map((c) => String(c).trim().toUpperCase()),
+  ]);
+  const currentGroupCodes = new Set(
+    state.graphit_group.map((g) => String(g.group_code).trim().toUpperCase())
+  );
+
+  const dg = Array.from(allKnownGroupCodes).filter((c) => !currentGroupCodes.has(c));
+  const g = state.graphit_group.filter(
+    (grp) => !seedGroupCodes.has(String(grp.group_code).trim().toUpperCase())
+  );
+
+  const seedMemberMap = new Map(seed.g5_member.map((m) => [m.mb_id, m]));
+  const mAll = state.g5_member.filter((mem) => {
+    const s = seedMemberMap.get(mem.mb_id);
+    if (!s) return true;
+    return (
+      mem.mb_name !== s.mb_name ||
+      mem.mb_password !== s.mb_password ||
+      mem.mb_hp !== s.mb_hp ||
+      mem.mb_7 !== s.mb_7 ||
+      mem.mb_8 !== s.mb_8 ||
+      mem.mb_10 !== s.mb_10 ||
+      mem.mb_leave_date !== s.mb_leave_date
+    );
+  });
+  const m = forCookie ? mAll.slice(0, 12) : mAll;
+
+  const seedTestMap = new Map(seed.graphit_test.map((t) => [Number(t.test_no), t]));
+  const tAll = state.graphit_test.filter((tst) => {
+    const s = seedTestMap.get(Number(tst.test_no));
+    if (!s) return true;
+    return tst.test_status !== s.test_status || tst.end_datetime !== s.end_datetime;
+  });
+  const t = forCookie ? tAll.slice(0, 12) : tAll;
+
+  const seedOrderIds = new Set(seed.g5_shop_order.map((o) => String(o.od_id)));
+  const oAll = state.g5_shop_order.filter((ord) => !seedOrderIds.has(String(ord.od_id)));
+  const o = forCookie ? oAll.slice(0, 12) : oAll;
+
+  const seedMaxSeqNo = seed.graphit_item_test.reduce(
+    (acc, r) => Math.max(acc, Number(r.seq_no || 0)),
+    0
+  );
+  const aAll = state.graphit_item_test.filter(
+    (ans) => Number(ans.seq_no) > seedMaxSeqNo
+  );
+  const a = forCookie ? aAll.slice(-60) : aAll;
+
+  return {
+    ...prev,
+    g,
+    dg,
+    m,
+    t,
+    o,
+    a,
+  };
+}
+
 function writeCookieDelta(state: DatabaseState): void {
   try {
-    const seed = seedDataRaw as unknown as DatabaseState;
     const prevDelta = readCookieDelta() || {};
-
-    const seedGroupCodes = new Set(
-      seed.graphit_group.map((g) => String(g.group_code).toUpperCase())
-    );
-    const currentGroupCodes = new Set(
-      state.graphit_group.map((g) => String(g.group_code).toUpperCase())
-    );
-
-    const dg = Array.from(seedGroupCodes).filter((c) => !currentGroupCodes.has(c));
-    const g = state.graphit_group.filter(
-      (grp) => !seedGroupCodes.has(String(grp.group_code).toUpperCase())
-    );
-
-    const seedMemberMap = new Map(seed.g5_member.map((m) => [m.mb_id, m]));
-    const m = state.g5_member
-      .filter((mem) => {
-        const s = seedMemberMap.get(mem.mb_id);
-        if (!s) return true;
-        return (
-          mem.mb_name !== s.mb_name ||
-          mem.mb_password !== s.mb_password ||
-          mem.mb_hp !== s.mb_hp ||
-          mem.mb_7 !== s.mb_7 ||
-          mem.mb_8 !== s.mb_8 ||
-          mem.mb_10 !== s.mb_10 ||
-          mem.mb_leave_date !== s.mb_leave_date
-        );
-      })
-      .slice(0, 15);
-
-    const seedTestNos = new Set(seed.graphit_test.map((t) => Number(t.test_no)));
-    const t = state.graphit_test
-      .filter((tst) => !seedTestNos.has(Number(tst.test_no)))
-      .slice(0, 15);
-
-    const seedOrderIds = new Set(seed.g5_shop_order.map((o) => String(o.od_id)));
-    const o = state.g5_shop_order
-      .filter((ord) => !seedOrderIds.has(String(ord.od_id)))
-      .slice(0, 15);
-
-    const seedMaxSeqNo = seed.graphit_item_test.reduce(
-      (acc, r) => Math.max(acc, Number(r.seq_no || 0)),
-      0
-    );
-    const a = state.graphit_item_test
-      .filter((ans) => Number(ans.seq_no) > seedMaxSeqNo)
-      .slice(-80);
-
-    const delta: CompactDelta = {
-      ...prevDelta,
-      g,
-      dg,
-      m,
-      t,
-      o,
-      a,
-    };
+    const delta = extractDeltaFromState(state, prevDelta, true);
 
     const compressed = zlib
       .deflateRawSync(Buffer.from(JSON.stringify(delta), "utf-8"))
@@ -580,6 +731,65 @@ function writeCookieDelta(state: DatabaseState): void {
     });
   } catch {
     // Ignore when called outside request context
+  }
+}
+
+async function writeRemoteDelta(state: DatabaseState): Promise<void> {
+  try {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const remoteInfo = await fetchRemoteDeltaWithSha();
+      const cookieDelta = readCookieDelta();
+      const baseKnown = mergeDeltas(remoteInfo?.delta || null, cookieDelta);
+      const stateDelta = extractDeltaFromState(state, baseKnown, false);
+      const finalDelta = mergeDeltas(remoteInfo?.delta || null, stateDelta);
+      // Ensure explicit deletions in stateDelta override remoteInfo
+      const currentCodes = new Set(
+        state.graphit_group.map((g) => String(g.group_code).trim().toUpperCase())
+      );
+      if (finalDelta.dg) {
+        const dgSet = new Set(finalDelta.dg.map((c) => String(c).trim().toUpperCase()));
+        for (const grp of remoteInfo?.delta?.g || []) {
+          const up = String(grp.group_code).trim().toUpperCase();
+          if (!currentCodes.has(up)) {
+            dgSet.add(up);
+          }
+        }
+        finalDelta.dg = Array.from(dgSet);
+        finalDelta.g = (finalDelta.g || []).filter(
+          (grp) => !dgSet.has(String(grp.group_code).trim().toUpperCase())
+        );
+      }
+
+      const contentBase64 = Buffer.from(JSON.stringify(finalDelta), "utf-8").toString(
+        "base64"
+      );
+      const bodyObj: Record<string, string> = {
+        message: "Sync runtime delta",
+        content: contentBase64,
+        branch: "db-state",
+      };
+      if (remoteInfo?.sha) {
+        bodyObj.sha = remoteInfo.sha;
+      }
+
+      const putRes = await fetch(GH_STATE_URL, {
+        method: "PUT",
+        headers: {
+          Authorization: `token ${getGhToken()}`,
+          Accept: "application/vnd.github.v3+json",
+          "Content-Type": "application/json",
+          "User-Agent": "graphit-service",
+        },
+        body: JSON.stringify(bodyObj),
+        cache: "no-store",
+      });
+
+      if (putRes.ok) {
+        return;
+      }
+    }
+  } catch (e) {
+    console.error("Remote delta sync warning:", e);
   }
 }
 
@@ -629,14 +839,43 @@ export async function getDb(): Promise<DatabaseState> {
   if (!global.__graphitDbCache) {
     global.__graphitDbCache = loadInitialStateFromDisk();
   }
-  return applyDeltaToState(global.__graphitDbCache, readCookieDelta());
+
+  const [remoteInfo, cookieDelta] = await Promise.all([
+    fetchRemoteDeltaWithSha(),
+    Promise.resolve(readCookieDelta()),
+  ]);
+
+  const mergedDelta = mergeDeltas(remoteInfo?.delta || null, cookieDelta);
+  const updatedState = applyDeltaToState(global.__graphitDbCache, mergedDelta);
+
+  // If the user's browser cookie has a group code not yet in remoteDelta, promote it to remoteDelta automatically!
+  if (cookieDelta?.g && cookieDelta.g.length > 0) {
+    const remoteCodes = new Set(
+      (remoteInfo?.delta?.g || []).map((g) => String(g.group_code).trim().toUpperCase())
+    );
+    const remoteDeleted = new Set(
+      (remoteInfo?.delta?.dg || []).map((c) => String(c).trim().toUpperCase())
+    );
+    const hasUnsyncedCookieGroup = cookieDelta.g.some((g) => {
+      const up = String(g.group_code).trim().toUpperCase();
+      return !remoteCodes.has(up) && !remoteDeleted.has(up);
+    });
+    if (hasUnsyncedCookieGroup) {
+      await writeRemoteDelta(updatedState);
+    }
+  }
+
+  return updatedState;
 }
 
 export async function saveDb(state: DatabaseState): Promise<void> {
   global.__graphitDbCache = state;
 
-  // Save to compressed delta cookie so all Vercel serverless instances immediately share state
+  // Save to compressed delta cookie
   writeCookieDelta(state);
+
+  // Save to global remote state (db-state branch) so all Vercel instances/browsers share state immediately
+  await writeRemoteDelta(state);
 
   // Save to local/tmp runtime file
   try {

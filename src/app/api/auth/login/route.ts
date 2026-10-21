@@ -37,7 +37,6 @@ export async function POST(req: NextRequest) {
     }
 
     member.mb_today_login = formatKstNow();
-    await saveDb(db);
 
     const token = signToken({
       mb_id: member.mb_id,
