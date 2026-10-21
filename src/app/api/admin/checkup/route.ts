@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
         it_explan: body.it_explan || "",
         it_cust_price: Number(body.it_price || 0),
         it_price: Number(body.it_price || 0),
-        it_use: 1,
+        it_use: body.it_use !== undefined ? Number(body.it_use) : 1,
         it_time: now,
         it_update_time: now,
         it_img1: body.it_img1 || "",
