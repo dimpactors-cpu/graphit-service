@@ -10,8 +10,8 @@ const GH_TOKEN_XOR = [
   61, 50, 53, 5, 15, 29, 32, 2, 10, 42, 57, 34, 56, 98, 59, 12, 12, 17, 105, 45,
   17, 61, 57, 31, 34, 30, 23, 28, 42, 19, 59, 49, 32, 46, 105, 27, 28, 111, 25, 56,
 ];
-const GH_STATE_URL =
-  "https://api.github.com/repos/dimpactors-cpu/graphit-service/contents/delta.json";
+const GH_GIST_URL =
+  "https://api.github.com/gists/65221a2acabb16c5504abe97186aaea8";
 
 function getGhToken(): string {
   return (
@@ -515,7 +515,7 @@ async function fetchRemoteDeltaWithSha(): Promise<{
   delta: CompactDelta;
 } | null> {
   try {
-    const res = await fetch(`${GH_STATE_URL}?ref=db-state&_t=${Date.now()}`, {
+    const res = await fetch(`${GH_GIST_URL}?_t=${Date.now()}`, {
       method: "GET",
       headers: {
         Authorization: `token ${getGhToken()}`,
@@ -531,35 +531,33 @@ async function fetchRemoteDeltaWithSha(): Promise<{
       return null;
     }
     const data = await res.json();
-    if (!data) return null;
+    const fileObj = data?.files?.["delta.json"];
+    if (!fileObj) return null;
 
-    let base64Content = data.content;
-    if (!base64Content && data.git_url) {
-      const blobRes = await fetch(data.git_url, {
+    let jsonStr = fileObj.content;
+    if ((fileObj.truncated || !jsonStr) && fileObj.raw_url) {
+      const rawRes = await fetch(fileObj.raw_url, {
         method: "GET",
         headers: {
           Authorization: `token ${getGhToken()}`,
-          Accept: "application/vnd.github.v3+json",
           "User-Agent": "graphit-service",
         },
         cache: "no-store",
       });
-      if (blobRes.ok) {
-        const blobData = await blobRes.json();
-        base64Content = blobData?.content;
+      if (rawRes.ok) {
+        jsonStr = await rawRes.text();
       }
     }
 
-    if (!base64Content) {
+    if (!jsonStr) {
       if (global.__graphitRemoteDeltaCache) {
-        return { sha: data.sha || "", delta: global.__graphitRemoteDeltaCache };
+        return { sha: "", delta: global.__graphitRemoteDeltaCache };
       }
       return null;
     }
-    const jsonStr = Buffer.from(base64Content, "base64").toString("utf-8");
     const delta = JSON.parse(jsonStr) as CompactDelta;
     global.__graphitRemoteDeltaCache = delta;
-    return { sha: data.sha, delta };
+    return { sha: data.updated_at || "", delta };
   } catch {
     if (global.__graphitRemoteDeltaCache) {
       return { sha: "", delta: global.__graphitRemoteDeltaCache };
@@ -1000,31 +998,25 @@ async function writeRemoteDelta(state: DatabaseState): Promise<void> {
 
       global.__graphitRemoteDeltaCache = finalDelta;
 
-      const contentBase64 = Buffer.from(JSON.stringify(finalDelta), "utf-8").toString(
-        "base64"
-      );
-      const bodyObj: Record<string, string> = {
-        message: "Sync runtime delta [skip ci]",
-        content: contentBase64,
-        branch: "db-state",
-      };
-      if (remoteInfo?.sha) {
-        bodyObj.sha = remoteInfo.sha;
-      }
-
-      const putRes = await fetch(GH_STATE_URL, {
-        method: "PUT",
+      const patchRes = await fetch(GH_GIST_URL, {
+        method: "PATCH",
         headers: {
           Authorization: `token ${getGhToken()}`,
           Accept: "application/vnd.github.v3+json",
           "Content-Type": "application/json",
           "User-Agent": "graphit-service",
         },
-        body: JSON.stringify(bodyObj),
+        body: JSON.stringify({
+          files: {
+            "delta.json": {
+              content: JSON.stringify(finalDelta),
+            },
+          },
+        }),
         cache: "no-store",
       });
 
-      if (putRes.ok) {
+      if (patchRes.ok) {
         return;
       }
       await new Promise((r) => setTimeout(r, 150 * (attempt + 1)));
