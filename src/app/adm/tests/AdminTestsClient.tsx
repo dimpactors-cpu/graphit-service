@@ -50,7 +50,7 @@ export default function AdminTestsClient({
   items,
 }: AdminTestsClientProps) {
   const [viewMode, setViewMode] = useState<'list' | 'result_db'>('list');
-  const [dbColGroup, setDbColGroup] = useState<'summary' | 'competency' | 'direction' | 'ability'>('summary');
+  const [dbColGroup, setDbColGroup] = useState<'summary' | 'competency' | 'direction' | 'ability' | 'roadmap_aq'>('summary');
   const [statusFilter, setStatusFilter] = useState<'ALL' | '완료' | '진행중' | '시작전'>('ALL');
   const [groupFilter, setGroupFilter] = useState<string>('ALL');
   const [itemFilter, setItemFilter] = useState<string>('ALL');
@@ -113,10 +113,16 @@ export default function AdminTestsClient({
       actions={
         <div className="flex flex-wrap items-center gap-2">
           <a
-            href={resultDbExportUrl}
+            href={`${resultDbExportUrl}&format=xls`}
             className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold shadow-sm transition"
           >
-            📊 결과DB 다운로드 (result_base_set.csv)
+            📊 결과DB 엑셀 다운로드 (.xls)
+          </a>
+          <a
+            href={`${resultDbExportUrl}&format=csv`}
+            className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-extrabold shadow-sm transition"
+          >
+            📄 결과DB CSV (result_base_set.csv)
           </a>
           <a
             href={`/api/admin/excel?type=test&stx=${encodeURIComponent(
@@ -124,7 +130,7 @@ export default function AdminTestsClient({
             )}`}
             className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-sm transition"
           >
-            📥 응시내역 엑셀 다운로드 (.xls)
+            📥 응시내역+지표 엑셀 다운로드 (.xls)
           </a>
         </div>
       }
@@ -165,10 +171,11 @@ export default function AdminTestsClient({
         {viewMode === 'result_db' && (
           <div className="inline-flex flex-wrap rounded-xl bg-white border border-slate-200 p-1 gap-1 text-xs font-bold">
             {[
-              { key: 'summary', label: '1. 유형 · 방향성 · 진로 요약' },
+              { key: 'summary', label: '1. 유형 · 방향성 · 진로 · AQ 요약' },
               { key: 'competency', label: '2. 15대 성과역량 (정보처리~관계대응)' },
               { key: 'direction', label: '3. 성향 지표 (seL~obJ)' },
               { key: 'ability', label: '4. 16대 기초역량 (kwD~dcS)' },
+              { key: 'roadmap_aq', label: '5. 학습비율(motive~space) · AQ성취지수' },
             ].map((tab) => (
               <button
                 key={tab.key}
@@ -448,6 +455,7 @@ export default function AdminTestsClient({
                       <th className="py-3 px-3 text-right bg-emerald-900">진로_취업</th>
                       <th className="py-3 px-3 text-right bg-emerald-900">진로_창업</th>
                       <th className="py-3 px-3 text-right bg-emerald-900">진로_연구</th>
+                      <th className="py-3 px-3 text-center bg-amber-900">aq_group (1,2순위)</th>
                     </>
                   )}
 
@@ -501,6 +509,41 @@ export default function AdminTestsClient({
                       ].map((c) => (
                         <th key={c} className="py-3 px-2.5 text-right bg-slate-800">
                           {c} (정답률%)
+                        </th>
+                      ))}
+                    </>
+                  )}
+
+                  {dbColGroup === 'roadmap_aq' && (
+                    <>
+                      {[
+                        { k: 'motive_A_pct', l: 'motive_A%(성취)' },
+                        { k: 'motive_B_pct', l: 'motive_B%(성장)' },
+                        { k: 'perception_A_pct', l: 'perception_A%(원리)' },
+                        { k: 'perception_B_pct', l: 'perception_B%(직관)' },
+                        { k: 'path_A_pct', l: 'path_A%(예습)' },
+                        { k: 'path_B_pct', l: 'path_B%(출제자)' },
+                        { k: 'path_C_pct', l: 'path_C%(반복)' },
+                        { k: 'path_D_pct', l: 'path_D%(복습)' },
+                        { k: 'space_A_pct', l: 'space_A%(개방)' },
+                        { k: 'space_B_pct', l: 'space_B%(독립)' },
+                      ].map((col) => (
+                        <th key={col.k} className="py-3 px-2.5 text-right bg-indigo-950">
+                          {col.l}
+                        </th>
+                      ))}
+                      <th className="py-3 px-2.5 text-center bg-amber-900">aq_group</th>
+                      <th className="py-3 px-2.5 text-center bg-amber-900">aq_max_1</th>
+                      <th className="py-3 px-2.5 text-center bg-amber-900">aq_max_2</th>
+                      {[
+                        'aq_logic',
+                        'aq_social',
+                        'aq_practical',
+                        'aq_principle',
+                        'aq_creative',
+                      ].map((col) => (
+                        <th key={col} className="py-3 px-2.5 text-right bg-slate-800">
+                          {col}
                         </th>
                       ))}
                     </>
@@ -578,6 +621,12 @@ export default function AdminTestsClient({
                           <td className="py-2.5 px-3 text-right font-mono font-bold text-emerald-800 bg-emerald-50/40">
                             {dbRow.진로_연구.toFixed(2)}
                           </td>
+                          <td className="py-2.5 px-3 text-center font-mono text-amber-900 bg-amber-50/40">
+                            <span className="font-extrabold">{dbRow.aq_group}</span>{' '}
+                            <span className="text-[10px] text-slate-500">
+                              ({dbRow.aq_max_1}/{dbRow.aq_max_2})
+                            </span>
+                          </td>
                         </>
                       )}
 
@@ -638,6 +687,51 @@ export default function AdminTestsClient({
                               <span className="text-[10px] text-slate-400">
                                 ({dbRow[`${c}_pct`].toFixed(0)}%)
                               </span>
+                            </td>
+                          ))}
+                        </>
+                      )}
+
+                      {dbColGroup === 'roadmap_aq' && (
+                        <>
+                          {(
+                            [
+                              'motive_A_pct',
+                              'motive_B_pct',
+                              'perception_A_pct',
+                              'perception_B_pct',
+                              'path_A_pct',
+                              'path_B_pct',
+                              'path_C_pct',
+                              'path_D_pct',
+                              'space_A_pct',
+                              'space_B_pct',
+                            ] as const
+                          ).map((k) => (
+                            <td key={k} className="py-2.5 px-2.5 text-right font-mono bg-indigo-50/30">
+                              {dbRow[k].toFixed(0)}%
+                            </td>
+                          ))}
+                          <td className="py-2.5 px-2.5 text-center font-mono font-extrabold text-amber-800 bg-amber-50/50">
+                            {dbRow.aq_group}
+                          </td>
+                          <td className="py-2.5 px-2.5 text-center font-mono text-amber-900">
+                            {dbRow.aq_max_1}
+                          </td>
+                          <td className="py-2.5 px-2.5 text-center font-mono text-amber-900">
+                            {dbRow.aq_max_2}
+                          </td>
+                          {(
+                            [
+                              'aq_logic',
+                              'aq_social',
+                              'aq_practical',
+                              'aq_principle',
+                              'aq_creative',
+                            ] as const
+                          ).map((k) => (
+                            <td key={k} className="py-2.5 px-2.5 text-right font-mono">
+                              {dbRow[k].toFixed(1)}
                             </td>
                           ))}
                         </>

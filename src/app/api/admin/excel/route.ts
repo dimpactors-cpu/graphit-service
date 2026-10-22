@@ -7,6 +7,10 @@ import {
   ABILITY_INDICATORS,
   EXTRA_INDICATORS,
   HABIT_INDICATORS,
+  LEARNING_INDICATORS,
+  LEARNING_PCT_INDICATORS,
+  AQ_INDICATORS,
+  COMPETENCY_NAMES,
 } from "@/lib/reportEngine";
 
 function esc(val: any): string {
@@ -81,6 +85,20 @@ export async function GET(req: NextRequest) {
       });
     }
 
+    const summaryIndicatorCols = [
+      "lit_type", "surv_lit_type", "total_lit_type",
+      "aq_group", "aq_max_1", "aq_max_2",
+      ...AQ_INDICATORS,
+      ...COMPETENCY_NAMES,
+      "관계", "관계점수", "에너지", "에너지점수", "시간", "시간점수", "전략", "전략점수", "갈등", "갈등점수",
+      "자아일치도", "자기평가정도",
+      "진로_취업", "진로_창업", "진로_연구",
+      ...LEARNING_PCT_INDICATORS,
+      ...HABIT_INDICATORS,
+      ...HABIT_INDICATORS.map((c) => `total_${c}`),
+      ...ABILITY_INDICATORS.map((c) => `${c}_pct`),
+    ];
+
     let trs = `
       <tr>
         <td style="background-color:#ffff00;font-weight:bold">주문번호</td>
@@ -94,15 +112,57 @@ export async function GET(req: NextRequest) {
         <td style="background-color:#ffff00;font-weight:bold">검사시작일</td>
         <td style="background-color:#ffff00;font-weight:bold">검사종료일</td>
         <td style="background-color:#ffff00;font-weight:bold">이용상태</td>
+        ${summaryIndicatorCols.map((col) => `<td style="background-color:#e0e7ff;font-weight:bold">${esc(col)}</td>`).join("")}
         <td style="background-color:#ffff00;font-weight:bold">답변</td>
       </tr>
     `;
 
-    for (const r of rows) {
-      const item = itemMap.get(String(r.it_id));
+    rows.forEach((r, idx) => {
+      const itId = String(r.it_id || "");
+      const item = itemMap.get(itId);
+      const rawAns = ansByMemberItem.get(`${r.mb_id}__${itId}`) || [];
+      const hasCompact = Array.isArray((r as any).no_answers) && (r as any).no_answers.length > 0;
       let answerCells = "";
-      if (r.test_status === "완료") {
-        const rawAns = ansByMemberItem.get(`${r.mb_id}__${r.it_id}`) || [];
+      let indicatorCells = "";
+
+      if (r.test_status === "완료" || rawAns.length > 0 || hasCompact) {
+        const noMap = buildNoAnswersMap(r, rawAns, qaMap);
+        const resRow = computeResultBaseRow(
+          {
+            seq: idx + 1,
+            test_no: Number(r.test_no) || idx + 1,
+            od_id: String(r.od_id || ""),
+            group_name: String(r.group_name || ""),
+            group_code: String(r.group_code || ""),
+            mb_id: String(r.mb_id || ""),
+            mb_name: String(r.mb_name || ""),
+            mb_hp: String(r.mb_hp || ""),
+            it_id: itId,
+            it_name: String(item?.it_name || r.it_name || ""),
+            it_code: String(item?.it_4 || ""),
+            test_date: String(
+              r.end_datetime && !String(r.end_datetime).startsWith("0000")
+                ? r.end_datetime
+                : r.test_datetime || ""
+            ).slice(0, 10),
+          },
+          noMap,
+          db.graphit_qa
+        );
+
+        indicatorCells = summaryIndicatorCols
+          .map((col) => {
+            const val = (resRow as any)[col];
+            const formatted =
+              typeof val === "number"
+                ? Number.isInteger(val)
+                  ? String(val)
+                  : val.toFixed(2)
+                : String(val ?? "");
+            return `<td>${esc(formatted)}</td>`;
+          })
+          .join("");
+
         if (rawAns.length > 0) {
           const sortedAns = [...rawAns].sort((a, b) => Number(a.item_seq) - Number(b.item_seq));
           answerCells = sortedAns
@@ -120,7 +180,7 @@ export async function GET(req: NextRequest) {
               return `<td>${esc(text)}</td>`;
             })
             .join("");
-        } else if (Array.isArray((r as any).no_answers)) {
+        } else if (hasCompact) {
           answerCells = ((r as any).no_answers as string[])
             .map((text) => {
               if (!text) return `<td style="color:red">답변없음</td>`;
@@ -128,7 +188,10 @@ export async function GET(req: NextRequest) {
             })
             .join("");
         }
+      } else {
+        indicatorCells = summaryIndicatorCols.map(() => `<td>-</td>`).join("");
       }
+
       trs += `
         <tr>
           <td style="mso-number-format:'\\@'">${esc(r.od_id)}</td>
@@ -142,10 +205,11 @@ export async function GET(req: NextRequest) {
           <td>${esc(r.test_datetime)}</td>
           <td>${esc(r.end_datetime)}</td>
           <td>${esc(r.test_status)}</td>
+          ${indicatorCells}
           <td>${answerCells ? `<table border="1"><tr>${answerCells}</tr></table>` : ""}</td>
         </tr>
       `;
-    }
+    });
     htmlBody = `<table border="1" style="table-layout:fixed">${trs}</table>`;
   } else if (type === "member") {
     // Replicates exceldown_member.php
@@ -467,6 +531,10 @@ export async function GET(req: NextRequest) {
       "관계", "관계점수", "에너지", "에너지점수", "시간", "시간점수", "전략", "전략점수", "갈등", "갈등점수",
       "자아일치도", "자기평가정도",
       "진로_취업", "진로_창업", "진로_연구",
+      ...LEARNING_INDICATORS,
+      ...LEARNING_PCT_INDICATORS,
+      ...AQ_INDICATORS,
+      "aq_group", "aq_max_1", "aq_max_2",
     ];
 
     const headerRow = [
@@ -474,6 +542,8 @@ export async function GET(req: NextRequest) {
       ...noCols,
       ...derivedCols,
     ];
+
+    const format = (searchParams.get("format") || "csv").toLowerCase();
 
     const csvEscape = (val: any) => {
       if (val === null || val === undefined) return "";
@@ -484,13 +554,12 @@ export async function GET(req: NextRequest) {
       return s;
     };
 
-    const csvLines = [headerRow.map(csvEscape).join(",")];
-    rows.forEach((r, idx) => {
+    const computedRows = rows.map((r, idx) => {
       const itId = String(r.it_id || "");
       const shopItem = itemMap.get(itId);
       const rawAns = ansByMemberItem.get(`${r.mb_id}__${itId}`) || [];
       const noMap = buildNoAnswersMap(r, rawAns, qaMap);
-      const resRow = computeResultBaseRow(
+      return computeResultBaseRow(
         {
           seq: idx + 1,
           test_no: Number(r.test_no) || idx + 1,
@@ -512,31 +581,64 @@ export async function GET(req: NextRequest) {
         noMap,
         db.graphit_qa
       );
-
-      const lineVals = [
-        resRow.seq,
-        resRow.od_id,
-        resRow.group_name,
-        resRow.group_code,
-        resRow.mb_id,
-        resRow.mb_name,
-        resRow.mb_hp,
-        resRow.it_name,
-        resRow.it_code,
-        resRow.test_date,
-        ...noCols.map((k) => resRow.scored_no[k] ?? ""),
-        ...derivedCols.map((k) => (resRow as any)[k]),
-      ];
-      csvLines.push(lineVals.map(csvEscape).join(","));
     });
 
-    const csvContent = "\uFEFF" + csvLines.join("\r\n");
-    return new NextResponse(csvContent, {
-      headers: {
-        "Content-Type": "text/csv; charset=utf-8",
-        "Content-Disposition": `attachment; filename="result_base_set_${ymd}.csv"`,
-      },
-    });
+    if (format === "xls") {
+      filename = `result_base_set_${ymd}.xls`;
+      let trs = `<tr>${headerRow
+        .map((h) => `<td style="background-color:#1e293b;color:#ffffff;font-weight:bold">${esc(h)}</td>`)
+        .join("")}</tr>`;
+      for (const resRow of computedRows) {
+        const lineVals = [
+          resRow.seq,
+          resRow.od_id,
+          resRow.group_name,
+          resRow.group_code,
+          resRow.mb_id,
+          resRow.mb_name,
+          resRow.mb_hp,
+          resRow.it_name,
+          resRow.it_code,
+          resRow.test_date,
+          ...noCols.map((k) => resRow.scored_no[k] ?? ""),
+          ...derivedCols.map((k) => {
+            const v = (resRow as any)[k];
+            return typeof v === "number" ? (Number.isInteger(v) ? v : Math.round(v * 100) / 100) : v;
+          }),
+        ];
+        trs += `<tr>${lineVals
+          .map((v, i) => `<td${i === 1 ? ` style="mso-number-format:'\\@'"` : ""}>${esc(v)}</td>`)
+          .join("")}</tr>`;
+      }
+      htmlBody = `<table border="1" style="table-layout:fixed">${trs}</table>`;
+    } else {
+      const csvLines = [headerRow.map(csvEscape).join(",")];
+      for (const resRow of computedRows) {
+        const lineVals = [
+          resRow.seq,
+          resRow.od_id,
+          resRow.group_name,
+          resRow.group_code,
+          resRow.mb_id,
+          resRow.mb_name,
+          resRow.mb_hp,
+          resRow.it_name,
+          resRow.it_code,
+          resRow.test_date,
+          ...noCols.map((k) => resRow.scored_no[k] ?? ""),
+          ...derivedCols.map((k) => (resRow as any)[k]),
+        ];
+        csvLines.push(lineVals.map(csvEscape).join(","));
+      }
+
+      const csvContent = "\uFEFF" + csvLines.join("\r\n");
+      return new NextResponse(csvContent, {
+        headers: {
+          "Content-Type": "text/csv; charset=utf-8",
+          "Content-Disposition": `attachment; filename="result_base_set_${ymd}.csv"`,
+        },
+      });
+    }
   }
 
   const fullHtml = `\uFEFF<html><head><meta charset="utf-8"></head><body bgcolor="#FFFFFF">${htmlBody}</body></html>`;

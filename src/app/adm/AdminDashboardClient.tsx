@@ -204,13 +204,25 @@ export default function AdminDashboardClient({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
+          <a
+            href={`${buildExcelUrl('result_db')}&format=xls`}
+            className="flex flex-col justify-between p-4 rounded-xl border border-violet-200 bg-violet-50/60 hover:bg-violet-100/70 transition"
+          >
+            <span className="text-xs font-extrabold text-violet-800">
+              1. 결과DB 전체 산출값 (result_base_set)
+            </span>
+            <span className="text-[11px] text-violet-600 mt-2 font-semibold">
+              📊 엑셀 다운로드 (.xls)
+            </span>
+          </a>
+
           <a
             href={buildExcelUrl('test')}
             className="flex flex-col justify-between p-4 rounded-xl border border-emerald-200 bg-emerald-50/60 hover:bg-emerald-100/70 transition"
           >
             <span className="text-xs font-extrabold text-emerald-800">
-              1. 수강생 검사결과 + 문항답변
+              2. 수강생 검사결과 + 지표 + 문항답변
             </span>
             <span className="text-[11px] text-emerald-600 mt-2 font-semibold">
               📥 엑셀 다운로드 (.xls)
@@ -222,7 +234,7 @@ export default function AdminDashboardClient({
             className="flex flex-col justify-between p-4 rounded-xl border border-indigo-200 bg-indigo-50/60 hover:bg-indigo-100/70 transition"
           >
             <span className="text-xs font-extrabold text-indigo-800">
-              2. 단체코드별 수강생 명단
+              3. 단체코드별 수강생 명단
             </span>
             <span className="text-[11px] text-indigo-600 mt-2 font-semibold">
               📥 엑셀 다운로드 (.xls)
@@ -234,7 +246,7 @@ export default function AdminDashboardClient({
             className="flex flex-col justify-between p-4 rounded-xl border border-blue-200 bg-blue-50/60 hover:bg-blue-100/70 transition"
           >
             <span className="text-xs font-extrabold text-blue-800">
-              3. 개인회원 전체 내역
+              4. 개인회원 전체 내역
             </span>
             <span className="text-[11px] text-blue-600 mt-2 font-semibold">
               📥 엑셀 다운로드 (.xls)
@@ -246,7 +258,7 @@ export default function AdminDashboardClient({
             className="flex flex-col justify-between p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 transition"
           >
             <span className="text-xs font-extrabold text-slate-800">
-              4. 전체 검사문항 DB (272문항)
+              5. 전체 검사문항 DB (272문항)
             </span>
             <span className="text-[11px] text-slate-600 mt-2 font-semibold">
               📥 엑셀 다운로드 (.xls)
@@ -258,7 +270,7 @@ export default function AdminDashboardClient({
             className="flex flex-col justify-between p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 transition"
           >
             <span className="text-xs font-extrabold text-slate-800">
-              5. 검사프로그램별 매핑문항
+              6. 검사프로그램별 매핑문항
             </span>
             <span className="text-[11px] text-slate-600 mt-2 font-semibold">
               📥 엑셀 다운로드 (.xls)
