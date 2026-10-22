@@ -797,12 +797,22 @@ function applyDeltaToState(state: DatabaseState, delta: CompactDelta | null): Da
   if (delta.gi && delta.gi.length > 0) {
     for (const mapping of delta.gi) {
       const idx = state.graphit_item.findIndex(
-        (x) => Number(x.item_no) === Number(mapping.item_no)
+        (x) =>
+          Number(x.item_no) === Number(mapping.item_no) &&
+          String(x.it_id) === String(mapping.it_id)
       );
       if (idx >= 0) {
         state.graphit_item[idx] = mapping;
       } else {
-        state.graphit_item.push(mapping);
+        const existsSamePair = state.graphit_item.some(
+          (x) =>
+            String(x.it_id) === String(mapping.it_id) &&
+            Number(x.qa_no) === Number(mapping.qa_no) &&
+            Number(x.item_seq) === Number(mapping.item_seq)
+        );
+        if (!existsSamePair) {
+          state.graphit_item.push(mapping);
+        }
       }
     }
   }
