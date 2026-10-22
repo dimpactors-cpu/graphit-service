@@ -766,6 +766,7 @@ function applyDeltaToState(state: DatabaseState, delta: CompactDelta | null): Da
         state.graphit_qa[idx] = {
           ...existing,
           ...qa,
+          qa_code: existing.al_q_code || qa.qa_code || existing.qa_code,
           qa_answer: qa.qa_answer ?? existing.qa_answer,
           qa_metric: qa.qa_metric ?? existing.qa_metric,
           qa_weight: qa.qa_weight ?? existing.qa_weight,
@@ -773,7 +774,7 @@ function applyDeltaToState(state: DatabaseState, delta: CompactDelta | null): Da
           al_test_no: qa.al_test_no ?? existing.al_test_no,
           al_q_code: qa.al_q_code ?? existing.al_q_code,
         };
-      } else {
+      } else if (Number(qa.qa_no) > 301) {
         state.graphit_qa.unshift(qa);
       }
     }
@@ -1086,6 +1087,12 @@ function ensureSeedUpgrades(state: DatabaseState): DatabaseState {
     }
   }
 
+  const seedQaNos = new Set(seed.graphit_qa.map((q) => Number(q.qa_no)));
+  // Remove legacy duplicate questions (qa_no <= 301 that are no longer in seed)
+  state.graphit_qa = state.graphit_qa.filter(
+    (q) => seedQaNos.has(Number(q.qa_no)) || Number(q.qa_no) > 301
+  );
+
   const qaMap = new Map(state.graphit_qa.map((q, idx) => [Number(q.qa_no), idx]));
   for (const sQa of seed.graphit_qa) {
     const idx = qaMap.get(Number(sQa.qa_no));
@@ -1096,6 +1103,7 @@ function ensureSeedUpgrades(state: DatabaseState): DatabaseState {
       state.graphit_qa[idx] = {
         ...sQa,
         ...cur,
+        qa_code: sQa.qa_code,
         qa_answer: cur.qa_answer ?? sQa.qa_answer,
         qa_metric: cur.qa_metric ?? sQa.qa_metric,
         qa_weight: cur.qa_weight ?? sQa.qa_weight,
@@ -1105,6 +1113,9 @@ function ensureSeedUpgrades(state: DatabaseState): DatabaseState {
       };
     }
   }
+
+  const validQaNos = new Set(state.graphit_qa.map((q) => Number(q.qa_no)));
+  state.graphit_item = state.graphit_item.filter((gi) => validQaNos.has(Number(gi.qa_no)));
 
   const giNos = new Set(state.graphit_item.map((gi) => Number(gi.item_no)));
   for (const sGi of seed.graphit_item) {

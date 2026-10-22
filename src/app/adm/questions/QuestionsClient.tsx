@@ -45,15 +45,10 @@ export default function QuestionsClient({
   questions: GraphitQaRow[];
 }) {
   const router = useRouter();
-  const [typeFilter, setTypeFilter] = useState<'ALL' | 'AL' | 'n' | 'y' | 'TENDENCY'>('AL');
+  const [typeFilter, setTypeFilter] = useState<'ALL' | 'n' | 'y' | 'TENDENCY'>('ALL');
   const [keyword, setKeyword] = useState('');
   const [editing, setEditing] = useState<Partial<GraphitQaRow> | null>(null);
   const [saving, setSaving] = useState(false);
-
-  const alCount = useMemo(
-    () => questions.filter((q) => Boolean(q.al_test_no)).length,
-    [questions]
-  );
 
   const tendencyCount = useMemo(
     () => questions.filter((q) => Boolean(getTendencyMap(q))).length,
@@ -62,7 +57,6 @@ export default function QuestionsClient({
 
   const filtered = useMemo(() => {
     const list = questions.filter((q) => {
-      if (typeFilter === 'AL' && !q.al_test_no) return false;
       if (typeFilter === 'n' && q.qa_type !== 'n') return false;
       if (typeFilter === 'y' && q.qa_type !== 'y') return false;
       if (typeFilter === 'TENDENCY' && !getTendencyMap(q)) return false;
@@ -83,15 +77,12 @@ export default function QuestionsClient({
       return true;
     });
 
-    if (typeFilter === 'AL' || typeFilter === 'TENDENCY') {
-      return [...list].sort((a, b) => {
-        const na = parseTestNoNum(a.al_test_no);
-        const nb = parseTestNoNum(b.al_test_no);
-        if (na !== nb) return na - nb;
-        return Number(a.qa_no) - Number(b.qa_no);
-      });
-    }
-    return list;
+    return [...list].sort((a, b) => {
+      const na = parseTestNoNum(a.al_test_no);
+      const nb = parseTestNoNum(b.al_test_no);
+      if (na !== nb) return na - nb;
+      return Number(b.qa_no) - Number(a.qa_no);
+    });
   }, [questions, typeFilter, keyword]);
 
   const openNewModal = (qaType: 'n' | 'y') => {
@@ -198,8 +189,7 @@ export default function QuestionsClient({
         <div className="flex flex-wrap gap-2">
           {(
             [
-              { id: 'AL', label: `AL 데이터셋 문항 (No_1~No_208 · ${alCount}문항)` },
-              { id: 'ALL', label: `전체 문항 DB (${questions.length})` },
+              { id: 'ALL', label: `전체 문항 (AL 데이터셋 기준 · ${questions.length}문항)` },
               { id: 'TENDENCY', label: `성향검사 12345 매핑 (${tendencyCount})` },
               { id: 'n', label: '객관식 (5지선다)' },
               { id: 'y', label: '주관식 (단답/서술)' },
