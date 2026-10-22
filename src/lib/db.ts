@@ -149,6 +149,12 @@ export interface GraphitQaRow {
   qa_q4: string | null;
   qa_q5: string | null;
   reg_datetime: string;
+  qa_answer?: string;
+  qa_metric?: string;
+  qa_weight?: number | string;
+  qa_tendency_map?: Record<string, number> | null;
+  al_test_no?: string;
+  al_q_code?: string;
 }
 
 export interface GraphitTestRow {
@@ -756,7 +762,17 @@ function applyDeltaToState(state: DatabaseState, delta: CompactDelta | null): Da
       };
       const idx = state.graphit_qa.findIndex((x) => Number(x.qa_no) === Number(qa.qa_no));
       if (idx >= 0) {
-        state.graphit_qa[idx] = qa;
+        const existing = state.graphit_qa[idx];
+        state.graphit_qa[idx] = {
+          ...existing,
+          ...qa,
+          qa_answer: qa.qa_answer ?? existing.qa_answer,
+          qa_metric: qa.qa_metric ?? existing.qa_metric,
+          qa_weight: qa.qa_weight ?? existing.qa_weight,
+          qa_tendency_map: qa.qa_tendency_map ?? existing.qa_tendency_map,
+          al_test_no: qa.al_test_no ?? existing.al_test_no,
+          al_q_code: qa.al_q_code ?? existing.al_q_code,
+        };
       } else {
         state.graphit_qa.unshift(qa);
       }
@@ -934,7 +950,11 @@ function extractDeltaFromState(
       qa.qa_q2 !== s.qa_q2 ||
       qa.qa_q3 !== s.qa_q3 ||
       qa.qa_q4 !== s.qa_q4 ||
-      qa.qa_q5 !== s.qa_q5
+      qa.qa_q5 !== s.qa_q5 ||
+      qa.qa_answer !== s.qa_answer ||
+      qa.qa_metric !== s.qa_metric ||
+      String(qa.qa_weight ?? "") !== String(s.qa_weight ?? "") ||
+      JSON.stringify(qa.qa_tendency_map || null) !== JSON.stringify(s.qa_tendency_map || null)
     );
   });
 
@@ -1046,6 +1066,46 @@ async function writeRemoteDelta(state: DatabaseState): Promise<void> {
   }
 }
 
+function ensureSeedUpgrades(state: DatabaseState): DatabaseState {
+  const seed = seedDataRaw as unknown as DatabaseState;
+  const itemIds = new Set(state.g5_shop_item.map((it) => String(it.it_id)));
+  for (const sItem of seed.g5_shop_item) {
+    if (!itemIds.has(String(sItem.it_id))) {
+      state.g5_shop_item.unshift({ ...sItem });
+      itemIds.add(String(sItem.it_id));
+    }
+  }
+
+  const qaMap = new Map(state.graphit_qa.map((q, idx) => [Number(q.qa_no), idx]));
+  for (const sQa of seed.graphit_qa) {
+    const idx = qaMap.get(Number(sQa.qa_no));
+    if (idx === undefined) {
+      state.graphit_qa.push({ ...sQa });
+    } else {
+      const cur = state.graphit_qa[idx];
+      state.graphit_qa[idx] = {
+        ...sQa,
+        ...cur,
+        qa_answer: cur.qa_answer ?? sQa.qa_answer,
+        qa_metric: cur.qa_metric ?? sQa.qa_metric,
+        qa_weight: cur.qa_weight ?? sQa.qa_weight,
+        qa_tendency_map: cur.qa_tendency_map ?? sQa.qa_tendency_map,
+        al_test_no: cur.al_test_no ?? sQa.al_test_no,
+        al_q_code: cur.al_q_code ?? sQa.al_q_code,
+      };
+    }
+  }
+
+  const giNos = new Set(state.graphit_item.map((gi) => Number(gi.item_no)));
+  for (const sGi of seed.graphit_item) {
+    if (!giNos.has(Number(sGi.item_no))) {
+      state.graphit_item.push({ ...sGi });
+      giNos.add(Number(sGi.item_no));
+    }
+  }
+  return state;
+}
+
 function loadInitialStateFromDisk(): DatabaseState {
   const runtimePath = getRuntimeFilePath();
   if (fs.existsSync(runtimePath)) {
@@ -1053,7 +1113,7 @@ function loadInitialStateFromDisk(): DatabaseState {
       const raw = fs.readFileSync(runtimePath, "utf-8");
       const parsed = JSON.parse(raw) as DatabaseState;
       if (parsed && Array.isArray(parsed.g5_member)) {
-        return parsed;
+        return ensureSeedUpgrades(parsed);
       }
     } catch (e) {
       console.error("Failed to read runtime DB file, falling back to seed:", e);
@@ -1073,7 +1133,7 @@ export async function getDb(): Promise<DatabaseState> {
       }
       const res = await pool.query("SELECT payload FROM graphit_app_state WHERE id = 'main' LIMIT 1");
       if (res.rows.length > 0 && res.rows[0].payload) {
-        global.__graphitDbCache = res.rows[0].payload as DatabaseState;
+        global.__graphitDbCache = ensureSeedUpgrades(res.rows[0].payload as DatabaseState);
         return applyDeltaToState(global.__graphitDbCache, readCookieDelta());
       } else {
         const initial = applyDeltaToState(loadInitialStateFromDisk(), readCookieDelta());
@@ -1091,6 +1151,8 @@ export async function getDb(): Promise<DatabaseState> {
 
   if (!global.__graphitDbCache) {
     global.__graphitDbCache = loadInitialStateFromDisk();
+  } else {
+    ensureSeedUpgrades(global.__graphitDbCache);
   }
 
   const [remoteInfo, cookieDelta] = await Promise.all([

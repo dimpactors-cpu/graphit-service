@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       q.qa_type = body.qa_type ?? q.qa_type;
       q.qa_summary = body.qa_summary ?? q.qa_summary;
       q.qa_sub1 = body.qa_sub1 ?? q.qa_sub1;
-      q.qa_sub2 = body.qa_sub2 ?? q.qa_sub2;
+      q.qa_sub2 = body.qa_sub2 ?? body.qa_answer ?? q.qa_sub2;
       q.qa_level = body.qa_level ?? q.qa_level;
       q.qa_tendency = body.qa_tendency ?? q.qa_tendency;
       q.qa_power = body.qa_power ?? q.qa_power;
@@ -44,21 +44,38 @@ export async function POST(req: NextRequest) {
       q.qa_q3 = body.qa_q3 !== undefined ? cleanChoice(body.qa_q3) : q.qa_q3;
       q.qa_q4 = body.qa_q4 !== undefined ? cleanChoice(body.qa_q4) : q.qa_q4;
       q.qa_q5 = body.qa_q5 !== undefined ? cleanChoice(body.qa_q5) : q.qa_q5;
+      if (body.qa_answer !== undefined) q.qa_answer = body.qa_answer;
+      if (body.qa_metric !== undefined) q.qa_metric = body.qa_metric;
+      if (body.qa_weight !== undefined) q.qa_weight = Number(body.qa_weight);
+      if (body.qa_tendency_map !== undefined) {
+        q.qa_tendency_map = body.qa_tendency_map;
+        if (body.qa_tendency_map) {
+          const tCols = ["seL", "foC", "skI", "reL", "obJ"] as const;
+          const str = tCols.map((k) => Number(body.qa_tendency_map[k] || 0)).join("");
+          if (str !== "00000") q.qa_tendency = str;
+        }
+      }
+      if (body.al_test_no !== undefined) q.al_test_no = body.al_test_no;
+      if (body.al_q_code !== undefined) q.al_q_code = body.al_q_code;
 
       await saveDb(db);
       return NextResponse.json({ ok: true, question: q });
     } else {
       // Create new question
       const maxQaNo = db.graphit_qa.reduce((acc, r) => Math.max(acc, Number(r.qa_no || 0)), 0);
+      const tMap = body.qa_tendency_map || null;
+      const tStr = tMap
+        ? (["seL", "foC", "skI", "reL", "obJ"] as const).map((k) => Number(tMap[k] || 0)).join("")
+        : body.qa_tendency || "";
       const newQ = {
         qa_no: maxQaNo + 1,
         qa_code: body.qa_code || `QA-${maxQaNo + 1}`,
         qa_type: body.qa_type || "n",
         qa_summary: body.qa_summary || "",
         qa_sub1: body.qa_sub1 || "",
-        qa_sub2: body.qa_sub2 || "",
+        qa_sub2: body.qa_sub2 || body.qa_answer || "",
         qa_level: body.qa_level || "",
-        qa_tendency: body.qa_tendency || "",
+        qa_tendency: tStr,
         qa_power: body.qa_power || "",
         qa_subject: cleanSubject(body.qa_subject),
         qa_content: body.qa_content || "",
@@ -69,6 +86,12 @@ export async function POST(req: NextRequest) {
         qa_q4: cleanChoice(body.qa_q4),
         qa_q5: cleanChoice(body.qa_q5),
         reg_datetime: formatKstNow(),
+        qa_answer: body.qa_answer || "",
+        qa_metric: body.qa_metric || "",
+        qa_weight: Number(body.qa_weight ?? 0),
+        qa_tendency_map: tMap,
+        al_test_no: body.al_test_no || "",
+        al_q_code: body.al_q_code || body.qa_code || "",
       };
       db.graphit_qa.unshift(newQ);
       await saveDb(db);

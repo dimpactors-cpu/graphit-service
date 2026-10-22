@@ -9363,6 +9363,26 @@
   ],
   "g5_shop_item": [
     {
+      "it_id": "1729580001",
+      "ca_id": "10",
+      "it_name": "그래프미 통합 진단검사 (AL 데이터셋)",
+      "it_basic": "al_data_set (No_1 ~ No_208) 기준 성향·역량·적응 통합 진단검사 프로그램입니다.",
+      "it_explan": "<p>al_data_set(No_1 ~ No_208, 총 208문항)의 출제 순서 및 문항별 정답·배점 체계가 적용된 통합 진단검사 프로그램입니다.</p>",
+      "it_cust_price": 0,
+      "it_price": 0,
+      "it_use": 1,
+      "it_time": "2026-10-22 16:30:00",
+      "it_update_time": "2026-10-22 16:30:00",
+      "it_img1": "1677806419_1.png",
+      "it_img2": "",
+      "it_img3": "",
+      "it_1": "대학생, 성인",
+      "it_2": "만 18세 이상",
+      "it_3": "60",
+      "it_4": "GRAPHME-AL-208",
+      "it_5": ""
+    },
+    {
       "it_id": "1675066694",
       "ca_id": "10",
       "it_name": "진로진학 리포트",
@@ -21999,6 +22019,1462 @@
       "qa_no": "156",
       "item_seq": "93",
       "item_timer": "0"
+    },
+    {
+      "item_no": 1391,
+      "it_id": "1729580001",
+      "qa_no": 292,
+      "item_seq": 1,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1392,
+      "it_id": "1729580001",
+      "qa_no": 293,
+      "item_seq": 2,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1393,
+      "it_id": "1729580001",
+      "qa_no": 245,
+      "item_seq": 3,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1394,
+      "it_id": "1729580001",
+      "qa_no": 271,
+      "item_seq": 4,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1395,
+      "it_id": "1729580001",
+      "qa_no": 178,
+      "item_seq": 5,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1396,
+      "it_id": "1729580001",
+      "qa_no": 202,
+      "item_seq": 6,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1397,
+      "it_id": "1729580001",
+      "qa_no": 233,
+      "item_seq": 7,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1398,
+      "it_id": "1729580001",
+      "qa_no": 149,
+      "item_seq": 8,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1399,
+      "it_id": "1729580001",
+      "qa_no": 97,
+      "item_seq": 9,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1400,
+      "it_id": "1729580001",
+      "qa_no": 210,
+      "item_seq": 10,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1401,
+      "it_id": "1729580001",
+      "qa_no": 197,
+      "item_seq": 11,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1402,
+      "it_id": "1729580001",
+      "qa_no": 243,
+      "item_seq": 12,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1403,
+      "it_id": "1729580001",
+      "qa_no": 234,
+      "item_seq": 13,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1404,
+      "it_id": "1729580001",
+      "qa_no": 205,
+      "item_seq": 14,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1405,
+      "it_id": "1729580001",
+      "qa_no": 179,
+      "item_seq": 15,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1406,
+      "it_id": "1729580001",
+      "qa_no": 99,
+      "item_seq": 16,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1407,
+      "it_id": "1729580001",
+      "qa_no": 291,
+      "item_seq": 17,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1408,
+      "it_id": "1729580001",
+      "qa_no": 131,
+      "item_seq": 18,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1409,
+      "it_id": "1729580001",
+      "qa_no": 146,
+      "item_seq": 19,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1410,
+      "it_id": "1729580001",
+      "qa_no": 91,
+      "item_seq": 20,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1411,
+      "it_id": "1729580001",
+      "qa_no": 123,
+      "item_seq": 21,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1412,
+      "it_id": "1729580001",
+      "qa_no": 265,
+      "item_seq": 22,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1413,
+      "it_id": "1729580001",
+      "qa_no": 76,
+      "item_seq": 23,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1414,
+      "it_id": "1729580001",
+      "qa_no": 166,
+      "item_seq": 24,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1415,
+      "it_id": "1729580001",
+      "qa_no": 246,
+      "item_seq": 25,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1416,
+      "it_id": "1729580001",
+      "qa_no": 206,
+      "item_seq": 26,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1417,
+      "it_id": "1729580001",
+      "qa_no": 183,
+      "item_seq": 27,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1418,
+      "it_id": "1729580001",
+      "qa_no": 276,
+      "item_seq": 28,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1419,
+      "it_id": "1729580001",
+      "qa_no": 160,
+      "item_seq": 29,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1420,
+      "it_id": "1729580001",
+      "qa_no": 31,
+      "item_seq": 30,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1421,
+      "it_id": "1729580001",
+      "qa_no": 13,
+      "item_seq": 31,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1422,
+      "it_id": "1729580001",
+      "qa_no": 129,
+      "item_seq": 32,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1423,
+      "it_id": "1729580001",
+      "qa_no": 140,
+      "item_seq": 33,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1424,
+      "it_id": "1729580001",
+      "qa_no": 198,
+      "item_seq": 34,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1425,
+      "it_id": "1729580001",
+      "qa_no": 167,
+      "item_seq": 35,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1426,
+      "it_id": "1729580001",
+      "qa_no": 248,
+      "item_seq": 36,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1427,
+      "it_id": "1729580001",
+      "qa_no": 169,
+      "item_seq": 37,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1428,
+      "it_id": "1729580001",
+      "qa_no": 274,
+      "item_seq": 38,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1429,
+      "it_id": "1729580001",
+      "qa_no": 235,
+      "item_seq": 39,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1430,
+      "it_id": "1729580001",
+      "qa_no": 115,
+      "item_seq": 40,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1431,
+      "it_id": "1729580001",
+      "qa_no": 70,
+      "item_seq": 41,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1432,
+      "it_id": "1729580001",
+      "qa_no": 100,
+      "item_seq": 42,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1433,
+      "it_id": "1729580001",
+      "qa_no": 116,
+      "item_seq": 43,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1434,
+      "it_id": "1729580001",
+      "qa_no": 232,
+      "item_seq": 44,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1435,
+      "it_id": "1729580001",
+      "qa_no": 231,
+      "item_seq": 45,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1436,
+      "it_id": "1729580001",
+      "qa_no": 105,
+      "item_seq": 46,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1437,
+      "it_id": "1729580001",
+      "qa_no": 148,
+      "item_seq": 47,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1438,
+      "it_id": "1729580001",
+      "qa_no": 14,
+      "item_seq": 48,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1439,
+      "it_id": "1729580001",
+      "qa_no": 182,
+      "item_seq": 49,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1440,
+      "it_id": "1729580001",
+      "qa_no": 201,
+      "item_seq": 50,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1441,
+      "it_id": "1729580001",
+      "qa_no": 241,
+      "item_seq": 51,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1442,
+      "it_id": "1729580001",
+      "qa_no": 286,
+      "item_seq": 52,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1443,
+      "it_id": "1729580001",
+      "qa_no": 84,
+      "item_seq": 53,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1444,
+      "it_id": "1729580001",
+      "qa_no": 82,
+      "item_seq": 54,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1445,
+      "it_id": "1729580001",
+      "qa_no": 83,
+      "item_seq": 55,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1446,
+      "it_id": "1729580001",
+      "qa_no": 264,
+      "item_seq": 56,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1447,
+      "it_id": "1729580001",
+      "qa_no": 262,
+      "item_seq": 57,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1448,
+      "it_id": "1729580001",
+      "qa_no": 168,
+      "item_seq": 58,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1449,
+      "it_id": "1729580001",
+      "qa_no": 159,
+      "item_seq": 59,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1450,
+      "it_id": "1729580001",
+      "qa_no": 247,
+      "item_seq": 60,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1451,
+      "it_id": "1729580001",
+      "qa_no": 242,
+      "item_seq": 61,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1452,
+      "it_id": "1729580001",
+      "qa_no": 214,
+      "item_seq": 62,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1453,
+      "it_id": "1729580001",
+      "qa_no": 74,
+      "item_seq": 63,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1454,
+      "it_id": "1729580001",
+      "qa_no": 113,
+      "item_seq": 64,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1455,
+      "it_id": "1729580001",
+      "qa_no": 141,
+      "item_seq": 65,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1456,
+      "it_id": "1729580001",
+      "qa_no": 250,
+      "item_seq": 66,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1457,
+      "it_id": "1729580001",
+      "qa_no": 209,
+      "item_seq": 67,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1458,
+      "it_id": "1729580001",
+      "qa_no": 244,
+      "item_seq": 68,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1459,
+      "it_id": "1729580001",
+      "qa_no": 157,
+      "item_seq": 69,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1460,
+      "it_id": "1729580001",
+      "qa_no": 236,
+      "item_seq": 70,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1461,
+      "it_id": "1729580001",
+      "qa_no": 186,
+      "item_seq": 71,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1462,
+      "it_id": "1729580001",
+      "qa_no": 263,
+      "item_seq": 72,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1463,
+      "it_id": "1729580001",
+      "qa_no": 124,
+      "item_seq": 73,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1464,
+      "it_id": "1729580001",
+      "qa_no": 121,
+      "item_seq": 74,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1465,
+      "it_id": "1729580001",
+      "qa_no": 89,
+      "item_seq": 75,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1466,
+      "it_id": "1729580001",
+      "qa_no": 138,
+      "item_seq": 76,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1467,
+      "it_id": "1729580001",
+      "qa_no": 249,
+      "item_seq": 77,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1468,
+      "it_id": "1729580001",
+      "qa_no": 237,
+      "item_seq": 78,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1469,
+      "it_id": "1729580001",
+      "qa_no": 294,
+      "item_seq": 79,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1470,
+      "it_id": "1729580001",
+      "qa_no": 288,
+      "item_seq": 80,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1471,
+      "it_id": "1729580001",
+      "qa_no": 170,
+      "item_seq": 81,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1472,
+      "it_id": "1729580001",
+      "qa_no": 272,
+      "item_seq": 82,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1473,
+      "it_id": "1729580001",
+      "qa_no": 213,
+      "item_seq": 83,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1474,
+      "it_id": "1729580001",
+      "qa_no": 251,
+      "item_seq": 84,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1475,
+      "it_id": "1729580001",
+      "qa_no": 156,
+      "item_seq": 85,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1476,
+      "it_id": "1729580001",
+      "qa_no": 238,
+      "item_seq": 86,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1477,
+      "it_id": "1729580001",
+      "qa_no": 239,
+      "item_seq": 87,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1478,
+      "it_id": "1729580001",
+      "qa_no": 108,
+      "item_seq": 88,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1479,
+      "it_id": "1729580001",
+      "qa_no": 92,
+      "item_seq": 89,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1480,
+      "it_id": "1729580001",
+      "qa_no": 187,
+      "item_seq": 90,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1481,
+      "it_id": "1729580001",
+      "qa_no": 240,
+      "item_seq": 91,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1482,
+      "it_id": "1729580001",
+      "qa_no": 295,
+      "item_seq": 92,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1483,
+      "it_id": "1729580001",
+      "qa_no": 10,
+      "item_seq": 93,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1484,
+      "it_id": "1729580001",
+      "qa_no": 78,
+      "item_seq": 94,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1485,
+      "it_id": "1729580001",
+      "qa_no": 107,
+      "item_seq": 95,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1486,
+      "it_id": "1729580001",
+      "qa_no": 132,
+      "item_seq": 96,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1487,
+      "it_id": "1729580001",
+      "qa_no": 72,
+      "item_seq": 97,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1488,
+      "it_id": "1729580001",
+      "qa_no": 158,
+      "item_seq": 98,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1489,
+      "it_id": "1729580001",
+      "qa_no": 277,
+      "item_seq": 99,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1490,
+      "it_id": "1729580001",
+      "qa_no": 275,
+      "item_seq": 100,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1491,
+      "it_id": "1729580001",
+      "qa_no": 261,
+      "item_seq": 101,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1492,
+      "it_id": "1729580001",
+      "qa_no": 284,
+      "item_seq": 102,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1493,
+      "it_id": "1729580001",
+      "qa_no": 101,
+      "item_seq": 103,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1494,
+      "it_id": "1729580001",
+      "qa_no": 290,
+      "item_seq": 104,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1495,
+      "it_id": "1729580001",
+      "qa_no": 171,
+      "item_seq": 105,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1496,
+      "it_id": "1729580001",
+      "qa_no": 180,
+      "item_seq": 106,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1497,
+      "it_id": "1729580001",
+      "qa_no": 181,
+      "item_seq": 107,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1498,
+      "it_id": "1729580001",
+      "qa_no": 184,
+      "item_seq": 108,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1499,
+      "it_id": "1729580001",
+      "qa_no": 150,
+      "item_seq": 109,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1500,
+      "it_id": "1729580001",
+      "qa_no": 69,
+      "item_seq": 110,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1501,
+      "it_id": "1729580001",
+      "qa_no": 71,
+      "item_seq": 111,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1502,
+      "it_id": "1729580001",
+      "qa_no": 151,
+      "item_seq": 112,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1503,
+      "it_id": "1729580001",
+      "qa_no": 153,
+      "item_seq": 113,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1504,
+      "it_id": "1729580001",
+      "qa_no": 154,
+      "item_seq": 114,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1505,
+      "it_id": "1729580001",
+      "qa_no": 252,
+      "item_seq": 115,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1506,
+      "it_id": "1729580001",
+      "qa_no": 87,
+      "item_seq": 116,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1507,
+      "it_id": "1729580001",
+      "qa_no": 212,
+      "item_seq": 117,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1508,
+      "it_id": "1729580001",
+      "qa_no": 93,
+      "item_seq": 118,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1509,
+      "it_id": "1729580001",
+      "qa_no": 224,
+      "item_seq": 119,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1510,
+      "it_id": "1729580001",
+      "qa_no": 96,
+      "item_seq": 120,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1511,
+      "it_id": "1729580001",
+      "qa_no": 103,
+      "item_seq": 121,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1512,
+      "it_id": "1729580001",
+      "qa_no": 289,
+      "item_seq": 122,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1513,
+      "it_id": "1729580001",
+      "qa_no": 218,
+      "item_seq": 123,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1514,
+      "it_id": "1729580001",
+      "qa_no": 219,
+      "item_seq": 124,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1515,
+      "it_id": "1729580001",
+      "qa_no": 253,
+      "item_seq": 125,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1516,
+      "it_id": "1729580001",
+      "qa_no": 112,
+      "item_seq": 126,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1517,
+      "it_id": "1729580001",
+      "qa_no": 117,
+      "item_seq": 127,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1518,
+      "it_id": "1729580001",
+      "qa_no": 119,
+      "item_seq": 128,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1519,
+      "it_id": "1729580001",
+      "qa_no": 11,
+      "item_seq": 129,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1520,
+      "it_id": "1729580001",
+      "qa_no": 125,
+      "item_seq": 130,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1521,
+      "it_id": "1729580001",
+      "qa_no": 127,
+      "item_seq": 131,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1522,
+      "it_id": "1729580001",
+      "qa_no": 259,
+      "item_seq": 132,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1523,
+      "it_id": "1729580001",
+      "qa_no": 260,
+      "item_seq": 133,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1524,
+      "it_id": "1729580001",
+      "qa_no": 173,
+      "item_seq": 134,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1525,
+      "it_id": "1729580001",
+      "qa_no": 136,
+      "item_seq": 135,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1526,
+      "it_id": "1729580001",
+      "qa_no": 287,
+      "item_seq": 136,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1527,
+      "it_id": "1729580001",
+      "qa_no": 79,
+      "item_seq": 137,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1528,
+      "it_id": "1729580001",
+      "qa_no": 80,
+      "item_seq": 138,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1529,
+      "it_id": "1729580001",
+      "qa_no": 81,
+      "item_seq": 139,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1530,
+      "it_id": "1729580001",
+      "qa_no": 188,
+      "item_seq": 140,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1531,
+      "it_id": "1729580001",
+      "qa_no": 189,
+      "item_seq": 141,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1532,
+      "it_id": "1729580001",
+      "qa_no": 228,
+      "item_seq": 142,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1533,
+      "it_id": "1729580001",
+      "qa_no": 155,
+      "item_seq": 143,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1534,
+      "it_id": "1729580001",
+      "qa_no": 161,
+      "item_seq": 144,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1535,
+      "it_id": "1729580001",
+      "qa_no": 162,
+      "item_seq": 145,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1536,
+      "it_id": "1729580001",
+      "qa_no": 133,
+      "item_seq": 146,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1537,
+      "it_id": "1729580001",
+      "qa_no": 164,
+      "item_seq": 147,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1538,
+      "it_id": "1729580001",
+      "qa_no": 165,
+      "item_seq": 148,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1539,
+      "it_id": "1729580001",
+      "qa_no": 172,
+      "item_seq": 149,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1540,
+      "it_id": "1729580001",
+      "qa_no": 12,
+      "item_seq": 150,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1541,
+      "it_id": "1729580001",
+      "qa_no": 266,
+      "item_seq": 151,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1542,
+      "it_id": "1729580001",
+      "qa_no": 174,
+      "item_seq": 152,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1543,
+      "it_id": "1729580001",
+      "qa_no": 175,
+      "item_seq": 153,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1544,
+      "it_id": "1729580001",
+      "qa_no": 176,
+      "item_seq": 154,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1545,
+      "it_id": "1729580001",
+      "qa_no": 177,
+      "item_seq": 155,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1546,
+      "it_id": "1729580001",
+      "qa_no": 296,
+      "item_seq": 156,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1547,
+      "it_id": "1729580001",
+      "qa_no": 144,
+      "item_seq": 157,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1548,
+      "it_id": "1729580001",
+      "qa_no": 223,
+      "item_seq": 158,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1549,
+      "it_id": "1729580001",
+      "qa_no": 185,
+      "item_seq": 159,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1550,
+      "it_id": "1729580001",
+      "qa_no": 73,
+      "item_seq": 160,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1551,
+      "it_id": "1729580001",
+      "qa_no": 297,
+      "item_seq": 161,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1552,
+      "it_id": "1729580001",
+      "qa_no": 199,
+      "item_seq": 162,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1553,
+      "it_id": "1729580001",
+      "qa_no": 200,
+      "item_seq": 163,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1554,
+      "it_id": "1729580001",
+      "qa_no": 203,
+      "item_seq": 164,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1555,
+      "it_id": "1729580001",
+      "qa_no": 204,
+      "item_seq": 165,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1556,
+      "it_id": "1729580001",
+      "qa_no": 207,
+      "item_seq": 166,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1557,
+      "it_id": "1729580001",
+      "qa_no": 298,
+      "item_seq": 167,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1558,
+      "it_id": "1729580001",
+      "qa_no": 211,
+      "item_seq": 168,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1559,
+      "it_id": "1729580001",
+      "qa_no": 270,
+      "item_seq": 169,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1560,
+      "it_id": "1729580001",
+      "qa_no": 267,
+      "item_seq": 170,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1561,
+      "it_id": "1729580001",
+      "qa_no": 216,
+      "item_seq": 171,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1562,
+      "it_id": "1729580001",
+      "qa_no": 217,
+      "item_seq": 172,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1563,
+      "it_id": "1729580001",
+      "qa_no": 104,
+      "item_seq": 173,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1564,
+      "it_id": "1729580001",
+      "qa_no": 109,
+      "item_seq": 174,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1565,
+      "it_id": "1729580001",
+      "qa_no": 220,
+      "item_seq": 175,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1566,
+      "it_id": "1729580001",
+      "qa_no": 221,
+      "item_seq": 176,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1567,
+      "it_id": "1729580001",
+      "qa_no": 222,
+      "item_seq": 177,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1568,
+      "it_id": "1729580001",
+      "qa_no": 145,
+      "item_seq": 178,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1569,
+      "it_id": "1729580001",
+      "qa_no": 95,
+      "item_seq": 179,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1570,
+      "it_id": "1729580001",
+      "qa_no": 226,
+      "item_seq": 180,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1571,
+      "it_id": "1729580001",
+      "qa_no": 227,
+      "item_seq": 181,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1572,
+      "it_id": "1729580001",
+      "qa_no": 163,
+      "item_seq": 182,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1573,
+      "it_id": "1729580001",
+      "qa_no": 229,
+      "item_seq": 183,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1574,
+      "it_id": "1729580001",
+      "qa_no": 230,
+      "item_seq": 184,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1575,
+      "it_id": "1729580001",
+      "qa_no": 85,
+      "item_seq": 185,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1576,
+      "it_id": "1729580001",
+      "qa_no": 111,
+      "item_seq": 186,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1577,
+      "it_id": "1729580001",
+      "qa_no": 254,
+      "item_seq": 187,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1578,
+      "it_id": "1729580001",
+      "qa_no": 255,
+      "item_seq": 188,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1579,
+      "it_id": "1729580001",
+      "qa_no": 268,
+      "item_seq": 189,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1580,
+      "it_id": "1729580001",
+      "qa_no": 257,
+      "item_seq": 190,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1581,
+      "it_id": "1729580001",
+      "qa_no": 258,
+      "item_seq": 191,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1582,
+      "it_id": "1729580001",
+      "qa_no": 128,
+      "item_seq": 192,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1583,
+      "it_id": "1729580001",
+      "qa_no": 77,
+      "item_seq": 193,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1584,
+      "it_id": "1729580001",
+      "qa_no": 135,
+      "item_seq": 194,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1585,
+      "it_id": "1729580001",
+      "qa_no": 299,
+      "item_seq": 195,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1586,
+      "it_id": "1729580001",
+      "qa_no": 75,
+      "item_seq": 196,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1587,
+      "it_id": "1729580001",
+      "qa_no": 88,
+      "item_seq": 197,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1588,
+      "it_id": "1729580001",
+      "qa_no": 269,
+      "item_seq": 198,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1589,
+      "it_id": "1729580001",
+      "qa_no": 256,
+      "item_seq": 199,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1590,
+      "it_id": "1729580001",
+      "qa_no": 215,
+      "item_seq": 200,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1591,
+      "it_id": "1729580001",
+      "qa_no": 142,
+      "item_seq": 201,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1592,
+      "it_id": "1729580001",
+      "qa_no": 208,
+      "item_seq": 202,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1593,
+      "it_id": "1729580001",
+      "qa_no": 120,
+      "item_seq": 203,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1594,
+      "it_id": "1729580001",
+      "qa_no": 279,
+      "item_seq": 204,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1595,
+      "it_id": "1729580001",
+      "qa_no": 280,
+      "item_seq": 205,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1596,
+      "it_id": "1729580001",
+      "qa_no": 54,
+      "item_seq": 206,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1597,
+      "it_id": "1729580001",
+      "qa_no": 300,
+      "item_seq": 207,
+      "item_timer": 0
+    },
+    {
+      "item_no": 1598,
+      "it_id": "1729580001",
+      "qa_no": 301,
+      "item_seq": 208,
+      "item_timer": 0
     }
   ],
   "graphit_qa": [
@@ -22100,7 +23576,19 @@
       "qa_q3": "현실",
       "qa_q4": "고백",
       "qa_q5": "객관",
-      "reg_datetime": "2023-01-30 15:55:13"
+      "reg_datetime": "2023-01-30 15:55:13",
+      "qa_tendency_map": {
+        "seL": 1,
+        "foC": 2,
+        "skI": 3,
+        "reL": 4,
+        "obJ": 5
+      },
+      "qa_metric": "seL,foC,skI,reL,obJ",
+      "qa_weight": 0,
+      "qa_answer": "",
+      "al_test_no": "No_48",
+      "al_q_code": "ooooonnnnnnnaF"
     },
     {
       "qa_no": "15",
@@ -22140,7 +23628,19 @@
       "qa_q3": "친구",
       "qa_q4": "인격",
       "qa_q5": "자아",
-      "reg_datetime": "2023-01-30 15:43:17"
+      "reg_datetime": "2023-01-30 15:43:17",
+      "qa_tendency_map": {
+        "seL": 2,
+        "foC": 3,
+        "skI": 4,
+        "reL": 5,
+        "obJ": 1
+      },
+      "qa_metric": "seL,foC,skI,reL,obJ",
+      "qa_weight": 0,
+      "qa_answer": "",
+      "al_test_no": "No_93",
+      "al_q_code": "ooooonnnnnnnaK"
     },
     {
       "qa_no": "13",
@@ -22160,7 +23660,19 @@
       "qa_q3": "근거",
       "qa_q4": "토론",
       "qa_q5": "증명",
-      "reg_datetime": "2023-01-30 15:54:22"
+      "reg_datetime": "2023-01-30 15:54:22",
+      "qa_tendency_map": {
+        "seL": 1,
+        "foC": 3,
+        "skI": 5,
+        "reL": 4,
+        "obJ": 2
+      },
+      "qa_metric": "seL,foC,skI,reL,obJ",
+      "qa_weight": 0,
+      "qa_answer": "",
+      "al_test_no": "No_31",
+      "al_q_code": "ooooonnnnnnnaE"
     },
     {
       "qa_no": "11",
@@ -22180,7 +23692,19 @@
       "qa_q3": "무정부",
       "qa_q4": "개인",
       "qa_q5": "국민",
-      "reg_datetime": "2023-01-30 15:44:28"
+      "reg_datetime": "2023-01-30 15:44:28",
+      "qa_tendency_map": {
+        "seL": 1,
+        "foC": 2,
+        "skI": 3,
+        "reL": 4,
+        "obJ": 5
+      },
+      "qa_metric": "seL,foC,skI,reL,obJ",
+      "qa_weight": 0,
+      "qa_answer": "",
+      "al_test_no": "No_129",
+      "al_q_code": "ooooonnnnnnnaO"
     },
     {
       "qa_no": "12",
@@ -22200,7 +23724,19 @@
       "qa_q3": "불의",
       "qa_q4": "방관",
       "qa_q5": "악",
-      "reg_datetime": "2023-01-30 15:45:19"
+      "reg_datetime": "2023-01-30 15:45:19",
+      "qa_tendency_map": {
+        "seL": 1,
+        "foC": 2,
+        "skI": 3,
+        "reL": 4,
+        "obJ": 5
+      },
+      "qa_metric": "seL,foC,skI,reL,obJ",
+      "qa_weight": 0,
+      "qa_answer": "",
+      "al_test_no": "No_150",
+      "al_q_code": "ooooonnnnnnnaQ"
     },
     {
       "qa_no": "17",
@@ -22500,7 +24036,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-01-30 16:42:07"
+      "reg_datetime": "2023-01-30 16:42:07",
+      "al_test_no": "No_30",
+      "al_q_code": "ooooonnnnnnnaD",
+      "qa_answer": "",
+      "qa_metric": "",
+      "qa_weight": 0
     },
     {
       "qa_no": "32",
@@ -22720,7 +24261,19 @@
       "qa_q3": "알람을 끄고 잠시 누워있는다.",
       "qa_q4": "휴대폰의 문자, 카톡 등 알림을 확인한다.",
       "qa_q5": "오늘의 날씨를 확인한다.",
-      "reg_datetime": "2023-10-25 13:52:31"
+      "reg_datetime": "2023-10-25 13:52:31",
+      "qa_tendency_map": {
+        "seL": 1,
+        "foC": 2,
+        "skI": 3,
+        "reL": 4,
+        "obJ": 5
+      },
+      "qa_metric": "seL,foC,skI,reL,obJ",
+      "qa_weight": 1,
+      "qa_answer": "",
+      "al_test_no": "No_110",
+      "al_q_code": "rfHABnnnnnn1aA"
     },
     {
       "qa_no": "44",
@@ -22940,7 +24493,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-02-15 23:47:49"
+      "reg_datetime": "2023-02-15 23:47:49",
+      "al_test_no": "No_206",
+      "al_q_code": "ooooonnnnnnnaX",
+      "qa_answer": "",
+      "qa_metric": "",
+      "qa_weight": 0
     },
     {
       "qa_no": "55",
@@ -23220,7 +24778,19 @@
       "qa_q3": "일이니까 시키면 하긴 해야지...",
       "qa_q4": "내 업무랑 비슷한 것 같기도? 생각보다 쉽겠는데?",
       "qa_q5": "잘 모르겠지만 주변에 물어보긴 좀 그러니 혼자 일을 배워봐야겠다.",
-      "reg_datetime": "2023-10-25 14:03:20"
+      "reg_datetime": "2023-10-25 14:03:20",
+      "qa_tendency_map": {
+        "seL": 3,
+        "foC": 2,
+        "skI": 4,
+        "reL": 5,
+        "obJ": 1
+      },
+      "qa_metric": "seL,foC,skI,reL,obJ",
+      "qa_weight": 1,
+      "qa_answer": "",
+      "al_test_no": "No_41",
+      "al_q_code": "rfHABnnnnnn1aB"
     },
     {
       "qa_no": "71",
@@ -23240,7 +24810,19 @@
       "qa_q3": "결국엔 이 쓰레기가 돌고 돌아 우리의 입으로 들어오겠지.",
       "qa_q4": "자기 편하자고 다른 사람에게 피해를 줘선 안돼.",
       "qa_q5": "쓰레기를 버리지 못하게 벌금을 많이 부과해야 해.",
-      "reg_datetime": "2023-10-25 14:04:45"
+      "reg_datetime": "2023-10-25 14:04:45",
+      "qa_tendency_map": {
+        "seL": 3,
+        "foC": 4,
+        "skI": 5,
+        "reL": 1,
+        "obJ": 2
+      },
+      "qa_metric": "seL,foC,skI,reL,obJ",
+      "qa_weight": 1,
+      "qa_answer": "",
+      "al_test_no": "No_111",
+      "al_q_code": "rfHABnnnnnn1aC"
     },
     {
       "qa_no": "72",
@@ -23260,7 +24842,19 @@
       "qa_q3": "외국인인 나를 바라보는 다른 사람들의 시선이 의식된다.",
       "qa_q4": "다음 도착지에서 할 일을 휴대폰으로 찾아보고 있다.",
       "qa_q5": "우리나라의 버스와 특징을 비교해 보고 있다.",
-      "reg_datetime": "2023-10-25 14:07:08"
+      "reg_datetime": "2023-10-25 14:07:08",
+      "qa_tendency_map": {
+        "seL": 4,
+        "foC": 2,
+        "skI": 5,
+        "reL": 3,
+        "obJ": 1
+      },
+      "qa_metric": "seL,foC,skI,reL,obJ",
+      "qa_weight": 1,
+      "qa_answer": "",
+      "al_test_no": "No_97",
+      "al_q_code": "rfHABnnnnnn1aD"
     },
     {
       "qa_no": "73",
@@ -23280,7 +24874,19 @@
       "qa_q3": "비가 그칠 때까지 휴대폰을 하며 잠시 시간을 보낸다.",
       "qa_q4": "카페 사장님에게 우산을 빌린다.",
       "qa_q5": "카페 옆 편의점에서 우산을 산다.",
-      "reg_datetime": "2023-10-25 14:09:06"
+      "reg_datetime": "2023-10-25 14:09:06",
+      "qa_tendency_map": {
+        "seL": 2,
+        "foC": 3,
+        "skI": 4,
+        "reL": 1,
+        "obJ": 5
+      },
+      "qa_metric": "seL,foC,skI,reL,obJ",
+      "qa_weight": 1,
+      "qa_answer": "",
+      "al_test_no": "No_160",
+      "al_q_code": "rfHABnnnnnn1aE"
     },
     {
       "qa_no": "74",
@@ -23300,7 +24906,19 @@
       "qa_q3": "한겨울인데 한복만 입었네. 좀 춥겠다.",
       "qa_q4": "친한 친구들끼리 전통 체험을 하러 왔나 봐.",
       "qa_q5": "신발까지 전통신으로 맞췄다면 완벽했을 텐데...",
-      "reg_datetime": "2023-10-25 14:13:38"
+      "reg_datetime": "2023-10-25 14:13:38",
+      "qa_tendency_map": {
+        "seL": 1,
+        "foC": 2,
+        "skI": 5,
+        "reL": 4,
+        "obJ": 3
+      },
+      "qa_metric": "seL,foC,skI,reL,obJ",
+      "qa_weight": 1,
+      "qa_answer": "",
+      "al_test_no": "No_63",
+      "al_q_code": "rfHABnnnnnn2aF"
     },
     {
       "qa_no": "75",
@@ -23320,7 +24938,19 @@
       "qa_q3": "몸이 불편한 사람은 어떻게 건너지?",
       "qa_q4": "와, 다음엔 좀 더 빨리 걸어야겠다.",
       "qa_q5": "관할 구청이 일을 똑바로 안 하네.",
-      "reg_datetime": "2023-10-25 14:14:45"
+      "reg_datetime": "2023-10-25 14:14:45",
+      "qa_tendency_map": {
+        "seL": 4,
+        "foC": 2,
+        "skI": 5,
+        "reL": 3,
+        "obJ": 1
+      },
+      "qa_metric": "seL,foC,skI,reL,obJ",
+      "qa_weight": 1,
+      "qa_answer": "",
+      "al_test_no": "No_196",
+      "al_q_code": "rfHABnnnnnn3aG"
     },
     {
       "qa_no": "76",
@@ -23340,7 +24970,19 @@
       "qa_q3": "미래에 이 그림은 어떤 가치를 가지게 될까?",
       "qa_q4": "고흐는 어떤 감정으로 이 그림을 그렸을까?",
       "qa_q5": "이러한 화풍을 뭐라고 부르더라?",
-      "reg_datetime": "2023-10-25 14:17:03"
+      "reg_datetime": "2023-10-25 14:17:03",
+      "qa_tendency_map": {
+        "seL": 1,
+        "foC": 2,
+        "skI": 5,
+        "reL": 4,
+        "obJ": 3
+      },
+      "qa_metric": "seL,foC,skI,reL,obJ",
+      "qa_weight": 1,
+      "qa_answer": "",
+      "al_test_no": "No_23",
+      "al_q_code": "rfHABnnnnnn4aH"
     },
     {
       "qa_no": "77",
@@ -23360,7 +25002,19 @@
       "qa_q3": "독도가 동아시아에서 갖는 의미는 굉장히 커.",
       "qa_q4": "물이 맑아서 바다 아래가 다 보일 정도야.",
       "qa_q5": "독도가 가지는 경제적 가치는 어느 정도일까?",
-      "reg_datetime": "2023-10-25 14:18:50"
+      "reg_datetime": "2023-10-25 14:18:50",
+      "qa_tendency_map": {
+        "seL": 4,
+        "foC": 2,
+        "skI": 5,
+        "reL": 3,
+        "obJ": 1
+      },
+      "qa_metric": "seL,foC,skI,reL,obJ",
+      "qa_weight": 1,
+      "qa_answer": "",
+      "al_test_no": "No_193",
+      "al_q_code": "rfHABnnnnnn5aI"
     },
     {
       "qa_no": "78",
@@ -23380,7 +25034,19 @@
       "qa_q3": "기다리다 짜증이 나서 이미 10분 전에 집에 갔다.",
       "qa_q4": "그럼 그냥 중간에서 만나자.",
       "qa_q5": "급한 일이 뭐였는데?",
-      "reg_datetime": "2023-10-25 14:20:53"
+      "reg_datetime": "2023-10-25 14:20:53",
+      "qa_tendency_map": {
+        "seL": 1,
+        "foC": 3,
+        "skI": 4,
+        "reL": 5,
+        "obJ": 2
+      },
+      "qa_metric": "seL,foC,skI,reL,obJ",
+      "qa_weight": 1,
+      "qa_answer": "",
+      "al_test_no": "No_94",
+      "al_q_code": "rfHABnnnnnn6aJ"
     },
     {
       "qa_no": "79",
@@ -23388,7 +25054,7 @@
       "qa_type": "n",
       "qa_summary": "거짓말하고 팀플을 짼 친구에 대한 반응 - 침묵",
       "qa_sub1": "객관식 정오",
-      "qa_sub2": "",
+      "qa_sub2": "1",
       "qa_level": "",
       "qa_tendency": "4",
       "qa_power": "",
@@ -23400,7 +25066,12 @@
       "qa_q3": "조금 망설일 것 같다.",
       "qa_q4": "절대 그렇게 하지 않을 것이다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 14:23:00"
+      "reg_datetime": "2023-10-25 14:23:00",
+      "qa_answer": "1",
+      "qa_metric": "reL",
+      "qa_weight": 1,
+      "al_test_no": "No_137",
+      "al_q_code": "coHABreLnnn1aK"
     },
     {
       "qa_no": "80",
@@ -23408,7 +25079,7 @@
       "qa_type": "n",
       "qa_summary": "거짓말하고 팀플을 짼 친구에 대한 반응 - 폭로",
       "qa_sub1": "객관식 정오",
-      "qa_sub2": "",
+      "qa_sub2": "1",
       "qa_level": "",
       "qa_tendency": "3",
       "qa_power": "",
@@ -23420,7 +25091,12 @@
       "qa_q3": "조금 망설일 것 같다.",
       "qa_q4": "절대 그렇게 하지 않을 것이다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 14:24:36"
+      "reg_datetime": "2023-10-25 14:24:36",
+      "qa_answer": "1",
+      "qa_metric": "foC",
+      "qa_weight": 1,
+      "al_test_no": "No_138",
+      "al_q_code": "coHABskInnn1aL"
     },
     {
       "qa_no": "81",
@@ -23428,7 +25104,7 @@
       "qa_type": "n",
       "qa_summary": "거짓말하고 팀플을 짼 친구에 대한 반응 - 설득",
       "qa_sub1": "객관식 정오",
-      "qa_sub2": "",
+      "qa_sub2": "1",
       "qa_level": "",
       "qa_tendency": "5",
       "qa_power": "",
@@ -23440,7 +25116,12 @@
       "qa_q3": "조금 망설일 것 같다.",
       "qa_q4": "절대 그렇게 하지 않을 것이다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 14:25:51"
+      "reg_datetime": "2023-10-25 14:25:51",
+      "qa_answer": "1",
+      "qa_metric": "seL",
+      "qa_weight": 1,
+      "al_test_no": "No_139",
+      "al_q_code": "coHABobJnnn1aM"
     },
     {
       "qa_no": "82",
@@ -23448,7 +25129,7 @@
       "qa_type": "n",
       "qa_summary": "동료의 실수에 대한 반응 - 해결",
       "qa_sub1": "객관식 정오",
-      "qa_sub2": "",
+      "qa_sub2": "1",
       "qa_level": "",
       "qa_tendency": "2",
       "qa_power": "",
@@ -23460,7 +25141,12 @@
       "qa_q3": "조금 망설일 것 같다.",
       "qa_q4": "절대 그렇게 하지 않을 것이다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 14:29:22"
+      "reg_datetime": "2023-10-25 14:29:22",
+      "qa_answer": "1",
+      "qa_metric": "obJ",
+      "qa_weight": 1,
+      "al_test_no": "No_54",
+      "al_q_code": "coHABfoCnnn1aN"
     },
     {
       "qa_no": "83",
@@ -23468,7 +25154,7 @@
       "qa_type": "n",
       "qa_summary": "동료의 실수에 대한 반응 - 무시",
       "qa_sub1": "객관식 정오",
-      "qa_sub2": "",
+      "qa_sub2": "1",
       "qa_level": "",
       "qa_tendency": "3",
       "qa_power": "",
@@ -23480,7 +25166,12 @@
       "qa_q3": "조금 망설일 것 같다.",
       "qa_q4": "절대 그렇게 하지 않을 것이다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 14:29:32"
+      "reg_datetime": "2023-10-25 14:29:32",
+      "qa_answer": "1",
+      "qa_metric": "seL",
+      "qa_weight": 1,
+      "al_test_no": "No_55",
+      "al_q_code": "coHABskInnn1aO"
     },
     {
       "qa_no": "84",
@@ -23488,7 +25179,7 @@
       "qa_type": "n",
       "qa_summary": "동료의 실수에 대한 반응 - 평판",
       "qa_sub1": "객관식 정오",
-      "qa_sub2": "",
+      "qa_sub2": "1",
       "qa_level": "",
       "qa_tendency": "1",
       "qa_power": "",
@@ -23500,7 +25191,12 @@
       "qa_q3": "조금 망설일 것 같다.",
       "qa_q4": "절대 그렇게 하지 않을 것이다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 14:30:44"
+      "reg_datetime": "2023-10-25 14:30:44",
+      "qa_answer": "1",
+      "qa_metric": "skI",
+      "qa_weight": 1,
+      "al_test_no": "No_53",
+      "al_q_code": "coHABseLnnn1aP"
     },
     {
       "qa_no": "85",
@@ -23520,7 +25216,12 @@
       "qa_q3": "기상예측",
       "qa_q4": "생활방식",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 14:36:55"
+      "reg_datetime": "2023-10-25 14:36:55",
+      "qa_answer": "2",
+      "qa_metric": "kwD",
+      "qa_weight": 1,
+      "al_test_no": "No_185",
+      "al_q_code": "coABYkwDnnn1aQ"
     },
     {
       "qa_no": "86",
@@ -23540,7 +25241,10 @@
       "qa_q3": "선물",
       "qa_q4": "마음",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 14:50:17"
+      "reg_datetime": "2023-10-25 14:50:17",
+      "qa_answer": "3",
+      "qa_metric": "kwD",
+      "qa_weight": 1
     },
     {
       "qa_no": "87",
@@ -23560,7 +25264,12 @@
       "qa_q3": "항해",
       "qa_q4": "희망",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 15:04:57"
+      "reg_datetime": "2023-10-25 15:04:57",
+      "qa_answer": "4",
+      "qa_metric": "kwD",
+      "qa_weight": 1.2,
+      "al_test_no": "No_116",
+      "al_q_code": "coABYkwDnnn3aS"
     },
     {
       "qa_no": "88",
@@ -23580,7 +25289,12 @@
       "qa_q3": "협력",
       "qa_q4": "공존",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 15:21:46"
+      "reg_datetime": "2023-10-25 15:21:46",
+      "qa_answer": "2",
+      "qa_metric": "kwD",
+      "qa_weight": 1.4,
+      "al_test_no": "No_197",
+      "al_q_code": "coABYkwDnnn4aT"
     },
     {
       "qa_no": "89",
@@ -23600,7 +25314,12 @@
       "qa_q3": "포괄적",
       "qa_q4": "의존적",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 15:24:39"
+      "reg_datetime": "2023-10-25 15:24:39",
+      "qa_answer": "4",
+      "qa_metric": "suM",
+      "qa_weight": 1,
+      "al_test_no": "No_75",
+      "al_q_code": "coABYsuMnnn1aU"
     },
     {
       "qa_no": "90",
@@ -23620,7 +25339,10 @@
       "qa_q3": "수직적",
       "qa_q4": "역설적",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 15:35:07"
+      "reg_datetime": "2023-10-25 15:35:07",
+      "qa_answer": "1",
+      "qa_metric": "suM",
+      "qa_weight": 1
     },
     {
       "qa_no": "91",
@@ -23640,7 +25362,12 @@
       "qa_q3": "㉮ : 본성, ㉯ : 질서",
       "qa_q4": "㉮ : 분열, ㉯ : 혼돈",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 15:37:52"
+      "reg_datetime": "2023-10-25 15:37:52",
+      "qa_answer": "3",
+      "qa_metric": "suM",
+      "qa_weight": 1.2,
+      "al_test_no": "No_20",
+      "al_q_code": "coABYsuMnnn3aW"
     },
     {
       "qa_no": "92",
@@ -23660,7 +25387,12 @@
       "qa_q3": "확대",
       "qa_q4": "변화",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 15:39:27"
+      "reg_datetime": "2023-10-25 15:39:27",
+      "qa_answer": "2",
+      "qa_metric": "suM",
+      "qa_weight": 1.4,
+      "al_test_no": "No_89",
+      "al_q_code": "coABYsuMnnn4aX"
     },
     {
       "qa_no": "93",
@@ -23680,7 +25412,12 @@
       "qa_q3": "다",
       "qa_q4": "라",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 15:43:41"
+      "reg_datetime": "2023-10-25 15:43:41",
+      "qa_answer": "1",
+      "qa_metric": "coL",
+      "qa_weight": 1,
+      "al_test_no": "No_118",
+      "al_q_code": "coABYcoLnnn1aY"
     },
     {
       "qa_no": "94",
@@ -23700,7 +25437,10 @@
       "qa_q3": "다",
       "qa_q4": "라",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 15:43:50"
+      "reg_datetime": "2023-10-25 15:43:50",
+      "qa_answer": "2",
+      "qa_metric": "coL",
+      "qa_weight": 1
     },
     {
       "qa_no": "95",
@@ -23720,7 +25460,12 @@
       "qa_q3": "다",
       "qa_q4": "라",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 15:45:04"
+      "reg_datetime": "2023-10-25 15:45:04",
+      "qa_answer": "2",
+      "qa_metric": "coL",
+      "qa_weight": 1,
+      "al_test_no": "No_179",
+      "al_q_code": "coABYcoLnnn3aAA"
     },
     {
       "qa_no": "96",
@@ -23740,7 +25485,12 @@
       "qa_q3": "다",
       "qa_q4": "라",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 15:46:14"
+      "reg_datetime": "2023-10-25 15:46:14",
+      "qa_answer": "3",
+      "qa_metric": "coL",
+      "qa_weight": 1.6,
+      "al_test_no": "No_120",
+      "al_q_code": "coABYcoLnnn4aAB"
     },
     {
       "qa_no": "97",
@@ -23760,7 +25510,12 @@
       "qa_q3": "노후 준비를 위한 비장의 무기",
       "qa_q4": "싫은 자리에서 조용히 도망가는 방법",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 15:47:44"
+      "reg_datetime": "2023-10-25 15:47:44",
+      "qa_answer": "2",
+      "qa_metric": "jdG",
+      "qa_weight": 1.2,
+      "al_test_no": "No_9",
+      "al_q_code": "coABYjdGnnn1aAC"
     },
     {
       "qa_no": "98",
@@ -23780,7 +25535,10 @@
       "qa_q3": "매일 30분 안에 완판되는 그 빵",
       "qa_q4": "독자들이 뽑은 소설 Best 3",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 15:50:37"
+      "reg_datetime": "2023-10-25 15:50:37",
+      "qa_answer": "3",
+      "qa_metric": "jdG",
+      "qa_weight": 1
     },
     {
       "qa_no": "99",
@@ -23800,7 +25558,12 @@
       "qa_q3": "인기 그룹 A의 새 음원 발매!",
       "qa_q4": "자는 동안에도 돈을 벌 수 있는 방법",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 15:51:34"
+      "reg_datetime": "2023-10-25 15:51:34",
+      "qa_answer": "2",
+      "qa_metric": "jdG",
+      "qa_weight": 1.2,
+      "al_test_no": "No_16",
+      "al_q_code": "coABYjdGnnn3aAE"
     },
     {
       "qa_no": "100",
@@ -23820,7 +25583,12 @@
       "qa_q3": "일주일 만에 자격증 따기",
       "qa_q4": "귀찮은 메뉴 고르기는 이제 그만!",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 15:52:32"
+      "reg_datetime": "2023-10-25 15:52:32",
+      "qa_answer": "4",
+      "qa_metric": "jdG",
+      "qa_weight": 1.2,
+      "al_test_no": "No_42",
+      "al_q_code": "coABYjdGnnn4aAF"
     },
     {
       "qa_no": "101",
@@ -23840,7 +25608,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-10-25 16:04:57"
+      "reg_datetime": "2023-10-25 16:04:57",
+      "qa_answer": "",
+      "qa_metric": "cpR",
+      "qa_weight": 1,
+      "al_test_no": "No_103",
+      "al_q_code": "tsABYcpRnnn1aAG"
     },
     {
       "qa_no": "102",
@@ -23860,7 +25633,10 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-10-25 16:06:07"
+      "reg_datetime": "2023-10-25 16:06:07",
+      "qa_answer": "",
+      "qa_metric": "cpR",
+      "qa_weight": 1
     },
     {
       "qa_no": "103",
@@ -23880,7 +25656,12 @@
       "qa_q3": "기대효과",
       "qa_q4": "에너지원",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 16:07:27"
+      "reg_datetime": "2023-10-25 16:07:27",
+      "qa_answer": "2",
+      "qa_metric": "cpR",
+      "qa_weight": 1,
+      "al_test_no": "No_121",
+      "al_q_code": "coABYcpRnnn1aAI"
     },
     {
       "qa_no": "104",
@@ -23900,7 +25681,12 @@
       "qa_q3": "삶 : 죽음",
       "qa_q4": "멀다 : 가깝다",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 16:08:39"
+      "reg_datetime": "2023-10-25 16:08:39",
+      "qa_answer": "3",
+      "qa_metric": "cpR",
+      "qa_weight": 1,
+      "al_test_no": "No_173",
+      "al_q_code": "coABYcpRnnn2aAJ"
     },
     {
       "qa_no": "105",
@@ -23920,7 +25706,12 @@
       "qa_q3": "전동킥보드에 2명이 같이 탑승하고 가는 걸 봤는데, 신고할걸.",
       "qa_q4": "우리 집 스로틀 전기자전거 2명까지는 탑승해도 괜찮네.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 16:10:52"
+      "reg_datetime": "2023-10-25 16:10:52",
+      "qa_answer": "2",
+      "qa_metric": "apP",
+      "qa_weight": 1,
+      "al_test_no": "No_46",
+      "al_q_code": "coABYapPnnn1aAK"
     },
     {
       "qa_no": "106",
@@ -23940,7 +25731,10 @@
       "qa_q3": "소형 가전은 여러 개를 모아야 무상수거 신청이 가능하네.",
       "qa_q4": "전기안마의자는 대형 폐기물로 분류되겠구나.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 16:12:00"
+      "reg_datetime": "2023-10-25 16:12:00",
+      "qa_answer": "2",
+      "qa_metric": "apP",
+      "qa_weight": 1
     },
     {
       "qa_no": "107",
@@ -23960,7 +25754,12 @@
       "qa_q3": "난임치료를 위해 3일 이내로 휴가를 쓸 수 있고, 3일 모두 급여가 산정돼.",
       "qa_q4": "어머니가 갑자기 쓰러지셔서 걱정이었는데 휴가를 쓸 수 있어서 다행이야.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 16:12:49"
+      "reg_datetime": "2023-10-25 16:12:49",
+      "qa_answer": "3",
+      "qa_metric": "apP",
+      "qa_weight": 1.2,
+      "al_test_no": "No_95",
+      "al_q_code": "coABYapPnnn3aAM"
     },
     {
       "qa_no": "108",
@@ -23980,7 +25779,12 @@
       "qa_q3": "북한의 무단 방류를 군남댐에서 1차적으로 대응할 수 있겠어.",
       "qa_q4": "군남댐 덕분에 필승교 수위국 상류까지의 홍수 피해도 줄일 수 있겠군.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 16:14:18"
+      "reg_datetime": "2023-10-25 16:14:18",
+      "qa_answer": "4",
+      "qa_metric": "apP",
+      "qa_weight": 1.4,
+      "al_test_no": "No_88",
+      "al_q_code": "coABYapPnnn4aAN"
     },
     {
       "qa_no": "109",
@@ -24000,7 +25804,12 @@
       "qa_q3": "음료",
       "qa_q4": "유제품",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 16:20:39"
+      "reg_datetime": "2023-10-25 16:20:39",
+      "qa_answer": "3",
+      "qa_metric": "frM",
+      "qa_weight": 1.4,
+      "al_test_no": "No_174",
+      "al_q_code": "coABYfrMnnn1aAO"
     },
     {
       "qa_no": "110",
@@ -24020,7 +25829,10 @@
       "qa_q3": "기획경제국",
       "qa_q4": "안전교통국",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 16:37:11"
+      "reg_datetime": "2023-10-25 16:37:11",
+      "qa_answer": "1",
+      "qa_metric": "frM",
+      "qa_weight": 1
     },
     {
       "qa_no": "111",
@@ -24040,7 +25852,12 @@
       "qa_q3": "안전하다고 느낄수록 운전 거칠어져",
       "qa_q4": "난폭 운전을 강화하는 ABS의 위험",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 16:38:57"
+      "reg_datetime": "2023-10-25 16:38:57",
+      "qa_answer": "4",
+      "qa_metric": "frM",
+      "qa_weight": 1.8,
+      "al_test_no": "No_186",
+      "al_q_code": "coABYfrMnnn3aAQ"
     },
     {
       "qa_no": "112",
@@ -24060,7 +25877,12 @@
       "qa_q3": "점점 메마르는 강, 미국과 프랑스의 적극적 대응",
       "qa_q4": "세계 물 부족 문제 심각…해결책은?",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-25 16:40:20"
+      "reg_datetime": "2023-10-25 16:40:20",
+      "qa_answer": "4",
+      "qa_metric": "frM",
+      "qa_weight": 1.8,
+      "al_test_no": "No_126",
+      "al_q_code": "coABYfrMnnn4aAR"
     },
     {
       "qa_no": "113",
@@ -24080,7 +25902,12 @@
       "qa_q3": "116, 226",
       "qa_q4": "121, 248",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-26 09:44:00"
+      "reg_datetime": "2023-10-26 09:44:00",
+      "qa_answer": "4",
+      "qa_metric": "prM",
+      "qa_weight": 1.6,
+      "al_test_no": "No_64",
+      "al_q_code": "coABYprMnnn1aAS"
     },
     {
       "qa_no": "114",
@@ -24100,7 +25927,10 @@
       "qa_q3": "다",
       "qa_q4": "라",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-26 09:48:00"
+      "reg_datetime": "2023-10-26 09:48:00",
+      "qa_answer": "1",
+      "qa_metric": "prM",
+      "qa_weight": 1
     },
     {
       "qa_no": "115",
@@ -24120,7 +25950,12 @@
       "qa_q3": "다",
       "qa_q4": "라",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-26 09:49:10"
+      "reg_datetime": "2023-10-26 09:49:10",
+      "qa_answer": "1",
+      "qa_metric": "prM",
+      "qa_weight": 1.6,
+      "al_test_no": "No_40",
+      "al_q_code": "coABYprMnnn3aAU"
     },
     {
       "qa_no": "116",
@@ -24128,7 +25963,7 @@
       "qa_type": "n",
       "qa_summary": "소득과 행복의 관계성",
       "qa_sub1": "객관식 정오",
-      "qa_sub2": "1",
+      "qa_sub2": "4",
       "qa_level": "4",
       "qa_tendency": "",
       "qa_power": "premise",
@@ -24140,7 +25975,12 @@
       "qa_q3": "소득과 행복은 서로 영향을 미친다.",
       "qa_q4": "개인에 따라 행복의 형태가 다르다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-26 09:50:37"
+      "reg_datetime": "2023-10-26 09:50:37",
+      "qa_answer": "4",
+      "qa_metric": "prM",
+      "qa_weight": 1.4,
+      "al_test_no": "No_43",
+      "al_q_code": "coABYprMnnn4aAV"
     },
     {
       "qa_no": "117",
@@ -24160,7 +26000,12 @@
       "qa_q3": "㉮ : 예를 들어, ㉯ : 그러나",
       "qa_q4": "㉮ : 혹은, ㉯ : 그리고",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-26 10:04:33"
+      "reg_datetime": "2023-10-26 10:04:33",
+      "qa_answer": "2",
+      "qa_metric": "stU",
+      "qa_weight": 1,
+      "al_test_no": "No_127",
+      "al_q_code": "coABYstUnnn1aAW"
     },
     {
       "qa_no": "118",
@@ -24180,7 +26025,10 @@
       "qa_q3": "㉮ : 예를 들어, ㉯ : 그러나",
       "qa_q4": "㉮ : 예를 들어, ㉯ : 뿐만 아니라",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-26 10:05:49"
+      "reg_datetime": "2023-10-26 10:05:49",
+      "qa_answer": "4",
+      "qa_metric": "stU",
+      "qa_weight": 1
     },
     {
       "qa_no": "119",
@@ -24200,7 +26048,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-10-26 10:08:08"
+      "reg_datetime": "2023-10-26 10:08:08",
+      "qa_answer": "나라가다",
+      "qa_metric": "stU",
+      "qa_weight": 1.2,
+      "al_test_no": "No_128",
+      "al_q_code": "toABYstUnnn3aAY"
     },
     {
       "qa_no": "120",
@@ -24220,7 +26073,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-10-26 10:09:08"
+      "reg_datetime": "2023-10-26 10:09:08",
+      "qa_answer": "라가다나",
+      "qa_metric": "stU",
+      "qa_weight": 1.8,
+      "al_test_no": "No_203",
+      "al_q_code": "toABYstUnnn4aAZ"
     },
     {
       "qa_no": "121",
@@ -24240,7 +26098,12 @@
       "qa_q3": "다",
       "qa_q4": "라",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-26 10:19:30"
+      "reg_datetime": "2023-10-26 10:19:30",
+      "qa_answer": "3",
+      "qa_metric": "seT",
+      "qa_weight": 1.6,
+      "al_test_no": "No_74",
+      "al_q_code": "coABYseTnnn1aBA"
     },
     {
       "qa_no": "122",
@@ -24260,7 +26123,10 @@
       "qa_q3": "다",
       "qa_q4": "라",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-26 10:20:57"
+      "reg_datetime": "2023-10-26 10:20:57",
+      "qa_answer": "2",
+      "qa_metric": "seT",
+      "qa_weight": 1
     },
     {
       "qa_no": "123",
@@ -24280,7 +26146,12 @@
       "qa_q3": "다",
       "qa_q4": "라",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-26 10:23:20"
+      "reg_datetime": "2023-10-26 10:23:20",
+      "qa_answer": "3",
+      "qa_metric": "seT",
+      "qa_weight": 1.2,
+      "al_test_no": "No_21",
+      "al_q_code": "coABYseTnnn3aBC"
     },
     {
       "qa_no": "124",
@@ -24300,7 +26171,12 @@
       "qa_q3": "다",
       "qa_q4": "라",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-26 10:24:36"
+      "reg_datetime": "2023-10-26 10:24:36",
+      "qa_answer": "3",
+      "qa_metric": "seT",
+      "qa_weight": 1.2,
+      "al_test_no": "No_73",
+      "al_q_code": "coABYseTnnn4aBD"
     },
     {
       "qa_no": "125",
@@ -24320,7 +26196,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-10-26 10:26:02"
+      "reg_datetime": "2023-10-26 10:26:02",
+      "qa_answer": "가다나라",
+      "qa_metric": "cpS",
+      "qa_weight": 1.8,
+      "al_test_no": "No_130",
+      "al_q_code": "toABYcpSnnn1aBE"
     },
     {
       "qa_no": "126",
@@ -24340,7 +26221,10 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-10-26 10:47:14"
+      "reg_datetime": "2023-10-26 10:47:14",
+      "qa_answer": "다나라가",
+      "qa_metric": "cpS",
+      "qa_weight": 1
     },
     {
       "qa_no": "127",
@@ -24360,7 +26244,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-10-26 10:50:19"
+      "reg_datetime": "2023-10-26 10:50:19",
+      "qa_answer": "나라가다마",
+      "qa_metric": "cpS",
+      "qa_weight": 1,
+      "al_test_no": "No_131",
+      "al_q_code": "toABYcpSnnn3aBG"
     },
     {
       "qa_no": "128",
@@ -24380,7 +26269,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-10-26 10:52:55"
+      "reg_datetime": "2023-10-26 10:52:55",
+      "qa_answer": "마라가다나",
+      "qa_metric": "cpS",
+      "qa_weight": 1.6,
+      "al_test_no": "No_192",
+      "al_q_code": "toABYcpSnnn4aBH"
     },
     {
       "qa_no": "129",
@@ -24400,7 +26294,12 @@
       "qa_q3": "수면 시간이 증가할수록 수학 시험 성적은 하락한다.",
       "qa_q4": "더 많은 정보가 필요하다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-26 10:56:20"
+      "reg_datetime": "2023-10-26 10:56:20",
+      "qa_answer": "1",
+      "qa_metric": "erR",
+      "qa_weight": 1,
+      "al_test_no": "No_32",
+      "al_q_code": "coABYerRnnn1aBI"
     },
     {
       "qa_no": "130",
@@ -24420,7 +26319,10 @@
       "qa_q3": "낮은 고객 리뷰는 더 낮은 가격의 식사를 제공한다.",
       "qa_q4": "식사 가격이 반드시 레스토랑 품질을 결정하는 것은 아니다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-26 10:58:41"
+      "reg_datetime": "2023-10-26 10:58:41",
+      "qa_answer": "3",
+      "qa_metric": "erR",
+      "qa_weight": 1
     },
     {
       "qa_no": "131",
@@ -24440,7 +26342,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-10-26 11:00:18"
+      "reg_datetime": "2023-10-26 11:00:18",
+      "qa_answer": "{그릇}, 양, 량, 만큼",
+      "qa_metric": "erR",
+      "qa_weight": 1.4,
+      "al_test_no": "No_18",
+      "al_q_code": "tiABYerRnnn3aBK"
     },
     {
       "qa_no": "132",
@@ -24460,7 +26367,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-10-26 11:02:18"
+      "reg_datetime": "2023-10-26 11:02:18",
+      "qa_answer": "{흙}, {씨}",
+      "qa_metric": "erR",
+      "qa_weight": 1.6,
+      "al_test_no": "No_96",
+      "al_q_code": "tiABYerRnnn4aBL"
     },
     {
       "qa_no": "133",
@@ -24480,7 +26392,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-10-26 11:04:31"
+      "reg_datetime": "2023-10-26 11:04:31",
+      "qa_answer": "15",
+      "qa_metric": "inF",
+      "qa_weight": 1,
+      "al_test_no": "No_146",
+      "al_q_code": "toABYinFnnn1aBM"
     },
     {
       "qa_no": "134",
@@ -24500,7 +26417,10 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-10-26 11:05:08"
+      "reg_datetime": "2023-10-26 11:05:08",
+      "qa_answer": "6",
+      "qa_metric": "inF",
+      "qa_weight": 1
     },
     {
       "qa_no": "135",
@@ -24520,7 +26440,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-10-26 11:05:51"
+      "reg_datetime": "2023-10-26 11:05:51",
+      "qa_answer": "1",
+      "qa_metric": "inF",
+      "qa_weight": 1.4,
+      "al_test_no": "No_194",
+      "al_q_code": "toABYinFnnn3aBO"
     },
     {
       "qa_no": "136",
@@ -24540,7 +26465,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-10-26 11:06:35"
+      "reg_datetime": "2023-10-26 11:06:35",
+      "qa_answer": "1",
+      "qa_metric": "inF",
+      "qa_weight": 1,
+      "al_test_no": "No_135",
+      "al_q_code": "toABYinFnnn4aBP"
     },
     {
       "qa_no": "138",
@@ -24560,7 +26490,12 @@
       "qa_q3": "사회적 책임이 과학 발전의 거름이 된다",
       "qa_q4": "과학자로서의 책임윤리를 가져야 한다",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-26 11:19:57"
+      "reg_datetime": "2023-10-26 11:19:57",
+      "qa_answer": "4",
+      "qa_metric": "rbD",
+      "qa_weight": 1.4,
+      "al_test_no": "No_76",
+      "al_q_code": "coABYrbDnnn1aBQ"
     },
     {
       "qa_no": "139",
@@ -24580,7 +26515,10 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-10-26 11:20:52"
+      "reg_datetime": "2023-10-26 11:20:52",
+      "qa_answer": "{과학}, {이론}, 논쟁, 역사, 과정, 교육",
+      "qa_metric": "rbD",
+      "qa_weight": 1
     },
     {
       "qa_no": "140",
@@ -24600,7 +26538,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-10-26 11:26:40"
+      "reg_datetime": "2023-10-26 11:26:40",
+      "qa_answer": "{전염병}, {무지}, {역설}",
+      "qa_metric": "rbD",
+      "qa_weight": 2.2,
+      "al_test_no": "No_33",
+      "al_q_code": "tiABYrbDnnn3aBS"
     },
     {
       "qa_no": "141",
@@ -24620,7 +26563,12 @@
       "qa_q3": "인공지능은 중국어로 새로운 표현을 주체적으로 창조해낼 수 없기 때문이다.",
       "qa_q4": "인공지능은 기존에 학습한 언어 외에는 다른 언어를 쉽게 인지할 수 없기 때문이다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-26 11:27:06"
+      "reg_datetime": "2023-10-26 11:27:06",
+      "qa_answer": "1",
+      "qa_metric": "rbD",
+      "qa_weight": 1.6,
+      "al_test_no": "No_65",
+      "al_q_code": "coABYrbDnnn4aBT"
     },
     {
       "qa_no": "142",
@@ -24628,7 +26576,7 @@
       "qa_type": "y",
       "qa_summary": "차량대여비 비교",
       "qa_sub1": "텍스트 일치여부",
-      "qa_sub2": "13000",
+      "qa_sub2": "13",
       "qa_level": "1",
       "qa_tendency": "",
       "qa_power": "math",
@@ -24640,7 +26588,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-10-26 11:30:40"
+      "reg_datetime": "2023-10-26 11:30:40",
+      "qa_answer": "13",
+      "qa_metric": "mmM",
+      "qa_weight": 1.4,
+      "al_test_no": "No_201",
+      "al_q_code": "toABYmmMnnn1aBU"
     },
     {
       "qa_no": "143",
@@ -24660,7 +26613,10 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-10-26 11:31:37"
+      "reg_datetime": "2023-10-26 11:31:37",
+      "qa_answer": "18",
+      "qa_metric": "mmM",
+      "qa_weight": 1
     },
     {
       "qa_no": "144",
@@ -24680,7 +26636,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-10-26 11:37:49"
+      "reg_datetime": "2023-10-26 11:37:49",
+      "qa_answer": "{카푸치노}, {카페모카}, {아인슈페너}, {카페오레}",
+      "qa_metric": "mmM",
+      "qa_weight": 1.2,
+      "al_test_no": "No_157",
+      "al_q_code": "tiABYmmMnnn3aBW"
     },
     {
       "qa_no": "145",
@@ -24700,7 +26661,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-10-26 11:44:55"
+      "reg_datetime": "2023-10-26 11:44:55",
+      "qa_answer": "40000",
+      "qa_metric": "mmM",
+      "qa_weight": 1.4,
+      "al_test_no": "No_178",
+      "al_q_code": "toABYmmMnnn4aBX"
     },
     {
       "qa_no": "146",
@@ -24720,7 +26686,12 @@
       "qa_q3": "사용자 친화적인 디자인을 개발하여 모든 고객이 앱을 사용할 수 있도록 한다.",
       "qa_q4": "스마트폰이 없는 고객이 주문할 수 있는 매장 내 키오스크를 제공한다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-26 11:47:15"
+      "reg_datetime": "2023-10-26 11:47:15",
+      "qa_answer": "1",
+      "qa_metric": "dcS",
+      "qa_weight": 1.2,
+      "al_test_no": "No_19",
+      "al_q_code": "coABYdcSnnn1aBY"
     },
     {
       "qa_no": "147",
@@ -24740,7 +26711,10 @@
       "qa_q3": "해결책을 찾을 때까지 구현할 수 있는 다른 기능을 먼저 개발한다.",
       "qa_q4": "기존의 기술적 제약 내에서 유사한 기능을 제공하는 대체 방안을 모색한다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-26 11:49:02"
+      "reg_datetime": "2023-10-26 11:49:02",
+      "qa_answer": "4",
+      "qa_metric": "dcS",
+      "qa_weight": 1
     },
     {
       "qa_no": "148",
@@ -24760,7 +26734,12 @@
       "qa_q3": "2015년 이후 직업 선택 기준으로 자아성취의 비율이 늘어나는 것을 보니 신생기업이 많이 증가했음을 알 수 있어.",
       "qa_q4": "2013년 이후 임금을 중요하게 여기는 비율이 점점 늘어나는 것으로 보아 경제가 점점 좋아지고 있음을 알 수 있어.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-26 11:51:18"
+      "reg_datetime": "2023-10-26 11:51:18",
+      "qa_answer": "3",
+      "qa_metric": "dcS",
+      "qa_weight": 1.2,
+      "al_test_no": "No_47",
+      "al_q_code": "coABYdcSnnn3cCA"
     },
     {
       "qa_no": "149",
@@ -24780,7 +26759,12 @@
       "qa_q3": "소민, 호연",
       "qa_q4": "소민, 호연, 채원",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-26 11:52:51"
+      "reg_datetime": "2023-10-26 11:52:51",
+      "qa_answer": "1",
+      "qa_metric": "dcS",
+      "qa_weight": 1.6,
+      "al_test_no": "No_8",
+      "al_q_code": "coABYdcSnnn4cCB"
     },
     {
       "qa_no": "150",
@@ -24800,7 +26784,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-26 14:46:00"
+      "reg_datetime": "2023-10-26 14:46:00",
+      "qa_answer": "",
+      "qa_metric": "seL",
+      "qa_weight": 1,
+      "al_test_no": "No_109",
+      "al_q_code": "srHABseLnnnnaA"
     },
     {
       "qa_no": "151",
@@ -24820,7 +26809,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-26 14:50:13"
+      "reg_datetime": "2023-10-26 14:50:13",
+      "qa_answer": "",
+      "qa_metric": "seL",
+      "qa_weight": 1,
+      "al_test_no": "No_112",
+      "al_q_code": "srHABseLnnnnaB"
     },
     {
       "qa_no": "153",
@@ -24840,7 +26834,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 10:35:09"
+      "reg_datetime": "2023-10-31 10:35:09",
+      "qa_answer": "",
+      "qa_metric": "seL",
+      "qa_weight": 1,
+      "al_test_no": "No_113",
+      "al_q_code": "srHABseLnnnnaC"
     },
     {
       "qa_no": "154",
@@ -24860,7 +26859,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:10:12"
+      "reg_datetime": "2023-10-31 11:10:12",
+      "qa_answer": "",
+      "qa_metric": "seL",
+      "qa_weight": 1,
+      "al_test_no": "No_114",
+      "al_q_code": "srHABseLnnnnaD"
     },
     {
       "qa_no": "155",
@@ -24880,7 +26884,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:32:24"
+      "reg_datetime": "2023-10-31 11:32:24",
+      "qa_answer": "",
+      "qa_metric": "seL",
+      "qa_weight": 1,
+      "al_test_no": "No_143",
+      "al_q_code": "srHABseLnnnnaE"
     },
     {
       "qa_no": "187",
@@ -24900,7 +26909,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 12:20:59"
+      "reg_datetime": "2023-10-31 12:20:59",
+      "qa_answer": "",
+      "qa_metric": "apP",
+      "qa_weight": 1,
+      "al_test_no": "No_90",
+      "al_q_code": "srABYapMnnnnaAK"
     },
     {
       "qa_no": "156",
@@ -24920,7 +26934,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:33:31"
+      "reg_datetime": "2023-10-31 11:33:31",
+      "qa_answer": "",
+      "qa_metric": "foC",
+      "qa_weight": 1,
+      "al_test_no": "No_85",
+      "al_q_code": "srHABfoCnnnnaF"
     },
     {
       "qa_no": "157",
@@ -24940,7 +26959,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:34:43"
+      "reg_datetime": "2023-10-31 11:34:43",
+      "qa_answer": "",
+      "qa_metric": "foC",
+      "qa_weight": 1,
+      "al_test_no": "No_69",
+      "al_q_code": "srHABfoCnnnnaG"
     },
     {
       "qa_no": "158",
@@ -24960,7 +26984,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:35:28"
+      "reg_datetime": "2023-10-31 11:35:28",
+      "qa_answer": "",
+      "qa_metric": "foC",
+      "qa_weight": 1,
+      "al_test_no": "No_98",
+      "al_q_code": "srHABfoCnnnnaH"
     },
     {
       "qa_no": "159",
@@ -24980,7 +27009,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:37:33"
+      "reg_datetime": "2023-10-31 11:37:33",
+      "qa_answer": "",
+      "qa_metric": "foC",
+      "qa_weight": 1,
+      "al_test_no": "No_59",
+      "al_q_code": "srHABfoCnnnnaI"
     },
     {
       "qa_no": "160",
@@ -25000,7 +27034,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:38:25"
+      "reg_datetime": "2023-10-31 11:38:25",
+      "qa_answer": "",
+      "qa_metric": "foC",
+      "qa_weight": 1,
+      "al_test_no": "No_29",
+      "al_q_code": "srHABfoCnnnnaJ"
     },
     {
       "qa_no": "161",
@@ -25020,7 +27059,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:40:34"
+      "reg_datetime": "2023-10-31 11:40:34",
+      "qa_answer": "",
+      "qa_metric": "skI",
+      "qa_weight": 1,
+      "al_test_no": "No_144",
+      "al_q_code": "srHABskInnnnaK"
     },
     {
       "qa_no": "162",
@@ -25040,7 +27084,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:42:04"
+      "reg_datetime": "2023-10-31 11:42:04",
+      "qa_answer": "",
+      "qa_metric": "skI",
+      "qa_weight": 1,
+      "al_test_no": "No_145",
+      "al_q_code": "srHABskInnnnaL"
     },
     {
       "qa_no": "163",
@@ -25060,7 +27109,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:43:37"
+      "reg_datetime": "2023-10-31 11:43:37",
+      "qa_answer": "",
+      "qa_metric": "skI",
+      "qa_weight": 1,
+      "al_test_no": "No_182",
+      "al_q_code": "srHABskInnnnaM"
     },
     {
       "qa_no": "164",
@@ -25080,7 +27134,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:44:37"
+      "reg_datetime": "2023-10-31 11:44:37",
+      "qa_answer": "",
+      "qa_metric": "skI",
+      "qa_weight": 1,
+      "al_test_no": "No_147",
+      "al_q_code": "srHABskInnnnaN"
     },
     {
       "qa_no": "165",
@@ -25100,7 +27159,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:45:19"
+      "reg_datetime": "2023-10-31 11:45:19",
+      "qa_answer": "",
+      "qa_metric": "skI",
+      "qa_weight": 1,
+      "al_test_no": "No_148",
+      "al_q_code": "srHABskInnnnaO"
     },
     {
       "qa_no": "166",
@@ -25120,7 +27184,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:46:10"
+      "reg_datetime": "2023-10-31 11:46:10",
+      "qa_answer": "",
+      "qa_metric": "reL",
+      "qa_weight": 1,
+      "al_test_no": "No_24",
+      "al_q_code": "srHABreLnnnnaP"
     },
     {
       "qa_no": "167",
@@ -25140,7 +27209,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:47:27"
+      "reg_datetime": "2023-10-31 11:47:27",
+      "qa_answer": "",
+      "qa_metric": "reL",
+      "qa_weight": 1,
+      "al_test_no": "No_35",
+      "al_q_code": "srHABreLnnnnaQ"
     },
     {
       "qa_no": "168",
@@ -25160,7 +27234,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:48:11"
+      "reg_datetime": "2023-10-31 11:48:11",
+      "qa_answer": "",
+      "qa_metric": "reL",
+      "qa_weight": 1,
+      "al_test_no": "No_58",
+      "al_q_code": "srHABreLnnnnaR"
     },
     {
       "qa_no": "169",
@@ -25180,7 +27259,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:48:54"
+      "reg_datetime": "2023-10-31 11:48:54",
+      "qa_answer": "",
+      "qa_metric": "reL",
+      "qa_weight": 1,
+      "al_test_no": "No_37",
+      "al_q_code": "srHABreLnnnnaS"
     },
     {
       "qa_no": "170",
@@ -25200,7 +27284,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:49:36"
+      "reg_datetime": "2023-10-31 11:49:36",
+      "qa_answer": "",
+      "qa_metric": "reL",
+      "qa_weight": 1,
+      "al_test_no": "No_81",
+      "al_q_code": "srHABreLnnnnaT"
     },
     {
       "qa_no": "171",
@@ -25220,7 +27309,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:50:53"
+      "reg_datetime": "2023-10-31 11:50:53",
+      "qa_answer": "",
+      "qa_metric": "obJ",
+      "qa_weight": 1,
+      "al_test_no": "No_105",
+      "al_q_code": "srHABobJnnnnaU"
     },
     {
       "qa_no": "172",
@@ -25240,7 +27334,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:51:33"
+      "reg_datetime": "2023-10-31 11:51:33",
+      "qa_answer": "",
+      "qa_metric": "obJ",
+      "qa_weight": 1,
+      "al_test_no": "No_149",
+      "al_q_code": "srHABobJnnnnaV"
     },
     {
       "qa_no": "173",
@@ -25260,7 +27359,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:52:02"
+      "reg_datetime": "2023-10-31 11:52:02",
+      "qa_answer": "",
+      "qa_metric": "obJ",
+      "qa_weight": 1,
+      "al_test_no": "No_134",
+      "al_q_code": "srHABobJnnnnaW"
     },
     {
       "qa_no": "174",
@@ -25280,7 +27384,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:52:35"
+      "reg_datetime": "2023-10-31 11:52:35",
+      "qa_answer": "",
+      "qa_metric": "obJ",
+      "qa_weight": 1,
+      "al_test_no": "No_152",
+      "al_q_code": "srHABobJnnnnaX"
     },
     {
       "qa_no": "175",
@@ -25300,7 +27409,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:53:05"
+      "reg_datetime": "2023-10-31 11:53:05",
+      "qa_answer": "",
+      "qa_metric": "obJ",
+      "qa_weight": 1,
+      "al_test_no": "No_153",
+      "al_q_code": "srHABobJnnnnaY"
     },
     {
       "qa_no": "176",
@@ -25320,7 +27434,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:55:03"
+      "reg_datetime": "2023-10-31 11:55:03",
+      "qa_answer": "",
+      "qa_metric": "kwD",
+      "qa_weight": 1,
+      "al_test_no": "No_154",
+      "al_q_code": "srABYkwDnnnnaZ"
     },
     {
       "qa_no": "177",
@@ -25340,7 +27459,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:56:32"
+      "reg_datetime": "2023-10-31 11:56:32",
+      "qa_answer": "",
+      "qa_metric": "kwD",
+      "qa_weight": 1,
+      "al_test_no": "No_155",
+      "al_q_code": "srABYkwDnnnnaAA"
     },
     {
       "qa_no": "178",
@@ -25360,7 +27484,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:58:28"
+      "reg_datetime": "2023-10-31 11:58:28",
+      "qa_answer": "",
+      "qa_metric": "suM",
+      "qa_weight": 1,
+      "al_test_no": "No_5",
+      "al_q_code": "srABYsuMnnnnaAB"
     },
     {
       "qa_no": "179",
@@ -25380,7 +27509,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:59:09"
+      "reg_datetime": "2023-10-31 11:59:09",
+      "qa_answer": "",
+      "qa_metric": "suM",
+      "qa_weight": 1,
+      "al_test_no": "No_15",
+      "al_q_code": "srABYsuMnnnnaAC"
     },
     {
       "qa_no": "180",
@@ -25400,7 +27534,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 11:59:56"
+      "reg_datetime": "2023-10-31 11:59:56",
+      "qa_answer": "",
+      "qa_metric": "coL",
+      "qa_weight": 1,
+      "al_test_no": "No_106",
+      "al_q_code": "srABYcoMnnnnaAD"
     },
     {
       "qa_no": "181",
@@ -25420,7 +27559,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 12:00:52"
+      "reg_datetime": "2023-10-31 12:00:52",
+      "qa_answer": "",
+      "qa_metric": "coL",
+      "qa_weight": 1,
+      "al_test_no": "No_107",
+      "al_q_code": "srABYcoMnnnnaAE"
     },
     {
       "qa_no": "182",
@@ -25440,7 +27584,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 12:01:34"
+      "reg_datetime": "2023-10-31 12:01:34",
+      "qa_answer": "",
+      "qa_metric": "jdG",
+      "qa_weight": 1,
+      "al_test_no": "No_49",
+      "al_q_code": "srABYjdMnnnnaAF"
     },
     {
       "qa_no": "183",
@@ -25460,7 +27609,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 12:02:30"
+      "reg_datetime": "2023-10-31 12:02:30",
+      "qa_answer": "",
+      "qa_metric": "jdG",
+      "qa_weight": 1,
+      "al_test_no": "No_27",
+      "al_q_code": "srABYjdMnnnnaAG"
     },
     {
       "qa_no": "184",
@@ -25480,7 +27634,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 12:03:28"
+      "reg_datetime": "2023-10-31 12:03:28",
+      "qa_answer": "",
+      "qa_metric": "cpR",
+      "qa_weight": 1,
+      "al_test_no": "No_108",
+      "al_q_code": "srABYcpMnnnnaAH"
     },
     {
       "qa_no": "185",
@@ -25500,7 +27659,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 12:15:10"
+      "reg_datetime": "2023-10-31 12:15:10",
+      "qa_answer": "",
+      "qa_metric": "cpR",
+      "qa_weight": 1,
+      "al_test_no": "No_159",
+      "al_q_code": "srABYcpMnnnnaAI"
     },
     {
       "qa_no": "186",
@@ -25520,7 +27684,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 12:17:29"
+      "reg_datetime": "2023-10-31 12:17:29",
+      "qa_answer": "",
+      "qa_metric": "apP",
+      "qa_weight": 1,
+      "al_test_no": "No_71",
+      "al_q_code": "srABYapMnnnnaAJ"
     },
     {
       "qa_no": "188",
@@ -25540,7 +27709,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 14:11:07"
+      "reg_datetime": "2023-10-31 14:11:07",
+      "qa_answer": "",
+      "qa_metric": "frM",
+      "qa_weight": 1,
+      "al_test_no": "No_140",
+      "al_q_code": "srABYfrMnnnnaAL"
     },
     {
       "qa_no": "189",
@@ -25560,7 +27734,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 15:37:07"
+      "reg_datetime": "2023-10-31 15:37:07",
+      "qa_answer": "",
+      "qa_metric": "frM",
+      "qa_weight": 1,
+      "al_test_no": "No_141",
+      "al_q_code": "srABYfrMnnnnaAM"
     },
     {
       "qa_no": "203",
@@ -25580,7 +27759,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 16:05:14"
+      "reg_datetime": "2023-10-31 16:05:14",
+      "qa_answer": "",
+      "qa_metric": "cpS",
+      "qa_weight": 1,
+      "al_test_no": "No_164",
+      "al_q_code": "srABYcpMnnnnaAT"
     },
     {
       "qa_no": "202",
@@ -25600,7 +27784,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 16:02:48"
+      "reg_datetime": "2023-10-31 16:02:48",
+      "qa_answer": "",
+      "qa_metric": "seT",
+      "qa_weight": 1,
+      "al_test_no": "No_6",
+      "al_q_code": "srABYseMnnnnaAS"
     },
     {
       "qa_no": "201",
@@ -25620,7 +27809,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 16:01:59"
+      "reg_datetime": "2023-10-31 16:01:59",
+      "qa_answer": "",
+      "qa_metric": "seT",
+      "qa_weight": 1,
+      "al_test_no": "No_50",
+      "al_q_code": "srABYseMnnnnaAR"
     },
     {
       "qa_no": "200",
@@ -25640,7 +27834,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 16:00:29"
+      "reg_datetime": "2023-10-31 16:00:29",
+      "qa_answer": "",
+      "qa_metric": "stU",
+      "qa_weight": 1,
+      "al_test_no": "No_163",
+      "al_q_code": "srABYstMnnnnaAQ"
     },
     {
       "qa_no": "199",
@@ -25660,7 +27859,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 15:59:46"
+      "reg_datetime": "2023-10-31 15:59:46",
+      "qa_answer": "",
+      "qa_metric": "stU",
+      "qa_weight": 1,
+      "al_test_no": "No_162",
+      "al_q_code": "srABYstMnnnnaAP"
     },
     {
       "qa_no": "198",
@@ -25680,7 +27884,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 15:59:11"
+      "reg_datetime": "2023-10-31 15:59:11",
+      "qa_answer": "",
+      "qa_metric": "prM",
+      "qa_weight": 1,
+      "al_test_no": "No_34",
+      "al_q_code": "srABYprMnnnnaAO"
     },
     {
       "qa_no": "197",
@@ -25700,7 +27909,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 15:58:28"
+      "reg_datetime": "2023-10-31 15:58:28",
+      "qa_answer": "",
+      "qa_metric": "prM",
+      "qa_weight": 1,
+      "al_test_no": "No_11",
+      "al_q_code": "srABYprMnnnnaAN"
     },
     {
       "qa_no": "204",
@@ -25720,7 +27934,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 16:06:08"
+      "reg_datetime": "2023-10-31 16:06:08",
+      "qa_answer": "",
+      "qa_metric": "cpS",
+      "qa_weight": 1,
+      "al_test_no": "No_165",
+      "al_q_code": "srABYcpMnnnnaAU"
     },
     {
       "qa_no": "205",
@@ -25740,7 +27959,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 16:07:24"
+      "reg_datetime": "2023-10-31 16:07:24",
+      "qa_answer": "",
+      "qa_metric": "erR",
+      "qa_weight": 1,
+      "al_test_no": "No_14",
+      "al_q_code": "srABYerMnnnnaAV"
     },
     {
       "qa_no": "206",
@@ -25760,7 +27984,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 16:08:11"
+      "reg_datetime": "2023-10-31 16:08:11",
+      "qa_answer": "",
+      "qa_metric": "erR",
+      "qa_weight": 1,
+      "al_test_no": "No_26",
+      "al_q_code": "srABYerMnnnnaAW"
     },
     {
       "qa_no": "207",
@@ -25780,7 +28009,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 16:09:20"
+      "reg_datetime": "2023-10-31 16:09:20",
+      "qa_answer": "",
+      "qa_metric": "inF",
+      "qa_weight": 1,
+      "al_test_no": "No_166",
+      "al_q_code": "srABYinMnnnnaAX"
     },
     {
       "qa_no": "208",
@@ -25800,7 +28034,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 16:10:01"
+      "reg_datetime": "2023-10-31 16:10:01",
+      "qa_answer": "",
+      "qa_metric": "inF",
+      "qa_weight": 1,
+      "al_test_no": "No_202",
+      "al_q_code": "srABYinMnnnnaAY"
     },
     {
       "qa_no": "209",
@@ -25820,7 +28059,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 16:11:47"
+      "reg_datetime": "2023-10-31 16:11:47",
+      "qa_answer": "",
+      "qa_metric": "rbD",
+      "qa_weight": 1,
+      "al_test_no": "No_67",
+      "al_q_code": "srABYrbMnnnnaAZ"
     },
     {
       "qa_no": "210",
@@ -25840,7 +28084,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 16:12:54"
+      "reg_datetime": "2023-10-31 16:12:54",
+      "qa_answer": "",
+      "qa_metric": "rbD",
+      "qa_weight": 1,
+      "al_test_no": "No_10",
+      "al_q_code": "srABYrbMnnnnaBA"
     },
     {
       "qa_no": "211",
@@ -25860,7 +28109,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 16:13:38"
+      "reg_datetime": "2023-10-31 16:13:38",
+      "qa_answer": "",
+      "qa_metric": "mmM",
+      "qa_weight": 1,
+      "al_test_no": "No_168",
+      "al_q_code": "srABYmmMnnnnaBB"
     },
     {
       "qa_no": "212",
@@ -25880,7 +28134,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 16:14:23"
+      "reg_datetime": "2023-10-31 16:14:23",
+      "qa_answer": "",
+      "qa_metric": "mmM",
+      "qa_weight": 1,
+      "al_test_no": "No_117",
+      "al_q_code": "srABYmmMnnnnaBC"
     },
     {
       "qa_no": "213",
@@ -25900,7 +28159,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 16:15:19"
+      "reg_datetime": "2023-10-31 16:15:19",
+      "qa_answer": "",
+      "qa_metric": "dcS",
+      "qa_weight": 1,
+      "al_test_no": "No_83",
+      "al_q_code": "srABYdcMnnnnaBD"
     },
     {
       "qa_no": "214",
@@ -25920,7 +28184,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 16:16:10"
+      "reg_datetime": "2023-10-31 16:16:10",
+      "qa_answer": "",
+      "qa_metric": "dcS",
+      "qa_weight": 1,
+      "al_test_no": "No_62",
+      "al_q_code": "srABYdcMnnnnaBE"
     },
     {
       "qa_no": "215",
@@ -25940,7 +28209,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 16:49:17"
+      "reg_datetime": "2023-10-31 16:49:17",
+      "qa_answer": "",
+      "qa_metric": "slD",
+      "qa_weight": 1,
+      "al_test_no": "No_200",
+      "al_q_code": "srENTslDnnnnaBF"
     },
     {
       "qa_no": "216",
@@ -25960,7 +28234,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 16:50:10"
+      "reg_datetime": "2023-10-31 16:50:10",
+      "qa_answer": "",
+      "qa_metric": "slD",
+      "qa_weight": 1,
+      "al_test_no": "No_171",
+      "al_q_code": "srENTslDnnnnaBG"
     },
     {
       "qa_no": "217",
@@ -25980,7 +28259,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 16:51:27"
+      "reg_datetime": "2023-10-31 16:51:27",
+      "qa_answer": "",
+      "qa_metric": "slD",
+      "qa_weight": 1,
+      "al_test_no": "No_172",
+      "al_q_code": "srENTslDnnnnaBH"
     },
     {
       "qa_no": "218",
@@ -26000,7 +28284,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 16:52:14"
+      "reg_datetime": "2023-10-31 16:52:14",
+      "qa_answer": "",
+      "qa_metric": "prP",
+      "qa_weight": 1,
+      "al_test_no": "No_123",
+      "al_q_code": "srENTprPnnnnaBI"
     },
     {
       "qa_no": "219",
@@ -26020,7 +28309,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 16:53:13"
+      "reg_datetime": "2023-10-31 16:53:13",
+      "qa_answer": "",
+      "qa_metric": "prP",
+      "qa_weight": 1,
+      "al_test_no": "No_124",
+      "al_q_code": "srENTprPnnnnaBJ"
     },
     {
       "qa_no": "220",
@@ -26040,7 +28334,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 16:53:52"
+      "reg_datetime": "2023-10-31 16:53:52",
+      "qa_answer": "",
+      "qa_metric": "prP",
+      "qa_weight": 1,
+      "al_test_no": "No_175",
+      "al_q_code": "srENTprPnnnnaBK"
     },
     {
       "qa_no": "221",
@@ -26060,7 +28359,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 16:55:06"
+      "reg_datetime": "2023-10-31 16:55:06",
+      "qa_answer": "",
+      "qa_metric": "enP",
+      "qa_weight": 1,
+      "al_test_no": "No_176",
+      "al_q_code": "srENTenPnnnnaBL"
     },
     {
       "qa_no": "222",
@@ -26080,7 +28384,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 16:56:47"
+      "reg_datetime": "2023-10-31 16:56:47",
+      "qa_answer": "",
+      "qa_metric": "enP",
+      "qa_weight": 1,
+      "al_test_no": "No_177",
+      "al_q_code": "srENTenPnnnnaBM"
     },
     {
       "qa_no": "223",
@@ -26100,7 +28409,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 16:57:45"
+      "reg_datetime": "2023-10-31 16:57:45",
+      "qa_answer": "",
+      "qa_metric": "enP",
+      "qa_weight": 1,
+      "al_test_no": "No_158",
+      "al_q_code": "srENTenPnnnnaBN"
     },
     {
       "qa_no": "224",
@@ -26120,7 +28434,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:00:03"
+      "reg_datetime": "2023-10-31 17:00:03",
+      "qa_answer": "",
+      "qa_metric": "flX",
+      "qa_weight": 1,
+      "al_test_no": "No_119",
+      "al_q_code": "srENTflXnnnnaBO"
     },
     {
       "qa_no": "227",
@@ -26140,7 +28459,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:03:10"
+      "reg_datetime": "2023-10-31 17:03:10",
+      "qa_answer": "",
+      "qa_metric": "flX",
+      "qa_weight": 1,
+      "al_test_no": "No_181",
+      "al_q_code": "srENTflXnnnnaBQ"
     },
     {
       "qa_no": "228",
@@ -26160,7 +28484,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:03:52"
+      "reg_datetime": "2023-10-31 17:03:52",
+      "qa_answer": "",
+      "qa_metric": "rsP",
+      "qa_weight": 1,
+      "al_test_no": "No_142",
+      "al_q_code": "srENTrsPnnnnaBR"
     },
     {
       "qa_no": "226",
@@ -26180,7 +28509,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:02:04"
+      "reg_datetime": "2023-10-31 17:02:04",
+      "qa_answer": "",
+      "qa_metric": "flX",
+      "qa_weight": 1,
+      "al_test_no": "No_180",
+      "al_q_code": "srENTflXnnnnaBP"
     },
     {
       "qa_no": "229",
@@ -26200,7 +28534,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:04:34"
+      "reg_datetime": "2023-10-31 17:04:34",
+      "qa_answer": "",
+      "qa_metric": "rsP",
+      "qa_weight": 1,
+      "al_test_no": "No_183",
+      "al_q_code": "srENTrsPnnnnaBS"
     },
     {
       "qa_no": "230",
@@ -26220,7 +28559,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:05:08"
+      "reg_datetime": "2023-10-31 17:05:08",
+      "qa_answer": "",
+      "qa_metric": "rsP",
+      "qa_weight": 1,
+      "al_test_no": "No_184",
+      "al_q_code": "srENTrsPnnnnaBT"
     },
     {
       "qa_no": "231",
@@ -26240,7 +28584,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:14:44"
+      "reg_datetime": "2023-10-31 17:14:44",
+      "qa_answer": "",
+      "qa_metric": "udT",
+      "qa_weight": 1,
+      "al_test_no": "No_45",
+      "al_q_code": "srMJRudTnnnnaBU3"
     },
     {
       "qa_no": "232",
@@ -26260,7 +28609,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:15:22"
+      "reg_datetime": "2023-10-31 17:15:22",
+      "qa_answer": "",
+      "qa_metric": "udT",
+      "qa_weight": 1,
+      "al_test_no": "No_44",
+      "al_q_code": "srMJRudTnnnnaBV3"
     },
     {
       "qa_no": "233",
@@ -26280,7 +28634,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:15:50"
+      "reg_datetime": "2023-10-31 17:15:50",
+      "qa_answer": "",
+      "qa_metric": "udT",
+      "qa_weight": 1,
+      "al_test_no": "No_7",
+      "al_q_code": "srMJRudTnnnnaBW3"
     },
     {
       "qa_no": "234",
@@ -26300,7 +28659,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:16:59"
+      "reg_datetime": "2023-10-31 17:16:59",
+      "qa_answer": "",
+      "qa_metric": "prR",
+      "qa_weight": 1,
+      "al_test_no": "No_13",
+      "al_q_code": "srMJRprRnnnnaBX3"
     },
     {
       "qa_no": "235",
@@ -26320,7 +28684,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:18:47"
+      "reg_datetime": "2023-10-31 17:18:47",
+      "qa_answer": "",
+      "qa_metric": "prR",
+      "qa_weight": 1,
+      "al_test_no": "No_39",
+      "al_q_code": "srMJRprRnnnnaBY3"
     },
     {
       "qa_no": "236",
@@ -26340,7 +28709,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:19:18"
+      "reg_datetime": "2023-10-31 17:19:18",
+      "qa_answer": "",
+      "qa_metric": "prR",
+      "qa_weight": 1,
+      "al_test_no": "No_70",
+      "al_q_code": "srMJRprRnnnnaBZ3"
     },
     {
       "qa_no": "237",
@@ -26360,7 +28734,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:19:55"
+      "reg_datetime": "2023-10-31 17:19:55",
+      "qa_answer": "",
+      "qa_metric": "adT",
+      "qa_weight": 1,
+      "al_test_no": "No_78",
+      "al_q_code": "srMJRadTnnnnaCA3"
     },
     {
       "qa_no": "238",
@@ -26380,7 +28759,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:20:46"
+      "reg_datetime": "2023-10-31 17:20:46",
+      "qa_answer": "",
+      "qa_metric": "adT",
+      "qa_weight": 1,
+      "al_test_no": "No_86",
+      "al_q_code": "srMJRadTnnnnaCB3"
     },
     {
       "qa_no": "239",
@@ -26400,7 +28784,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:21:30"
+      "reg_datetime": "2023-10-31 17:21:30",
+      "qa_answer": "",
+      "qa_metric": "adT",
+      "qa_weight": 1,
+      "al_test_no": "No_87",
+      "al_q_code": "srMJRadTnnnnaCC3"
     },
     {
       "qa_no": "240",
@@ -26420,7 +28809,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:22:06"
+      "reg_datetime": "2023-10-31 17:22:06",
+      "qa_answer": "",
+      "qa_metric": "inT",
+      "qa_weight": 1,
+      "al_test_no": "No_91",
+      "al_q_code": "srMJRinTnnnnaCD3"
     },
     {
       "qa_no": "241",
@@ -26440,7 +28834,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:23:14"
+      "reg_datetime": "2023-10-31 17:23:14",
+      "qa_answer": "",
+      "qa_metric": "inT",
+      "qa_weight": 1,
+      "al_test_no": "No_51",
+      "al_q_code": "srMJRinTnnnnaCE3"
     },
     {
       "qa_no": "242",
@@ -26460,7 +28859,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:23:55"
+      "reg_datetime": "2023-10-31 17:23:55",
+      "qa_answer": "",
+      "qa_metric": "inT",
+      "qa_weight": 1,
+      "al_test_no": "No_61",
+      "al_q_code": "srMJRinTnnnnaCF3"
     },
     {
       "qa_no": "243",
@@ -26480,7 +28884,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:25:33"
+      "reg_datetime": "2023-10-31 17:25:33",
+      "qa_answer": "",
+      "qa_metric": "cmA",
+      "qa_weight": 1,
+      "al_test_no": "No_12",
+      "al_q_code": "srBELcmAnnnnaCG"
     },
     {
       "qa_no": "244",
@@ -26500,7 +28909,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:25:57"
+      "reg_datetime": "2023-10-31 17:25:57",
+      "qa_answer": "",
+      "qa_metric": "cmA",
+      "qa_weight": 1,
+      "al_test_no": "No_68",
+      "al_q_code": "srBELcmAnnnnaCH"
     },
     {
       "qa_no": "245",
@@ -26520,7 +28934,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:26:50"
+      "reg_datetime": "2023-10-31 17:26:50",
+      "qa_answer": "",
+      "qa_metric": "cmA",
+      "qa_weight": 1,
+      "al_test_no": "No_3",
+      "al_q_code": "srBELcmAnnnnaCI"
     },
     {
       "qa_no": "246",
@@ -26540,7 +28959,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:27:48"
+      "reg_datetime": "2023-10-31 17:27:48",
+      "qa_answer": "",
+      "qa_metric": "inR",
+      "qa_weight": 1,
+      "al_test_no": "No_25",
+      "al_q_code": "srBELinRnnnnaCJ"
     },
     {
       "qa_no": "247",
@@ -26560,7 +28984,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:53:04"
+      "reg_datetime": "2023-10-31 17:53:04",
+      "qa_answer": "",
+      "qa_metric": "inR",
+      "qa_weight": 1,
+      "al_test_no": "No_60",
+      "al_q_code": "srBELinRnnnnaCK"
     },
     {
       "qa_no": "248",
@@ -26580,7 +29009,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:53:49"
+      "reg_datetime": "2023-10-31 17:53:49",
+      "qa_answer": "",
+      "qa_metric": "inR",
+      "qa_weight": 1,
+      "al_test_no": "No_36",
+      "al_q_code": "srBELinRnnnnaCL"
     },
     {
       "qa_no": "249",
@@ -26600,7 +29034,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:55:48"
+      "reg_datetime": "2023-10-31 17:55:48",
+      "qa_answer": "",
+      "qa_metric": "spT",
+      "qa_weight": 1,
+      "al_test_no": "No_77",
+      "al_q_code": "srBELspTnnnnaCM"
     },
     {
       "qa_no": "250",
@@ -26620,7 +29059,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:56:20"
+      "reg_datetime": "2023-10-31 17:56:20",
+      "qa_answer": "",
+      "qa_metric": "spT",
+      "qa_weight": 1,
+      "al_test_no": "No_66",
+      "al_q_code": "srBELspTnnnnaCN"
     },
     {
       "qa_no": "251",
@@ -26640,7 +29084,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:56:58"
+      "reg_datetime": "2023-10-31 17:56:58",
+      "qa_answer": "",
+      "qa_metric": "spT",
+      "qa_weight": 1,
+      "al_test_no": "No_84",
+      "al_q_code": "srBELspTnnnnaCO"
     },
     {
       "qa_no": "252",
@@ -26660,7 +29109,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:58:35"
+      "reg_datetime": "2023-10-31 17:58:35",
+      "qa_answer": "",
+      "qa_metric": "rnE",
+      "qa_weight": 1,
+      "al_test_no": "No_115",
+      "al_q_code": "srBELrnEnnnnaCP"
     },
     {
       "qa_no": "253",
@@ -26680,7 +29134,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 17:59:27"
+      "reg_datetime": "2023-10-31 17:59:27",
+      "qa_answer": "",
+      "qa_metric": "rnE",
+      "qa_weight": 1,
+      "al_test_no": "No_125",
+      "al_q_code": "srBELrnEnnnnaCQ"
     },
     {
       "qa_no": "254",
@@ -26700,7 +29159,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 18:00:10"
+      "reg_datetime": "2023-10-31 18:00:10",
+      "qa_answer": "",
+      "qa_metric": "rnE",
+      "qa_weight": 1,
+      "al_test_no": "No_187",
+      "al_q_code": "srBELrnEnnnnaCR"
     },
     {
       "qa_no": "255",
@@ -26720,7 +29184,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 18:00:40"
+      "reg_datetime": "2023-10-31 18:00:40",
+      "qa_answer": "",
+      "qa_metric": "stB",
+      "qa_weight": 1,
+      "al_test_no": "No_188",
+      "al_q_code": "srBELstBnnnnaCS"
     },
     {
       "qa_no": "256",
@@ -26740,7 +29209,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 18:01:19"
+      "reg_datetime": "2023-10-31 18:01:19",
+      "qa_answer": "",
+      "qa_metric": "stB",
+      "qa_weight": 1,
+      "al_test_no": "No_199",
+      "al_q_code": "srBELstBnnnnaCT"
     },
     {
       "qa_no": "257",
@@ -26760,7 +29234,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 18:02:52"
+      "reg_datetime": "2023-10-31 18:02:52",
+      "qa_answer": "",
+      "qa_metric": "stB",
+      "qa_weight": 1,
+      "al_test_no": "No_190",
+      "al_q_code": "srBELstBnnnnaCU"
     },
     {
       "qa_no": "258",
@@ -26780,7 +29259,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 18:03:30"
+      "reg_datetime": "2023-10-31 18:03:30",
+      "qa_answer": "",
+      "qa_metric": "raG",
+      "qa_weight": 1,
+      "al_test_no": "No_191",
+      "al_q_code": "srBELraGnnnnaCV"
     },
     {
       "qa_no": "259",
@@ -26800,7 +29284,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 18:04:02"
+      "reg_datetime": "2023-10-31 18:04:02",
+      "qa_answer": "",
+      "qa_metric": "raG",
+      "qa_weight": 1,
+      "al_test_no": "No_132",
+      "al_q_code": "srBELraGnnnnaCW"
     },
     {
       "qa_no": "260",
@@ -26820,7 +29309,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-10-31 18:04:34"
+      "reg_datetime": "2023-10-31 18:04:34",
+      "qa_answer": "",
+      "qa_metric": "raG",
+      "qa_weight": 1,
+      "al_test_no": "No_133",
+      "al_q_code": "srBELraGnnnnaCX"
     },
     {
       "qa_no": "261",
@@ -26840,7 +29334,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-11-02 10:58:23"
+      "reg_datetime": "2023-11-02 10:58:23",
+      "qa_answer": "",
+      "qa_metric": "slC",
+      "qa_weight": 1,
+      "al_test_no": "No_101",
+      "al_q_code": "tsCPRslCnnnnaCY"
     },
     {
       "qa_no": "262",
@@ -26860,7 +29359,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-11-02 11:08:39"
+      "reg_datetime": "2023-11-02 11:08:39",
+      "qa_answer": "",
+      "qa_metric": "slC",
+      "qa_weight": 1,
+      "al_test_no": "No_57",
+      "al_q_code": "tsCPRslCnnnnaCZ"
     },
     {
       "qa_no": "263",
@@ -26880,7 +29384,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-11-02 11:19:17"
+      "reg_datetime": "2023-11-02 11:19:17",
+      "qa_answer": "",
+      "qa_metric": "slC",
+      "qa_weight": 1,
+      "al_test_no": "No_72",
+      "al_q_code": "tsCPRslCnnnnaDA"
     },
     {
       "qa_no": "264",
@@ -26900,7 +29409,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-11-02 11:19:46"
+      "reg_datetime": "2023-11-02 11:19:46",
+      "qa_answer": "",
+      "qa_metric": "slC",
+      "qa_weight": 1,
+      "al_test_no": "No_56",
+      "al_q_code": "tsCPRslCnnnnaDB"
     },
     {
       "qa_no": "265",
@@ -26920,7 +29434,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-11-02 11:24:40"
+      "reg_datetime": "2023-11-02 11:24:40",
+      "qa_answer": "",
+      "qa_metric": "slC",
+      "qa_weight": 1,
+      "al_test_no": "No_22",
+      "al_q_code": "tsCPRslCnnnnaDC"
     },
     {
       "qa_no": "266",
@@ -26940,7 +29459,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-11-02 11:25:15"
+      "reg_datetime": "2023-11-02 11:25:15",
+      "qa_answer": "",
+      "qa_metric": "slC",
+      "qa_weight": 1,
+      "al_test_no": "No_151",
+      "al_q_code": "tsCPRslCnnnnaDD"
     },
     {
       "qa_no": "267",
@@ -26960,7 +29484,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-11-02 11:26:33"
+      "reg_datetime": "2023-11-02 11:26:33",
+      "qa_answer": "",
+      "qa_metric": "slC",
+      "qa_weight": 1,
+      "al_test_no": "No_170",
+      "al_q_code": "tsCPRslCnnnnaDE"
     },
     {
       "qa_no": "268",
@@ -26980,7 +29509,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-11-02 11:27:07"
+      "reg_datetime": "2023-11-02 11:27:07",
+      "qa_answer": "",
+      "qa_metric": "slC",
+      "qa_weight": 1,
+      "al_test_no": "No_189",
+      "al_q_code": "tsCPRslCnnnnaDF"
     },
     {
       "qa_no": "269",
@@ -27000,7 +29534,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-11-02 11:27:38"
+      "reg_datetime": "2023-11-02 11:27:38",
+      "qa_answer": "",
+      "qa_metric": "slC",
+      "qa_weight": 1,
+      "al_test_no": "No_198",
+      "al_q_code": "tsCPRslCnnnnaDG"
     },
     {
       "qa_no": "270",
@@ -27020,7 +29559,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-11-02 11:28:17"
+      "reg_datetime": "2023-11-02 11:28:17",
+      "qa_answer": "",
+      "qa_metric": "slC",
+      "qa_weight": 1,
+      "al_test_no": "No_169",
+      "al_q_code": "tsCPRslCnnnnaDH"
     },
     {
       "qa_no": "271",
@@ -27040,7 +29584,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-11-02 11:30:11"
+      "reg_datetime": "2023-11-02 11:30:11",
+      "qa_answer": "",
+      "qa_metric": "caE",
+      "qa_weight": 1,
+      "al_test_no": "No_4",
+      "al_q_code": "srCPRcaEnnnnaDI"
     },
     {
       "qa_no": "272",
@@ -27060,7 +29609,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-11-02 11:31:09"
+      "reg_datetime": "2023-11-02 11:31:09",
+      "qa_answer": "",
+      "qa_metric": "caE",
+      "qa_weight": 1,
+      "al_test_no": "No_82",
+      "al_q_code": "srCPRcaEnnnnaDJ"
     },
     {
       "qa_no": "274",
@@ -27080,7 +29634,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-11-02 11:32:17"
+      "reg_datetime": "2023-11-02 11:32:17",
+      "qa_answer": "",
+      "qa_metric": "caE",
+      "qa_weight": 1,
+      "al_test_no": "No_38",
+      "al_q_code": "srCPRcaEnnnnaDK"
     },
     {
       "qa_no": "275",
@@ -27100,7 +29659,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-11-02 11:32:49"
+      "reg_datetime": "2023-11-02 11:32:49",
+      "qa_answer": "",
+      "qa_metric": "caD",
+      "qa_weight": 1,
+      "al_test_no": "No_100",
+      "al_q_code": "srCPRcaDnnnnaDL"
     },
     {
       "qa_no": "276",
@@ -27120,7 +29684,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-11-02 11:33:19"
+      "reg_datetime": "2023-11-02 11:33:19",
+      "qa_answer": "",
+      "qa_metric": "caD",
+      "qa_weight": 1,
+      "al_test_no": "No_28",
+      "al_q_code": "srCPRcaDnnnnaDM"
     },
     {
       "qa_no": "277",
@@ -27140,7 +29709,12 @@
       "qa_q3": "그런 편이다.",
       "qa_q4": "정말 그렇다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-11-02 11:34:04"
+      "reg_datetime": "2023-11-02 11:34:04",
+      "qa_answer": "",
+      "qa_metric": "caD",
+      "qa_weight": 1,
+      "al_test_no": "No_99",
+      "al_q_code": "srCPRcaDnnnnaDN"
     },
     {
       "qa_no": "278",
@@ -27180,7 +29754,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2024-02-29 14:25:40"
+      "reg_datetime": "2024-02-29 14:25:40",
+      "al_test_no": "No_102",
+      "al_q_code": "ooooonnnnnnnaL",
+      "qa_answer": "",
+      "qa_metric": "",
+      "qa_weight": 0
     },
     {
       "qa_no": "279",
@@ -27200,7 +29779,12 @@
       "qa_q3": "정확하지도, 유용하지도 않다.",
       "qa_q4": "애초에 모든 사람을 유형으로 설명한다는 것은 불가능하다고 생각한다.",
       "qa_q5": "잘 모르겠다.",
-      "reg_datetime": "2023-11-07 18:02:03"
+      "reg_datetime": "2023-11-07 18:02:03",
+      "al_test_no": "No_204",
+      "al_q_code": "ooooonnnnnnnaV",
+      "qa_answer": "",
+      "qa_metric": "",
+      "qa_weight": 0
     },
     {
       "qa_no": "280",
@@ -27220,7 +29804,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2023-11-07 18:03:51"
+      "reg_datetime": "2023-11-07 18:03:51",
+      "al_test_no": "No_205",
+      "al_q_code": "ooooonnnnnnnaW",
+      "qa_answer": "",
+      "qa_metric": "",
+      "qa_weight": 0
     },
     {
       "qa_no": "281",
@@ -27320,7 +29909,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2024-05-01 16:13:54"
+      "reg_datetime": "2024-05-01 16:13:54",
+      "qa_answer": "",
+      "qa_metric": "dum",
+      "qa_weight": 0,
+      "al_test_no": "No_52",
+      "al_q_code": "ooooonnnnnnnaG"
     },
     {
       "qa_no": "287",
@@ -27340,7 +29934,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2024-05-01 16:14:50"
+      "reg_datetime": "2024-05-01 16:14:50",
+      "qa_answer": "",
+      "qa_metric": "dum",
+      "qa_weight": 0,
+      "al_test_no": "No_136",
+      "al_q_code": "ooooonnnnnnnaP"
     },
     {
       "qa_no": "288",
@@ -27360,7 +29959,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2024-05-01 16:54:45"
+      "reg_datetime": "2024-05-01 16:54:45",
+      "al_test_no": "No_80",
+      "al_q_code": "ooooonnnnnnnaI",
+      "qa_answer": "",
+      "qa_metric": "",
+      "qa_weight": 0
     },
     {
       "qa_no": "289",
@@ -27380,7 +29984,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2024-05-01 16:55:38"
+      "reg_datetime": "2024-05-01 16:55:38",
+      "al_test_no": "No_122",
+      "al_q_code": "ooooonnnnnnnaN",
+      "qa_answer": "",
+      "qa_metric": "",
+      "qa_weight": 0
     },
     {
       "qa_no": "290",
@@ -27400,7 +30009,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2024-05-01 16:56:46"
+      "reg_datetime": "2024-05-01 16:56:46",
+      "al_test_no": "No_104",
+      "al_q_code": "ooooonnnnnnnaM",
+      "qa_answer": "",
+      "qa_metric": "",
+      "qa_weight": 0
     },
     {
       "qa_no": "291",
@@ -27420,7 +30034,12 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2024-05-01 16:57:46"
+      "reg_datetime": "2024-05-01 16:57:46",
+      "al_test_no": "No_17",
+      "al_q_code": "ooooonnnnnnnaC",
+      "qa_answer": "",
+      "qa_metric": "",
+      "qa_weight": 0
     },
     {
       "qa_no": "292",
@@ -27440,7 +30059,237 @@
       "qa_q3": "",
       "qa_q4": "",
       "qa_q5": "",
-      "reg_datetime": "2024-05-01 16:58:30"
+      "reg_datetime": "2024-05-01 16:58:30",
+      "al_test_no": "No_1",
+      "al_q_code": "ooooonnnnnnnaA",
+      "qa_answer": "",
+      "qa_metric": "",
+      "qa_weight": 0
+    },
+    {
+      "qa_no": "293",
+      "qa_code": "ooooonnnnnnnaB",
+      "qa_type": "y",
+      "qa_summary": "의족 영상 묘사 (더미)",
+      "qa_sub1": "주관식 자기보고",
+      "qa_sub2": "",
+      "qa_level": "",
+      "qa_tendency": "",
+      "qa_power": "",
+      "qa_subject": "주어진 영상을 보고 자유롭게 묘사해 보세요.",
+      "qa_content": "",
+      "qa_file": "2083904898_QA7XyUDL_3d2bbc6c6b460153e6b60aa0ed400e7887816919.gif",
+      "qa_q1": "",
+      "qa_q2": "",
+      "qa_q3": "",
+      "qa_q4": "",
+      "qa_q5": "",
+      "reg_datetime": "2026-10-22 16:30:00",
+      "al_test_no": "No_2",
+      "al_q_code": "ooooonnnnnnnaB",
+      "qa_answer": "",
+      "qa_metric": "",
+      "qa_weight": 0
+    },
+    {
+      "qa_no": "294",
+      "qa_code": "ooooonnnnnnnaH",
+      "qa_type": "y",
+      "qa_summary": "옷에 대한 생각 (더미)",
+      "qa_sub1": "주관식 자기보고",
+      "qa_sub2": "",
+      "qa_level": "",
+      "qa_tendency": "",
+      "qa_power": "",
+      "qa_subject": "'옷'에 대해 어떻게 생각하시나요? 자유롭게 작성해 보세요.",
+      "qa_content": "",
+      "qa_file": null,
+      "qa_q1": "",
+      "qa_q2": "",
+      "qa_q3": "",
+      "qa_q4": "",
+      "qa_q5": "",
+      "reg_datetime": "2026-10-22 16:30:00",
+      "al_test_no": "No_79",
+      "al_q_code": "ooooonnnnnnnaH",
+      "qa_answer": "",
+      "qa_metric": "",
+      "qa_weight": 0
+    },
+    {
+      "qa_no": "295",
+      "qa_code": "ooooonnnnnnnaJ",
+      "qa_type": "y",
+      "qa_summary": "게임에 대한 생각 (더미)",
+      "qa_sub1": "주관식 자기보고",
+      "qa_sub2": "",
+      "qa_level": "",
+      "qa_tendency": "",
+      "qa_power": "",
+      "qa_subject": "'게임'에 대해 어떻게 생각하시나요? 자유롭게 작성해 보세요.",
+      "qa_content": "",
+      "qa_file": null,
+      "qa_q1": "",
+      "qa_q2": "",
+      "qa_q3": "",
+      "qa_q4": "",
+      "qa_q5": "",
+      "reg_datetime": "2026-10-22 16:30:00",
+      "al_test_no": "No_92",
+      "al_q_code": "ooooonnnnnnnaJ",
+      "qa_answer": "",
+      "qa_metric": "",
+      "qa_weight": 0
+    },
+    {
+      "qa_no": "296",
+      "qa_code": "ooooonnnnnnnaR",
+      "qa_type": "y",
+      "qa_summary": "전기자동차에 대한 생각 (더미)",
+      "qa_sub1": "주관식 자기보고",
+      "qa_sub2": "",
+      "qa_level": "",
+      "qa_tendency": "",
+      "qa_power": "",
+      "qa_subject": "'전기자동차'에 대해 어떻게 생각하시나요? 자유롭게 작성해 보세요.",
+      "qa_content": "",
+      "qa_file": null,
+      "qa_q1": "",
+      "qa_q2": "",
+      "qa_q3": "",
+      "qa_q4": "",
+      "qa_q5": "",
+      "reg_datetime": "2026-10-22 16:30:00",
+      "al_test_no": "No_156",
+      "al_q_code": "ooooonnnnnnnaR",
+      "qa_answer": "",
+      "qa_metric": "",
+      "qa_weight": 0
+    },
+    {
+      "qa_no": "297",
+      "qa_code": "ooooonnnnnnnaS",
+      "qa_type": "y",
+      "qa_summary": "우주선 영상 묘사 (더미)",
+      "qa_sub1": "주관식 자기보고",
+      "qa_sub2": "",
+      "qa_level": "",
+      "qa_tendency": "",
+      "qa_power": "",
+      "qa_subject": "주어진 영상을 보고 자유롭게 묘사해 보세요.",
+      "qa_content": "",
+      "qa_file": "2083904898_d6xtFNel_960f96eb58e218b6521ba1751e25e0587a25375a.gif",
+      "qa_q1": "",
+      "qa_q2": "",
+      "qa_q3": "",
+      "qa_q4": "",
+      "qa_q5": "",
+      "reg_datetime": "2026-10-22 16:30:00",
+      "al_test_no": "No_161",
+      "al_q_code": "ooooonnnnnnnaS",
+      "qa_answer": "",
+      "qa_metric": "",
+      "qa_weight": 0
+    },
+    {
+      "qa_no": "298",
+      "qa_code": "ooooonnnnnnnaT",
+      "qa_type": "y",
+      "qa_summary": "커피에 대한 생각 (더미)",
+      "qa_sub1": "주관식 자기보고",
+      "qa_sub2": "",
+      "qa_level": "",
+      "qa_tendency": "",
+      "qa_power": "",
+      "qa_subject": "'커피'에 대해 어떻게 생각하시나요? 자유롭게 작성해 보세요.",
+      "qa_content": "",
+      "qa_file": null,
+      "qa_q1": "",
+      "qa_q2": "",
+      "qa_q3": "",
+      "qa_q4": "",
+      "qa_q5": "",
+      "reg_datetime": "2026-10-22 16:30:00",
+      "al_test_no": "No_167",
+      "al_q_code": "ooooonnnnnnnaT",
+      "qa_answer": "",
+      "qa_metric": "",
+      "qa_weight": 0
+    },
+    {
+      "qa_no": "299",
+      "qa_code": "ooooonnnnnnnaU",
+      "qa_type": "y",
+      "qa_summary": "원숭이 영상 묘사 (더미)",
+      "qa_sub1": "주관식 자기보고",
+      "qa_sub2": "",
+      "qa_level": "",
+      "qa_tendency": "",
+      "qa_power": "",
+      "qa_subject": "주어진 영상을 보고 자유롭게 묘사해 보세요.",
+      "qa_content": "",
+      "qa_file": "2083904898_UzKygwoa_68d60fa798236670cf7850fb3810ec002b7f3101.gif",
+      "qa_q1": "",
+      "qa_q2": "",
+      "qa_q3": "",
+      "qa_q4": "",
+      "qa_q5": "",
+      "reg_datetime": "2026-10-22 16:30:00",
+      "al_test_no": "No_195",
+      "al_q_code": "ooooonnnnnnnaU",
+      "qa_answer": "",
+      "qa_metric": "",
+      "qa_weight": 0
+    },
+    {
+      "qa_no": "300",
+      "qa_code": "ooooonnnnnnnaY",
+      "qa_type": "y",
+      "qa_summary": "현재 가장 큰 고민 (설문)",
+      "qa_sub1": "주관식 자기보고",
+      "qa_sub2": "",
+      "qa_level": "",
+      "qa_tendency": "",
+      "qa_power": "",
+      "qa_subject": "현재 본인의 삶에서 가장 큰 고민은 무엇인가요?",
+      "qa_content": "",
+      "qa_file": null,
+      "qa_q1": "",
+      "qa_q2": "",
+      "qa_q3": "",
+      "qa_q4": "",
+      "qa_q5": "",
+      "reg_datetime": "2026-10-22 16:30:00",
+      "al_test_no": "No_207",
+      "al_q_code": "ooooonnnnnnnaY",
+      "qa_answer": "",
+      "qa_metric": "",
+      "qa_weight": 0
+    },
+    {
+      "qa_no": "301",
+      "qa_code": "ooooonnnnnnnaZ",
+      "qa_type": "y",
+      "qa_summary": "진로 및 학업 고민 (설문)",
+      "qa_sub1": "주관식 자기보고",
+      "qa_sub2": "",
+      "qa_level": "",
+      "qa_tendency": "",
+      "qa_power": "",
+      "qa_subject": "현재 전공이나 진로와 관련하여 가장 큰 고민은 무엇인가요?",
+      "qa_content": "",
+      "qa_file": null,
+      "qa_q1": "",
+      "qa_q2": "",
+      "qa_q3": "",
+      "qa_q4": "",
+      "qa_q5": "",
+      "reg_datetime": "2026-10-22 16:30:00",
+      "al_test_no": "No_208",
+      "al_q_code": "ooooonnnnnnnaZ",
+      "qa_answer": "",
+      "qa_metric": "",
+      "qa_weight": 0
     }
   ],
   "graphit_test": [

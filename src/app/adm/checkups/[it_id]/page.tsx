@@ -46,6 +46,11 @@ export default async function AdminCheckupDetailPage({
         qa_subject: qa?.qa_subject || `문항 #${gi.qa_no}`,
         qa_sub1: qa?.qa_sub1 || '',
         qa_level: qa?.qa_level || '',
+        qa_answer: qa?.qa_answer || qa?.qa_sub2 || '',
+        qa_metric: qa?.qa_metric || qa?.qa_power || '',
+        qa_weight: qa?.qa_weight ?? 0,
+        qa_tendency_map: qa?.qa_tendency_map || null,
+        al_test_no: qa?.al_test_no || '',
       };
     });
 

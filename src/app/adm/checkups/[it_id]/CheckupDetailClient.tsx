@@ -16,6 +16,11 @@ export interface MappedQuestionRow {
   qa_subject: string;
   qa_sub1: string;
   qa_level: string;
+  qa_answer?: string;
+  qa_metric?: string;
+  qa_weight?: number | string;
+  qa_tendency_map?: Record<string, number> | null;
+  al_test_no?: string;
 }
 
 export interface AvailableQuestionRow {
@@ -390,19 +395,20 @@ export default function CheckupDetailClient({
           <table className="w-full text-left border-collapse text-xs sm:text-sm">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600">
-                <th className="py-3 px-4 w-24 text-center">노출순서</th>
-                <th className="py-3 px-4 w-32 text-center">제한시간(초)</th>
-                <th className="py-3 px-4 w-20 text-center">유형</th>
-                <th className="py-3 px-4 w-40">문항식별코드</th>
-                <th className="py-3 px-4">질문 제목</th>
-                <th className="py-3 px-4 w-28">분류/난이도</th>
-                <th className="py-3 px-4 w-20 text-center">제외</th>
+                <th className="py-3 px-3 w-24 text-center">노출순서</th>
+                <th className="py-3 px-3 w-28 text-center">제한시간(초)</th>
+                <th className="py-3 px-3 w-20 text-center">유형</th>
+                <th className="py-3 px-3 w-40">문항식별코드</th>
+                <th className="py-3 px-3">질문 제목</th>
+                <th className="py-3 px-3 w-36">정답 (답안)</th>
+                <th className="py-3 px-3 w-52">지표·배점 / 성향매핑</th>
+                <th className="py-3 px-3 w-16 text-center">제외</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {mappings.map((m, idx) => (
                 <tr key={m.item_no} className="hover:bg-slate-50">
-                  <td className="py-2.5 px-4 text-center">
+                  <td className="py-2.5 px-3 text-center">
                     <input
                       type="number"
                       value={m.item_seq}
@@ -416,8 +422,13 @@ export default function CheckupDetailClient({
                       }}
                       className="w-16 rounded-lg border border-slate-300 px-2 py-1 text-center font-bold text-xs"
                     />
+                    {m.al_test_no && (
+                      <div className="text-[10px] font-mono font-bold text-indigo-600 mt-0.5">
+                        {m.al_test_no}
+                      </div>
+                    )}
                   </td>
-                  <td className="py-2.5 px-4 text-center">
+                  <td className="py-2.5 px-3 text-center">
                     <input
                       type="number"
                       min={0}
@@ -433,27 +444,67 @@ export default function CheckupDetailClient({
                       className="w-20 rounded-lg border border-slate-300 px-2 py-1 text-center font-bold text-indigo-600 text-xs"
                     />
                   </td>
-                  <td className="py-2.5 px-4 text-center">
+                  <td className="py-2.5 px-3 text-center">
                     <span
                       className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
                         m.qa_type === 'y'
                           ? 'bg-purple-100 text-purple-800'
+                          : m.qa_tendency_map
+                          ? 'bg-amber-100 text-amber-800'
                           : 'bg-blue-100 text-blue-800'
                       }`}
                     >
-                      {m.qa_type === 'y' ? '주관식' : '객관식'}
+                      {m.qa_type === 'y'
+                        ? '주관식'
+                        : m.qa_tendency_map
+                        ? '성향5지'
+                        : '객관식'}
                     </span>
                   </td>
-                  <td className="py-2.5 px-4 font-mono text-xs text-slate-600">
+                  <td className="py-2.5 px-3 font-mono text-xs text-slate-600 break-all">
                     {m.qa_code}
                   </td>
-                  <td className="py-2.5 px-4 font-bold text-slate-900 line-clamp-1">
+                  <td className="py-2.5 px-3 font-bold text-slate-900 line-clamp-2">
                     {m.qa_subject}
                   </td>
-                  <td className="py-2.5 px-4 text-xs text-slate-500">
-                    {m.qa_sub1 || '-'} ({m.qa_level || '-'})
+                  <td className="py-2.5 px-3 text-xs">
+                    {m.qa_tendency_map ? (
+                      <span className="font-mono font-bold text-amber-800">
+                        성향 ({['seL', 'foC', 'skI', 'reL', 'obJ'].map((k) => m.qa_tendency_map?.[k]).join('')})
+                      </span>
+                    ) : m.qa_answer ? (
+                      <span className="px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-800 font-extrabold break-all">
+                        {m.qa_type === 'n' && /^[1-5]$/.test(String(m.qa_answer))
+                          ? `${m.qa_answer}번`
+                          : m.qa_answer}
+                      </span>
+                    ) : (
+                      <span className="text-slate-400">무배점</span>
+                    )}
                   </td>
-                  <td className="py-2.5 px-4 text-center">
+                  <td className="py-2.5 px-3 text-xs">
+                    {m.qa_tendency_map ? (
+                      <div className="grid grid-cols-5 text-center rounded border border-amber-200 bg-amber-50/60 text-[10px] font-mono font-bold text-amber-900 py-0.5">
+                        {(['seL', 'foC', 'skI', 'reL', 'obJ'] as const).map((k) => (
+                          <div key={k}>
+                            {k}:{m.qa_tendency_map?.[k]}
+                          </div>
+                        ))}
+                      </div>
+                    ) : m.qa_metric ? (
+                      <div className="flex items-center gap-1">
+                        <span className="px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 font-mono font-bold">
+                          {m.qa_metric}
+                        </span>
+                        <span className="px-2 py-0.5 rounded bg-slate-900 text-white font-mono font-bold">
+                          {m.qa_weight}점
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-slate-400">0점</span>
+                    )}
+                  </td>
+                  <td className="py-2.5 px-3 text-center">
                     <button
                       type="button"
                       onClick={() => handleDeleteMapping(m.item_no)}
