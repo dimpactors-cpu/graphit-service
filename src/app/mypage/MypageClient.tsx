@@ -150,6 +150,14 @@ export default function MypageClient({
                       신청 {currentGroup.students.length} / 정원 {currentGroup.gr_cnt}명
                     </span>
                     <a
+                      href={`/api/admin/excel?type=result_db&group_code=${encodeURIComponent(
+                        currentGroup.gr_code
+                      )}`}
+                      className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold transition"
+                    >
+                      📊 결과DB 다운로드 (.csv)
+                    </a>
+                    <a
                       href={`/api/admin/excel?type=test&stx=${encodeURIComponent(
                         currentGroup.gr_code
                       )}`}
@@ -261,9 +269,17 @@ export default function MypageClient({
                             </td>
                             <td className="py-3.5 px-4 text-center">
                               {isDone ? (
-                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
-                                  검사완료
-                                </span>
+                                <div className="inline-flex items-center gap-1.5">
+                                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+                                    검사완료
+                                  </span>
+                                  <Link
+                                    href={`/test/result?test_idx=${st.test_idx}`}
+                                    className="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold transition"
+                                  >
+                                    📊 결과지
+                                  </Link>
+                                </div>
                               ) : isInProgress ? (
                                 <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800">
                                   진행중
@@ -387,9 +403,9 @@ export default function MypageClient({
                           {isCompleted ? (
                             <Link
                               href={`/test/result?test_idx=${item.test_idx}`}
-                              className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold shadow-sm transition text-center min-w-[120px]"
+                              className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold shadow-sm transition text-center min-w-[140px]"
                             >
-                              검사완료
+                              📊 결과지 보기
                             </Link>
                           ) : isStarted ? (
                             <Link

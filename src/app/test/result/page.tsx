@@ -3,6 +3,12 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getSessionUser } from '@/lib/auth';
 import { getDb } from '@/lib/db';
+import {
+  buildNoAnswersMap,
+  computeResultBaseRow,
+  generateStudentReport,
+} from '@/lib/reportEngine';
+import GraphmeReportView from '@/components/GraphmeReportView';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
 
@@ -11,7 +17,7 @@ export const dynamic = 'force-dynamic';
 export default async function TestResultPage({
   searchParams,
 }: {
-  searchParams?: { it_id?: string; test_idx?: string };
+  searchParams?: { it_id?: string; test_idx?: string; mb_id?: string };
 }) {
   const user = getSessionUser();
   if (!user) {
@@ -19,6 +25,8 @@ export default async function TestResultPage({
   }
 
   const db = await getDb();
+  const isAdmin = user.mb_level >= 9;
+
   let testRecord = searchParams?.test_idx
     ? db.graphit_test.find(
         (t) => Number(t.test_no) === Number(searchParams.test_idx)
@@ -26,89 +34,147 @@ export default async function TestResultPage({
     : undefined;
 
   if (!testRecord && searchParams?.it_id) {
+    const targetMbId =
+      isAdmin && searchParams?.mb_id ? searchParams.mb_id : user.mb_id;
     testRecord = db.graphit_test.find(
       (t) =>
-        t.mb_id === user.mb_id && String(t.it_id) === String(searchParams.it_id)
+        t.mb_id === targetMbId &&
+        String(t.it_id) === String(searchParams.it_id)
     );
   }
   if (!testRecord) {
     testRecord = db.graphit_test.find((t) => t.mb_id === user.mb_id);
   }
 
+  // If non-admin tries to view another user's test_idx, fallback to their own
+  if (testRecord && !isAdmin && testRecord.mb_id !== user.mb_id) {
+    // Allow group owners (level 3) to view students in their group
+    const userGroups = new Set(
+      db.graphit_group
+        .filter((g) => g.mb_id === user.mb_id)
+        .map((g) => g.group_code)
+    );
+    if (!userGroups.has(testRecord.group_code)) {
+      testRecord = db.graphit_test.find((t) => t.mb_id === user.mb_id);
+    }
+  }
+
   const itId = String(testRecord?.it_id || searchParams?.it_id || '');
   const shopItem = db.g5_shop_item.find((it) => String(it.it_id) === itId);
+  const qaMap = new Map(db.graphit_qa.map((q) => [Number(q.qa_no), q]));
+
+  let resultRow = undefined;
+  let reportData = undefined;
+
+  if (testRecord) {
+    const rawAnswers = db.graphit_item_test.filter(
+      (a) =>
+        a.mb_id === testRecord.mb_id &&
+        String(a.it_id) === String(testRecord.it_id)
+    );
+    const noAnswersMap = buildNoAnswersMap(testRecord, rawAnswers, qaMap);
+    resultRow = computeResultBaseRow(
+      {
+        seq: Number(testRecord.test_no) || 1,
+        test_no: Number(testRecord.test_no) || 1,
+        od_id: String(testRecord.od_id || testRecord.test_no || ''),
+        group_name: String(testRecord.group_name || ''),
+        group_code: String(testRecord.group_code || ''),
+        mb_id: String(testRecord.mb_id || ''),
+        mb_name: String(testRecord.mb_name || ''),
+        mb_hp: String(testRecord.mb_hp || ''),
+        it_id: itId,
+        it_name: String(shopItem?.it_name || testRecord.it_name || ''),
+        it_code: String(shopItem?.it_4 || ''),
+        test_date: String(
+          testRecord.end_datetime &&
+            !String(testRecord.end_datetime).startsWith('0000')
+            ? testRecord.end_datetime
+            : testRecord.test_datetime || ''
+        ).slice(0, 10),
+      },
+      noAnswersMap,
+      db.graphit_qa
+    );
+    reportData = generateStudentReport(resultRow);
+  }
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
-      <SiteHeader user={user} />
-      <main className="flex-1 flex items-center justify-center px-4 py-16">
-        <div className="max-w-lg w-full bg-white rounded-3xl border border-slate-200 p-8 sm:p-12 text-center shadow-sm">
-          <div className="w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-4xl font-extrabold mx-auto mb-6">
-            ✓
-          </div>
+    <div className="min-h-screen flex flex-col bg-slate-50 print:bg-white">
+      <div className="print:hidden">
+        <SiteHeader user={user} />
+      </div>
 
-          <span className="inline-block px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold mb-2">
-            온라인 진단검사 제출 완료
-          </span>
-
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-3">
-            검사가 완료되었습니다!
-          </h1>
-
-          <p className="text-sm sm:text-base text-slate-600 leading-relaxed mb-8">
-            모든 문항에 성실히 응답해 주셔서 감사합니다.
-            <br />
-            응답하신 데이터는 정상적으로 저장 및 제출되었습니다.
-          </p>
-
-          {testRecord && (
-            <div className="rounded-2xl bg-slate-50 border border-slate-100 p-4 text-left text-xs sm:text-sm space-y-2 mb-8">
-              <div className="flex justify-between">
-                <span className="text-slate-500">응시자</span>
-                <span className="font-bold text-slate-900">
-                  {testRecord.mb_name} ({testRecord.mb_id})
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-8 sm:py-12 print:p-0 print:max-w-none">
+        {reportData && resultRow ? (
+          <div>
+            {/* Top navigation bar (hidden in print) */}
+            <div className="print:hidden flex flex-wrap items-center justify-between gap-3 mb-4">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold">
+                  ✓ 진단검사 완료 및 결과지 생성됨
+                </span>
+                <span className="text-xs text-slate-500">
+                  완료일시: {testRecord?.end_datetime || testRecord?.test_datetime || '-'}
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">검사 프로그램</span>
-                <span className="font-bold text-slate-900">
-                  {shopItem?.it_name || testRecord.it_name}
-                </span>
-              </div>
-              {testRecord.group_code && (
-                <div className="flex justify-between">
-                  <span className="text-slate-500">소속 단체코드</span>
-                  <span className="font-bold text-indigo-600">
-                    {testRecord.group_code}
-                  </span>
-                </div>
-              )}
-              <div className="flex justify-between">
-                <span className="text-slate-500">완료 일시</span>
-                <span className="font-semibold text-slate-700">
-                  {testRecord.end_datetime || testRecord.test_datetime || '-'}
-                </span>
+              <div className="flex items-center gap-2">
+                {isAdmin && (
+                  <Link
+                    href="/adm/tests"
+                    className="px-3.5 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-extrabold transition"
+                  >
+                    ← 관리자 결과/응시 관리로 돌아가기
+                  </Link>
+                )}
+                <Link
+                  href="/mypage"
+                  className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold transition"
+                >
+                  마이페이지로 이동
+                </Link>
               </div>
             </div>
-          )}
 
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Link
-              href="/mypage"
-              className="flex-1 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-extrabold shadow-sm transition"
-            >
-              마이페이지로 이동
-            </Link>
-            <Link
-              href="/"
-              className="flex-1 py-3.5 rounded-2xl border border-slate-300 hover:bg-slate-100 text-slate-700 text-sm font-bold transition"
-            >
-              메인 화면으로
-            </Link>
+            <GraphmeReportView report={reportData} resultRow={resultRow} />
           </div>
-        </div>
+        ) : (
+          <div className="max-w-lg mx-auto bg-white rounded-3xl border border-slate-200 p-8 sm:p-12 text-center shadow-sm">
+            <div className="w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-4xl font-extrabold mx-auto mb-6">
+              ✓
+            </div>
+            <span className="inline-block px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold mb-2">
+              온라인 진단검사 제출 완료
+            </span>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-3">
+              검사가 완료되었습니다!
+            </h1>
+            <p className="text-sm sm:text-base text-slate-600 leading-relaxed mb-8">
+              모든 문항에 성실히 응답해 주셔서 감사합니다.
+              <br />
+              응답하신 데이터는 정상적으로 저장 및 제출되었습니다.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link
+                href="/mypage"
+                className="flex-1 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-extrabold shadow-sm transition"
+              >
+                마이페이지로 이동
+              </Link>
+              <Link
+                href="/"
+                className="flex-1 py-3.5 rounded-2xl border border-slate-300 hover:bg-slate-100 text-slate-700 text-sm font-bold transition"
+              >
+                메인 화면으로
+              </Link>
+            </div>
+          </div>
+        )}
       </main>
-      <SiteFooter />
+
+      <div className="print:hidden">
+        <SiteFooter />
+      </div>
     </div>
   );
 }
