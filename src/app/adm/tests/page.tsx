@@ -66,6 +66,48 @@ export default async function AdminTestsPage() {
 
       let formattedAnswers: StudentTestRecord['answers'] = [];
 
+      const TENDENCY_LABELS: Record<string, string> = {
+        seL: '자아(seL)',
+        foC: '집중(foC)',
+        skI: '기술(skI)',
+        reL: '관계(reL)',
+        obJ: '목적(obJ)',
+      };
+
+      const formatAnswerDisplay = (qa: any, raw: string) => {
+        if (!qa || qa.qa_type !== 'n') return raw;
+        const optText = (n: number | string) => {
+          const s = String(n);
+          if (s === '1') return qa.qa_q1 || '1번';
+          if (s === '2') return qa.qa_q2 || '2번';
+          if (s === '3') return qa.qa_q3 || '3번';
+          if (s === '4') return qa.qa_q4 || '4번';
+          if (s === '5') return qa.qa_q5 || '5번';
+          return `${s}번`;
+        };
+        if (raw === 'TRUE') {
+          return `⭕ 정답 (${qa.qa_answer}번: ${optText(qa.qa_answer)})`;
+        }
+        if (raw === 'FALSE') {
+          return `❌ 오답 (정답 ${qa.qa_answer}번: ${optText(qa.qa_answer)})`;
+        }
+        if (TENDENCY_LABELS[raw] && qa.qa_tendency_map && qa.qa_tendency_map[raw]) {
+          const ch = qa.qa_tendency_map[raw];
+          return `${ch}번: ${optText(ch)} [${TENDENCY_LABELS[raw]}]`;
+        }
+        if (['1', '2', '3', '4', '5'].includes(raw)) {
+          const base = `${raw}번: ${optText(raw)}`;
+          if (qa.qa_answer && ['1', '2', '3', '4', '5'].includes(String(qa.qa_answer))) {
+            const isCorrect = String(qa.qa_answer) === raw;
+            return isCorrect
+              ? `⭕ ${base} (정답)`
+              : `❌ ${base} (정답: ${qa.qa_answer}번)`;
+          }
+          return base;
+        }
+        return raw;
+      };
+
       if (rawAnswers.length > 0) {
         const sortedAnswers = [...rawAnswers].sort(
           (a, b) => Number(a.item_seq) - Number(b.item_seq)
@@ -73,14 +115,6 @@ export default async function AdminTestsPage() {
         formattedAnswers = sortedAnswers.map((a) => {
           const qa = qaMap.get(Number(a.qa_no));
           const raw = String(a.test_answer ?? '');
-          let display = raw;
-          if (qa && qa.qa_type === 'n') {
-            if (raw === '1') display = qa.qa_q1 || '1번';
-            else if (raw === '2') display = qa.qa_q2 || '2번';
-            else if (raw === '3') display = qa.qa_q3 || '3번';
-            else if (raw === '4') display = qa.qa_q4 || '4번';
-            else if (raw === '5') display = qa.qa_q5 || '5번';
-          }
           return {
             item_seq: Number(a.item_seq),
             qa_no: Number(a.qa_no),
@@ -88,7 +122,7 @@ export default async function AdminTestsPage() {
             qa_type: qa?.qa_type || 'n',
             qa_subject: qa?.qa_subject || `문항 ${a.item_seq}`,
             raw_answer: raw,
-            display_answer: display,
+            display_answer: formatAnswerDisplay(qa, raw),
             reg_datetime: a.reg_datetime || '',
           };
         });
@@ -98,16 +132,6 @@ export default async function AdminTestsPage() {
           const seq = i + 1;
           const qa = qaByTestNo.get(`No_${seq}`);
           const raw = String(rawVal ?? '');
-          let display = raw;
-          if (qa && qa.qa_type === 'n') {
-            if (raw === '1') display = qa.qa_q1 || '1번';
-            else if (raw === '2') display = qa.qa_q2 || '2번';
-            else if (raw === '3') display = qa.qa_q3 || '3번';
-            else if (raw === '4') display = qa.qa_q4 || '4번';
-            else if (raw === '5') display = qa.qa_q5 || '5번';
-            else if (raw === 'TRUE') display = `정답 (${qa.qa_answer}번)`;
-            else if (raw === 'FALSE') display = `오답 (정답: ${qa.qa_answer}번)`;
-          }
           return {
             item_seq: seq,
             qa_no: Number(qa?.qa_no || 1000 + seq),
@@ -115,7 +139,7 @@ export default async function AdminTestsPage() {
             qa_type: qa?.qa_type || 'n',
             qa_subject: qa?.qa_subject || `문항 ${seq}`,
             raw_answer: raw,
-            display_answer: display,
+            display_answer: formatAnswerDisplay(qa, raw),
             reg_datetime: t.end_datetime || t.test_datetime || '',
           };
         });

@@ -416,7 +416,15 @@ export function computeResultBaseRow(
 
     const qCode = String(qa.qa_code || '');
     const ansKey = String(qa.qa_answer || '').trim();
-    const weights: Record<string, number> = qa.qa_weights || {};
+    const metricName = String(qa.qa_metric || '').trim();
+    const metricWeight = Number(qa.qa_weight ?? 0);
+    const tendencyMap: Record<string, number> = qa.qa_tendency_map || qa.qa_weights || {};
+    const weights: Record<string, number> =
+      qa.qa_weights && Object.keys(qa.qa_weights).length > 0
+        ? qa.qa_weights
+        : metricName && !metricName.includes(',') && metricWeight > 0
+        ? { [metricName]: metricWeight }
+        : {};
 
     // 1. rfHAB: tendency choice mapping (seL, foC, skI, reL, obJ -> 1..5)
     if (qCode.startsWith('rfHAB')) {
@@ -427,7 +435,7 @@ export function computeResultBaseRow(
         const numChoice = parseInt(rawInput, 10);
         if (!isNaN(numChoice)) {
           for (const h of HABIT_INDICATORS) {
-            if (Number(weights[h]) === numChoice) {
+            if (Number(tendencyMap[h]) === numChoice) {
               chosenInd = h;
               break;
             }
