@@ -286,15 +286,40 @@ export default function BulkPdfDownloadModal({
     }
   };
 
-  // Option 2: Combined High-Res Vector PDF Save / Bulk Print
+  // Primary: Combined High-Res Vector PDF Save / Bulk Print (Selectable Live Text)
   const handleBulkPrintPdf = () => {
     if (selectedRecords.length === 0) {
       alert('인쇄/저장할 수강생을 1명 이상 선택해 주세요.');
       return;
     }
     setIsBulkPrintMode(true);
+    const prevTitle = document.title;
+    const safeTitle = groupTitle.replace(/[\\/:*?"<>|\s]+/g, '_');
+    if (selectedRecords.length === 1) {
+      const r = selectedRecords[0];
+      document.title = `${safeTitle}_${r.mb_name}(${r.mb_id})_진단결과지`;
+    } else {
+      document.title = `${safeTitle}_결과지_일괄출력(${selectedRecords.length}명)`;
+    }
     setTimeout(() => {
       window.print();
+      setTimeout(() => {
+        document.title = prevTitle;
+      }, 600);
+    }, 450);
+  };
+
+  const handlePrintSingleStudent = (rec: StudentTestRecord) => {
+    setSelectedNos([rec.test_no]);
+    setIsBulkPrintMode(true);
+    const prevTitle = document.title;
+    const safeTitle = groupTitle.replace(/[\\/:*?"<>|\s]+/g, '_');
+    document.title = `${safeTitle}_${rec.mb_name}(${rec.mb_id})_진단결과지`;
+    setTimeout(() => {
+      window.print();
+      setTimeout(() => {
+        document.title = prevTitle;
+      }, 600);
     }, 350);
   };
 
@@ -463,35 +488,46 @@ export default function BulkPdfDownloadModal({
                 {filteredList.map((r, idx) => {
                   const checked = selectedNos.includes(r.test_no);
                   return (
-                    <label
+                    <div
                       key={r.test_no}
-                      className={`flex items-center gap-2.5 p-2.5 rounded-xl border text-xs cursor-pointer transition ${
+                      className={`flex items-center gap-2 p-2.5 rounded-xl border text-xs transition ${
                         checked
                           ? 'border-indigo-600 bg-indigo-50/80 text-indigo-950 font-bold'
                           : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
                       }`}
                     >
-                      <input
-                        type="checkbox"
+                      <label className="flex items-center gap-2 min-w-0 flex-1 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          disabled={isGeneratingZip}
+                          checked={checked}
+                          onChange={() => toggleOne(r.test_no)}
+                          className="rounded text-indigo-600"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="font-extrabold text-slate-900 truncate">
+                              {idx + 1}. {r.mb_name}
+                            </span>
+                            <span className="px-1.5 py-0.5 rounded bg-slate-900 text-white text-[10px] font-extrabold shrink-0">
+                              {r.resultRow?.total_lit_type || '-'}
+                            </span>
+                          </div>
+                          <div className="text-[10px] text-slate-500 truncate mt-0.5">
+                            {r.mb_id} · {r.group_code}
+                          </div>
+                        </div>
+                      </label>
+                      <button
+                        type="button"
                         disabled={isGeneratingZip}
-                        checked={checked}
-                        onChange={() => toggleOne(r.test_no)}
-                        className="rounded text-indigo-600"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between gap-1">
-                          <span className="font-extrabold text-slate-900 truncate">
-                            {idx + 1}. {r.mb_name}
-                          </span>
-                          <span className="px-1.5 py-0.5 rounded bg-slate-900 text-white text-[10px] font-extrabold shrink-0">
-                            {r.resultRow?.total_lit_type || '-'}
-                          </span>
-                        </div>
-                        <div className="text-[10px] text-slate-500 truncate mt-0.5">
-                          {r.mb_id} · {r.group_code}
-                        </div>
-                      </div>
-                    </label>
+                        onClick={() => handlePrintSingleStudent(r)}
+                        title={`${r.mb_name} 학생 텍스트 원본 PDF 저장 / 인쇄`}
+                        className="px-2 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-extrabold shrink-0"
+                      >
+                        🖨️ PDF
+                      </button>
+                    </div>
                   );
                 })}
               </div>
@@ -500,28 +536,27 @@ export default function BulkPdfDownloadModal({
 
           {/* Footer Action Buttons */}
           <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="text-xs text-slate-500">
-              • <strong>개별 PDF(.zip)</strong>: 학생별 파일로 분리되어 압축 다운로드됩니다.
-              <br />• <strong>통합 PDF 저장</strong>: 인쇄 창에서 &apos;PDF로 저장&apos;을 선택하면 선택된 전원 결과지가 즉시 저장됩니다.
+            <div className="text-xs text-slate-600 leading-relaxed">
+              • <strong>텍스트가 살아있는 결과지 PDF 저장/인쇄 (권장)</strong>: 오른쪽 인쇄/PDF 저장 버튼을 누른 뒤 대상에서 <strong>&apos;PDF로 저장&apos;</strong>을 선택하면 드래그·검색이 가능한 고해상도 벡터 PDF(로드맵별 1페이지씩 총 {selectedRecords.length * 4}p)로 저장됩니다.
             </div>
             <div className="flex flex-wrap items-center gap-2 shrink-0">
               <button
                 type="button"
                 disabled={isGeneratingZip || selectedRecords.length === 0}
-                onClick={handleBulkPrintPdf}
-                className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold shadow-sm transition disabled:opacity-40"
+                onClick={handleDownloadZip}
+                className="px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold transition disabled:opacity-40"
               >
-                🖨️ 통합 PDF 일괄 저장 / 인쇄 ({selectedRecords.length}명)
+                {isGeneratingZip
+                  ? `⏳ ZIP 생성 중 (${progressIndex}/${progressTotal})...`
+                  : `📦 개별 파일(.zip) 압축받기`}
               </button>
               <button
                 type="button"
                 disabled={isGeneratingZip || selectedRecords.length === 0}
-                onClick={handleDownloadZip}
+                onClick={handleBulkPrintPdf}
                 className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold shadow-sm transition disabled:opacity-40"
               >
-                {isGeneratingZip
-                  ? `⏳ ZIP 생성 중 (${progressIndex}/${progressTotal})...`
-                  : `📦 학생별 개별 PDF (.zip) 일괄다운로드 (${selectedRecords.length}명)`}
+                🖨️ 텍스트가 살아있는 결과지 일괄 인쇄 / PDF 저장 ({selectedRecords.length}명)
               </button>
             </div>
           </div>
