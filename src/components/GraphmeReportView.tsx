@@ -189,17 +189,17 @@ export default function GraphmeReportView({
         {/* ================= PAGE 1: 자아실현 로드맵 ================= */}
         <section
           data-report-page="1"
-          className={`report-print-page bg-white border-2 border-slate-800 rounded-2xl p-6 sm:p-10 shadow-sm print:shadow-none print:rounded-xl print:border-2 print:border-slate-800 print:p-5 print:break-after-page print:break-inside-avoid ${
+          className={`report-print-page bg-white border-2 border-slate-800 rounded-2xl p-6 sm:p-10 shadow-sm print:shadow-none print:rounded-2xl print:border-2 print:border-slate-800 print:break-after-page print:break-inside-avoid ${
             activeTab !== 'all' && activeTab !== 1 ? 'hidden print:block' : ''
           }`}
         >
           {/* Page Header */}
-          <div className="flex items-end justify-between border-b-2 border-slate-900 pb-4 mb-5 print:pb-2.5 print:mb-3">
+          <div className="flex items-end justify-between border-b-2 border-slate-900 pb-4 mb-5">
             <div>
               <div className="text-xs font-bold tracking-widest uppercase text-slate-500">
                 Self-Realization Roadmap
               </div>
-              <h2 className="text-2xl sm:text-3xl print:text-2xl font-black text-slate-900 mt-0.5">
+              <h2 className="text-2xl sm:text-3xl print:text-3xl font-black text-slate-900 mt-0.5">
                 자아실현 로드맵
               </h2>
             </div>
@@ -213,14 +213,14 @@ export default function GraphmeReportView({
                   <span className="text-indigo-700">{report.totalLitType}</span>
                 </div>
               </div>
-              <div className="w-11 h-11 print:w-9 print:h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center text-lg print:text-base font-black">
+              <div className="w-11 h-11 rounded-xl bg-slate-900 text-white flex items-center justify-center text-lg font-black">
                 01
               </div>
             </div>
           </div>
 
           {/* Intro Notice */}
-          <div className="bg-slate-100 border border-slate-300 rounded-xl px-4 py-3 text-xs sm:text-sm print:text-xs print:py-2 text-slate-700 leading-relaxed mb-6 print:mb-3.5">
+          <div className="bg-slate-100 border border-slate-300 rounded-xl px-4 py-3 text-xs sm:text-sm print:text-sm text-slate-700 leading-relaxed mb-6">
             본 결과지는 그래프미 검사과정에서 나타난{' '}
             <strong className="font-extrabold text-slate-900">
               {report.name}
@@ -232,33 +232,33 @@ export default function GraphmeReportView({
             님의 발전적 미래를 위한 참고 자료로 활용해 주시기 바랍니다.
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 print:grid-cols-12 gap-6 print:gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-12 print:grid-cols-12 gap-6">
             {/* Left 7 cols: 나는 어떤 방향으로 향하고 있을까? */}
-            <div className="lg:col-span-7 print:col-span-7 border border-slate-300 rounded-2xl p-5 print:p-4 flex flex-col justify-between">
+            <div className="lg:col-span-7 print:col-span-7 border border-slate-300 rounded-2xl p-5 flex flex-col justify-between">
               <div>
-                <div className="flex items-start justify-between gap-4 mb-4 print:mb-2">
+                <div className="flex items-start justify-between gap-4 mb-4">
                   <div>
-                    <span className="inline-block px-2.5 py-0.5 rounded bg-slate-900 text-white text-[11px] font-bold mb-1.5 print:mb-1">
+                    <span className="inline-block px-2.5 py-0.5 rounded bg-slate-900 text-white text-[11px] font-bold mb-1.5">
                       DIRECTION ANALYSIS
                     </span>
-                    <h3 className="text-lg print:text-base font-black text-slate-900">
+                    <h3 className="text-lg font-black text-slate-900">
                       나는 어떤 방향으로 향하고 있을까?
                     </h3>
                   </div>
-                  <div className="text-right text-[11px] print:text-[10px] text-slate-500 leading-snug">
+                  <div className="text-right text-[11px] text-slate-500 leading-snug">
                     0에 가까울수록 조화로운 상태이며,
                     <br />
                     지수가 커질수록 해당 특성이 두드러집니다.
                   </div>
                 </div>
-                <p className="text-xs text-slate-600 mb-5 print:mb-2.5">
+                <p className="text-xs text-slate-600 mb-5">
                   여러 결정이 모여 한 사람의 발자취가 생겨나죠. 나는 어떤 방향으로
                   움직이는 사람일까요?
                 </p>
 
                 {/* 5 Diverging Bars */}
-                <div className="space-y-4 print:space-y-2">
-                  <div className="flex items-center text-[11px] font-bold text-slate-400 px-24 print:px-16">
+                <div className="space-y-4">
+                  <div className="flex items-center text-[11px] font-bold text-slate-400 px-24">
                     <span className="flex-1 text-left">-50</span>
                     <span className="text-slate-700 font-extrabold">
                       balance (0)
@@ -273,24 +273,24 @@ export default function GraphmeReportView({
                     return (
                       <div
                         key={d.title}
-                        className="bg-slate-50 border border-slate-200 rounded-xl p-3 print:p-2"
+                        className="bg-slate-50 border border-slate-200 rounded-xl p-3"
                       >
-                        <div className="flex items-center justify-between text-xs font-bold mb-1.5 print:mb-1">
+                        <div className="flex items-center justify-between text-xs font-bold mb-1.5">
                           <span className="text-slate-500">{d.title}</span>
                           <span className="text-slate-900 font-extrabold">
                             {d.dominant} 성향 ({d.score > 0 ? '+' : ''}
                             {d.score.toFixed(1)})
                           </span>
                         </div>
-                        <div className="flex items-center gap-2.5 print:gap-2">
+                        <div className="flex items-center gap-2.5">
                           <span
-                            className={`w-16 print:w-14 text-right text-xs font-extrabold ${
+                            className={`w-16 text-right text-xs font-extrabold ${
                               isNeg ? 'text-indigo-700' : 'text-slate-500'
                             }`}
                           >
                             {d.leftLabel}
                           </span>
-                          <div className="flex-1 h-5 print:h-4 bg-white border border-slate-300 rounded-full relative overflow-hidden">
+                          <div className="flex-1 h-5 bg-white border border-slate-300 rounded-full relative overflow-hidden">
                             {/* Center line */}
                             <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-slate-800 z-10" />
                             {/* Bar */}
@@ -313,7 +313,7 @@ export default function GraphmeReportView({
                             )}
                           </div>
                           <span
-                            className={`w-16 print:w-14 text-left text-xs font-extrabold ${
+                            className={`w-16 text-left text-xs font-extrabold ${
                               !isNeg ? 'text-slate-900' : 'text-slate-500'
                             }`}
                           >
@@ -327,28 +327,28 @@ export default function GraphmeReportView({
               </div>
 
               {/* Type summary footer */}
-              <div className="mt-5 pt-4 print:mt-3 print:pt-2.5 border-t border-slate-200 grid grid-cols-3 gap-2 text-center">
-                <div className="bg-slate-50 rounded-xl p-2.5 print:p-2 border border-slate-200">
-                  <div className="text-[11px] print:text-[10px] text-slate-500 font-semibold">
+              <div className="mt-5 pt-4 border-t border-slate-200 grid grid-cols-3 gap-2 text-center">
+                <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-200">
+                  <div className="text-[11px] text-slate-500 font-semibold">
                     측정 유형 (Test)
                   </div>
-                  <div className="text-sm print:text-xs font-black text-slate-900 mt-0.5">
+                  <div className="text-sm font-black text-slate-900 mt-0.5">
                     {report.litType}
                   </div>
                 </div>
-                <div className="bg-slate-50 rounded-xl p-2.5 print:p-2 border border-slate-200">
-                  <div className="text-[11px] print:text-[10px] text-slate-500 font-semibold">
+                <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-200">
+                  <div className="text-[11px] text-slate-500 font-semibold">
                     자가진단 유형 (Survey)
                   </div>
-                  <div className="text-sm print:text-xs font-black text-slate-900 mt-0.5">
+                  <div className="text-sm font-black text-slate-900 mt-0.5">
                     {report.survLitType}
                   </div>
                 </div>
-                <div className="bg-indigo-50 rounded-xl p-2.5 print:p-2 border border-indigo-200">
-                  <div className="text-[11px] print:text-[10px] text-indigo-600 font-bold">
+                <div className="bg-indigo-50 rounded-xl p-2.5 border border-indigo-200">
+                  <div className="text-[11px] text-indigo-600 font-bold">
                     종합 유형 (Total)
                   </div>
-                  <div className="text-sm print:text-xs font-black text-indigo-900 mt-0.5">
+                  <div className="text-sm font-black text-indigo-900 mt-0.5">
                     {report.totalLitType} ({report.mbti})
                   </div>
                 </div>
@@ -356,24 +356,24 @@ export default function GraphmeReportView({
             </div>
 
             {/* Right 5 cols: 자아일치도 + 직업가치관 */}
-            <div className="lg:col-span-5 print:col-span-5 flex flex-col gap-6 print:gap-4">
+            <div className="lg:col-span-5 print:col-span-5 flex flex-col gap-6">
               {/* 내가 생각하는 나 / 남이 생각하는 나 */}
-              <div className="border border-slate-300 rounded-2xl p-5 print:p-4">
-                <span className="inline-block px-2.5 py-0.5 rounded bg-slate-900 text-white text-[11px] font-bold mb-1.5 print:mb-1">
+              <div className="border border-slate-300 rounded-2xl p-5">
+                <span className="inline-block px-2.5 py-0.5 rounded bg-slate-900 text-white text-[11px] font-bold mb-1.5">
                   SELF-CONGRUENCE
                 </span>
-                <h3 className="text-lg print:text-base font-black text-slate-900 mb-2 print:mb-1.5">
+                <h3 className="text-lg font-black text-slate-900 mb-2">
                   내가 생각하는 나 · 남이 생각하는 나
                 </h3>
-                <p className="text-xs text-slate-600 leading-relaxed mb-4 print:mb-2.5">
+                <p className="text-xs text-slate-600 leading-relaxed mb-4">
                   내가 생각하는 모습과 측정된 모습은 얼마나 일치할까요? 일치율의
                   크기에 따라 좋고 나쁨은 없습니다. 각 모습이 합쳐져 지금의 내
                   모습이 되는 것이니까요!
                 </p>
 
-                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 print:p-3 flex items-center gap-5 print:gap-3">
-                  <div className="relative w-24 h-24 print:w-20 print:h-20 flex items-center justify-center shrink-0">
-                    <svg className="w-24 h-24 print:w-20 print:h-20 -rotate-90" viewBox="0 0 100 100">
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex items-center gap-5">
+                  <div className="relative w-24 h-24 flex items-center justify-center shrink-0">
+                    <svg className="w-24 h-24 -rotate-90" viewBox="0 0 100 100">
                       <circle
                         cx="50"
                         cy="50"
@@ -394,7 +394,7 @@ export default function GraphmeReportView({
                       />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-lg print:text-base font-black text-slate-900">
+                      <span className="text-lg font-black text-slate-900">
                         {congruencePct}%
                       </span>
                       <span className="text-[10px] font-bold text-slate-500">
@@ -402,15 +402,15 @@ export default function GraphmeReportView({
                       </span>
                     </div>
                   </div>
-                  <div className="space-y-1.5 print:space-y-1 text-xs">
-                    <div className="font-extrabold text-slate-900 text-sm print:text-xs">
+                  <div className="space-y-1.5 text-xs">
+                    <div className="font-extrabold text-slate-900 text-sm">
                       자아일치율 지수: {report.selfCongruenceRate.toFixed(2)}
                     </div>
                     <div className="text-slate-600">
                       • 측정치와 자가진단 편차:{' '}
                       <strong>{report.selfEvaluationGap.toFixed(1)}%p</strong>
                     </div>
-                    <div className="text-slate-500 text-[11px] print:text-[10px] leading-snug">
+                    <div className="text-slate-500 text-[11px] leading-snug">
                       스스로 인식하는 성향({report.survLitType})과 실제 문항 수행을
                       통해 측정된 성향({report.litType})의 조화도를 나타냅니다.
                     </div>
@@ -419,30 +419,30 @@ export default function GraphmeReportView({
               </div>
 
               {/* 나는 어떤 가치관을 가지고 있을까? */}
-              <div className="border border-slate-300 rounded-2xl p-5 print:p-4 flex-1 flex flex-col justify-between">
+              <div className="border border-slate-300 rounded-2xl p-5 flex-1 flex flex-col justify-between">
                 <div>
-                  <span className="inline-block px-2.5 py-0.5 rounded bg-slate-900 text-white text-[11px] font-bold mb-1.5 print:mb-1">
+                  <span className="inline-block px-2.5 py-0.5 rounded bg-slate-900 text-white text-[11px] font-bold mb-1.5">
                     CORE WORK VALUES
                   </span>
-                  <h3 className="text-lg print:text-base font-black text-slate-900 mb-1.5">
+                  <h3 className="text-lg font-black text-slate-900 mb-1.5">
                     나는 어떤 가치관을 가지고 있을까?
                   </h3>
-                  <p className="text-xs text-slate-600 leading-relaxed mb-4 print:mb-2.5">
+                  <p className="text-xs text-slate-600 leading-relaxed mb-4">
                     나의 가치를 중심으로 일할 때 비로소 가슴이 뛰고 지속할 동력을
                     얻게 됩니다.
                   </p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2.5 print:gap-2">
+                <div className="grid grid-cols-3 gap-2.5">
                   {report.coreValues.map((val, i) => (
                     <div
                       key={i}
-                      className="rounded-xl border-2 border-slate-800 bg-slate-50 py-3.5 print:py-2.5 px-2 text-center flex flex-col items-center justify-center"
+                      className="rounded-xl border-2 border-slate-800 bg-slate-50 py-3.5 px-2 text-center flex flex-col items-center justify-center"
                     >
                       <span className="text-[10px] font-bold text-slate-400 mb-0.5">
                         VALUE 0{i + 1}
                       </span>
-                      <span className="text-sm print:text-xs font-black text-slate-900">
+                      <span className="text-sm font-black text-slate-900">
                         {val}
                       </span>
                     </div>
@@ -453,7 +453,7 @@ export default function GraphmeReportView({
           </div>
 
           {/* Page Footer */}
-          <div className="mt-6 pt-3 print:mt-3 print:pt-2 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+          <div className="mt-6 pt-3 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-400 font-mono">
             <span>GRAPHME INTEGRATED DIAGNOSTIC REPORT</span>
             <span>SERIAL NO. {report.serialNo} · PAGE 01 / 04</span>
           </div>
@@ -462,17 +462,17 @@ export default function GraphmeReportView({
         {/* ================= PAGE 2: 습관 로드맵 ================= */}
         <section
           data-report-page="2"
-          className={`report-print-page bg-white border-2 border-slate-800 rounded-2xl p-6 sm:p-10 shadow-sm print:shadow-none print:rounded-xl print:border-2 print:border-slate-800 print:p-5 print:break-after-page print:break-inside-avoid ${
+          className={`report-print-page bg-white border-2 border-slate-800 rounded-2xl p-6 sm:p-10 shadow-sm print:shadow-none print:rounded-2xl print:border-2 print:border-slate-800 print:break-after-page print:break-inside-avoid ${
             activeTab !== 'all' && activeTab !== 2 ? 'hidden print:block' : ''
           }`}
         >
           {/* Page Header */}
-          <div className="flex items-end justify-between border-b-2 border-slate-900 pb-4 mb-5 print:pb-2.5 print:mb-3">
+          <div className="flex items-end justify-between border-b-2 border-slate-900 pb-4 mb-5">
             <div>
               <div className="text-xs font-bold tracking-widest uppercase text-slate-500">
                 Habit Roadmap
               </div>
-              <h2 className="text-2xl sm:text-3xl print:text-2xl font-black text-slate-900 mt-0.5">
+              <h2 className="text-2xl sm:text-3xl print:text-3xl font-black text-slate-900 mt-0.5">
                 습관 로드맵
               </h2>
             </div>
@@ -486,14 +486,14 @@ export default function GraphmeReportView({
                   <span className="text-indigo-700">{report.totalLitType}</span>
                 </div>
               </div>
-              <div className="w-11 h-11 print:w-9 print:h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center text-lg print:text-base font-black">
+              <div className="w-11 h-11 rounded-xl bg-slate-900 text-white flex items-center justify-center text-lg font-black">
                 02
               </div>
             </div>
           </div>
 
           {/* Intro Notice */}
-          <div className="bg-slate-100 border border-slate-300 rounded-xl px-4 py-3 text-xs sm:text-sm print:text-xs print:py-2 text-slate-700 leading-relaxed mb-6 print:mb-3.5">
+          <div className="bg-slate-100 border border-slate-300 rounded-xl px-4 py-3 text-xs sm:text-sm print:text-sm text-slate-700 leading-relaxed mb-6">
             본 결과지는 그래프미 검사과정에서 나타난{' '}
             <strong className="font-extrabold text-slate-900">
               {report.name}
@@ -506,21 +506,21 @@ export default function GraphmeReportView({
           </div>
 
           {/* Section 1: 습관 특성 요약 */}
-          <div className="border border-slate-300 rounded-2xl p-5 mb-6 print:p-4 print:mb-3.5">
-            <div className="flex flex-col sm:flex-row print:flex-row sm:items-center print:items-center justify-between gap-4 print:gap-2">
+          <div className="border border-slate-300 rounded-2xl p-5 mb-6">
+            <div className="flex flex-col sm:flex-row print:flex-row sm:items-center print:items-center justify-between gap-4">
               <div>
                 <span className="inline-block px-2.5 py-0.5 rounded bg-slate-900 text-white text-[11px] font-bold mb-1">
                   HABIT KEYWORDS
                 </span>
-                <h3 className="text-lg print:text-base font-black text-slate-900">
+                <h3 className="text-lg font-black text-slate-900">
                   습관 특성 요약
                 </h3>
               </div>
-              <div className="flex flex-wrap gap-2 print:gap-1.5">
+              <div className="flex flex-wrap gap-2">
                 {report.hashtags.map((tag, idx) => (
                   <span
                     key={idx}
-                    className="px-3.5 py-2 print:px-3 print:py-1.5 rounded-xl bg-slate-900 text-white text-xs sm:text-sm print:text-xs font-extrabold tracking-tight"
+                    className="px-3.5 py-2 rounded-xl bg-slate-900 text-white text-xs sm:text-sm print:text-sm font-extrabold tracking-tight"
                   >
                     {tag}
                   </span>
@@ -529,7 +529,7 @@ export default function GraphmeReportView({
             </div>
 
             {/* Habit Distribution Bar */}
-            <div className="mt-4 pt-4 print:mt-3 print:pt-2.5 border-t border-slate-200">
+            <div className="mt-4 pt-4 border-t border-slate-200">
               <div className="flex items-center justify-between text-xs font-bold text-slate-600 mb-1.5">
                 <span>정보 수용 및 처리 습관 분포 ({report.principle})</span>
                 <span>
@@ -538,7 +538,7 @@ export default function GraphmeReportView({
                   {report.habitDistribution.relObjPct.toFixed(1)}%
                 </span>
               </div>
-              <div className="h-3.5 print:h-3 w-full rounded-full bg-slate-100 overflow-hidden flex border border-slate-300">
+              <div className="h-3.5 w-full rounded-full bg-slate-100 overflow-hidden flex border border-slate-300">
                 <div
                   className="bg-indigo-600 h-full"
                   style={{ width: `${report.habitDistribution.selfPct}%` }}
@@ -559,17 +559,17 @@ export default function GraphmeReportView({
           </div>
 
           {/* Section 2: 지금 내가 세상을 바라보는 태도 */}
-          <div className="border border-slate-300 rounded-2xl p-5 mb-6 print:p-4 print:mb-3.5">
+          <div className="border border-slate-300 rounded-2xl p-5 mb-6">
             <span className="inline-block px-2.5 py-0.5 rounded bg-slate-900 text-white text-[11px] font-bold mb-1">
               ATTITUDE IN LIFE & WORK
             </span>
-            <h3 className="text-lg print:text-base font-black text-slate-900 mb-4 print:mb-2.5">
+            <h3 className="text-lg font-black text-slate-900 mb-4">
               지금 내가 세상을 바라보는 태도
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-4 print:gap-3">
-              <div className="bg-slate-50 border-2 border-slate-800 rounded-2xl p-5 print:p-3.5 flex flex-col justify-between">
-                <div className="flex items-center gap-2 mb-3 print:mb-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-4">
+              <div className="bg-slate-50 border-2 border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
+                <div className="flex items-center gap-2 mb-3">
                   <span className="w-7 h-7 rounded-lg bg-slate-900 text-white flex items-center justify-center text-xs font-black">
                     💬
                   </span>
@@ -577,13 +577,13 @@ export default function GraphmeReportView({
                     {report.name}님의 관계에서의 태도
                   </h4>
                 </div>
-                <blockquote className="text-xs sm:text-sm print:text-xs text-slate-800 font-semibold leading-relaxed whitespace-pre-line bg-white p-4 print:p-3 rounded-xl border border-slate-200">
+                <blockquote className="text-xs sm:text-sm print:text-sm text-slate-800 font-semibold leading-relaxed whitespace-pre-line bg-white p-4 rounded-xl border border-slate-200">
                   “{report.relationshipAttitude}”
                 </blockquote>
               </div>
 
-              <div className="bg-slate-50 border-2 border-slate-800 rounded-2xl p-5 print:p-3.5 flex flex-col justify-between">
-                <div className="flex items-center gap-2 mb-3 print:mb-2">
+              <div className="bg-slate-50 border-2 border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
+                <div className="flex items-center gap-2 mb-3">
                   <span className="w-7 h-7 rounded-lg bg-slate-900 text-white flex items-center justify-center text-xs font-black">
                     💼
                   </span>
@@ -591,7 +591,7 @@ export default function GraphmeReportView({
                     {report.name}님의 업무에서의 태도
                   </h4>
                 </div>
-                <blockquote className="text-xs sm:text-sm print:text-xs text-slate-800 font-semibold leading-relaxed whitespace-pre-line bg-white p-4 print:p-3 rounded-xl border border-slate-200">
+                <blockquote className="text-xs sm:text-sm print:text-sm text-slate-800 font-semibold leading-relaxed whitespace-pre-line bg-white p-4 rounded-xl border border-slate-200">
                   “{report.workAttitude}”
                 </blockquote>
               </div>
@@ -599,20 +599,20 @@ export default function GraphmeReportView({
           </div>
 
           {/* Section 3: 사소하지만 확실한 변화를 만드는 인생 습관 */}
-          <div className="border-2 border-slate-900 bg-slate-50 rounded-2xl p-6 print:p-4">
-            <span className="inline-block px-2.5 py-0.5 rounded bg-slate-900 text-white text-[11px] font-bold mb-1.5 print:mb-1">
+          <div className="border-2 border-slate-900 bg-slate-50 rounded-2xl p-6">
+            <span className="inline-block px-2.5 py-0.5 rounded bg-slate-900 text-white text-[11px] font-bold mb-1.5">
               LIFE HABIT SOLUTION
             </span>
-            <h3 className="text-lg print:text-base font-black text-slate-900 mb-3 print:mb-2">
+            <h3 className="text-lg font-black text-slate-900 mb-3">
               사소하지만 확실한 변화를 만드는 인생 습관
             </h3>
-            <p className="text-sm print:text-xs text-slate-800 leading-relaxed whitespace-pre-line bg-white border border-slate-200 rounded-xl p-5 print:p-3.5 font-medium">
+            <p className="text-sm text-slate-800 leading-relaxed whitespace-pre-line bg-white border border-slate-200 rounded-xl p-5 font-medium">
               {report.lifeHabitAdvice}
             </p>
           </div>
 
           {/* Page Footer */}
-          <div className="mt-6 pt-3 print:mt-3 print:pt-2 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+          <div className="mt-6 pt-3 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-400 font-mono">
             <span>GRAPHME INTEGRATED DIAGNOSTIC REPORT</span>
             <span>SERIAL NO. {report.serialNo} · PAGE 02 / 04</span>
           </div>
@@ -621,17 +621,17 @@ export default function GraphmeReportView({
         {/* ================= PAGE 3: 진로 로드맵 ================= */}
         <section
           data-report-page="3"
-          className={`report-print-page bg-white border-2 border-slate-800 rounded-2xl p-6 sm:p-10 shadow-sm print:shadow-none print:rounded-xl print:border-2 print:border-slate-800 print:p-5 print:break-after-page print:break-inside-avoid ${
+          className={`report-print-page bg-white border-2 border-slate-800 rounded-2xl p-6 sm:p-10 shadow-sm print:shadow-none print:rounded-2xl print:border-2 print:border-slate-800 print:break-after-page print:break-inside-avoid ${
             activeTab !== 'all' && activeTab !== 3 ? 'hidden print:block' : ''
           }`}
         >
           {/* Page Header */}
-          <div className="flex items-end justify-between border-b-2 border-slate-900 pb-4 mb-5 print:pb-2.5 print:mb-3">
+          <div className="flex items-end justify-between border-b-2 border-slate-900 pb-4 mb-5">
             <div>
               <div className="text-xs font-bold tracking-widest uppercase text-slate-500">
                 Career Roadmap
               </div>
-              <h2 className="text-2xl sm:text-3xl print:text-2xl font-black text-slate-900 mt-0.5">
+              <h2 className="text-2xl sm:text-3xl print:text-3xl font-black text-slate-900 mt-0.5">
                 진로 로드맵
               </h2>
             </div>
@@ -645,14 +645,14 @@ export default function GraphmeReportView({
                   <span className="text-indigo-700">{report.totalLitType}</span>
                 </div>
               </div>
-              <div className="w-11 h-11 print:w-9 print:h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center text-lg print:text-base font-black">
+              <div className="w-11 h-11 rounded-xl bg-slate-900 text-white flex items-center justify-center text-lg font-black">
                 03
               </div>
             </div>
           </div>
 
           {/* Intro Notice */}
-          <div className="bg-slate-100 border border-slate-300 rounded-xl px-4 py-3 text-xs sm:text-sm print:text-xs print:py-2 text-slate-700 leading-relaxed mb-6 print:mb-3.5">
+          <div className="bg-slate-100 border border-slate-300 rounded-xl px-4 py-3 text-xs sm:text-sm print:text-sm text-slate-700 leading-relaxed mb-6">
             본 결과지는 그래프미 검사과정에서 나타난{' '}
             <strong className="font-extrabold text-slate-900">
               {report.name}
@@ -664,46 +664,46 @@ export default function GraphmeReportView({
             님의 발전적 미래를 위한 참고 자료로 활용해 주시기 바랍니다.
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 print:grid-cols-12 gap-6 print:gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-12 print:grid-cols-12 gap-6">
             {/* Left 7 cols: 15대 성과역량 그래프 */}
-            <div className="lg:col-span-7 print:col-span-7 border border-slate-300 rounded-2xl p-5 print:p-3.5">
-              <div className="flex flex-wrap print:flex-nowrap items-start justify-between gap-3 mb-4 print:mb-2">
+            <div className="lg:col-span-7 print:col-span-7 border border-slate-300 rounded-2xl p-5">
+              <div className="flex flex-wrap print:flex-nowrap items-start justify-between gap-3 mb-4">
                 <div>
                   <span className="inline-block px-2.5 py-0.5 rounded bg-slate-900 text-white text-[11px] font-bold mb-1">
                     15 PERFORMANCE COMPETENCIES
                   </span>
-                  <h3 className="text-lg print:text-base font-black text-slate-900">
+                  <h3 className="text-lg font-black text-slate-900">
                     내가 잘하는 것 · 내가 어려워하는 것
                   </h3>
-                  <p className="text-xs print:text-[11px] text-slate-600 mt-1">
+                  <p className="text-xs text-slate-600 mt-1">
                     진로 선택에서 중요한 것은 잘하는 것을 파악하는 것입니다. 평균
                     지수(MAI)를 기준으로 강점과 약점을 파악해 보세요.
                   </p>
                 </div>
-                <div className="bg-slate-900 text-white rounded-xl px-4 py-2.5 print:px-3 print:py-1.5 text-right shrink-0">
+                <div className="bg-slate-900 text-white rounded-xl px-4 py-2.5 text-right shrink-0">
                   <div className="text-[10px] font-bold text-slate-300">
                     나의 평균 지수 (MAI)
                   </div>
-                  <div className="text-xl print:text-lg font-black">
+                  <div className="text-xl font-black">
                     {report.maiAverage.toFixed(1)}
                   </div>
                 </div>
               </div>
 
               {/* 5 Competency Categories x 3 items */}
-              <div className="space-y-3 print:space-y-1.5">
+              <div className="space-y-3">
                 {report.competencies.map((cat) => (
                   <div
                     key={cat.category}
-                    className="bg-slate-50 border border-slate-200 rounded-xl p-3 print:p-2"
+                    className="bg-slate-50 border border-slate-200 rounded-xl p-3"
                   >
-                    <div className="text-xs font-black text-slate-800 mb-2 print:mb-1 flex items-center justify-between">
+                    <div className="text-xs font-black text-slate-800 mb-2 flex items-center justify-between">
                       <span>■ {cat.category}</span>
-                      <span className="text-[11px] print:text-[10px] font-semibold text-slate-400">
+                      <span className="text-[11px] font-semibold text-slate-400">
                         점선: 평균 지수 ({report.maiAverage.toFixed(1)})
                       </span>
                     </div>
-                    <div className="space-y-2 print:space-y-1">
+                    <div className="space-y-2">
                       {cat.items.map((item) => {
                         const isStrong = item.score >= report.maiAverage;
                         const widthPct = Math.max(
@@ -717,10 +717,10 @@ export default function GraphmeReportView({
                         return (
                           <div
                             key={item.name}
-                            className="flex items-center gap-2.5 print:gap-2 text-xs"
+                            className="flex items-center gap-2.5 text-xs"
                           >
                             <span
-                              className={`w-16 print:w-14 font-bold shrink-0 ${
+                              className={`w-16 font-bold shrink-0 ${
                                 isStrong
                                   ? 'text-slate-900 font-extrabold'
                                   : 'text-slate-500'
@@ -728,7 +728,7 @@ export default function GraphmeReportView({
                             >
                               {item.label}
                             </span>
-                            <div className="flex-1 h-4 print:h-3 bg-white border border-slate-300 rounded-full relative overflow-hidden">
+                            <div className="flex-1 h-4 bg-white border border-slate-300 rounded-full relative overflow-hidden">
                               {/* MAI Reference Line */}
                               <div
                                 className="absolute top-0 bottom-0 w-0.5 border-l-2 border-dashed border-rose-500 z-10"
@@ -743,7 +743,7 @@ export default function GraphmeReportView({
                               />
                             </div>
                             <span
-                              className={`w-12 print:w-10 text-right font-mono text-xs ${
+                              className={`w-12 text-right font-mono text-xs ${
                                 isStrong
                                   ? 'font-black text-slate-900'
                                   : 'font-semibold text-slate-500'
@@ -761,17 +761,17 @@ export default function GraphmeReportView({
             </div>
 
             {/* Right 5 cols: 진로 영역 적합도 + 조직/직무 환경 */}
-            <div className="lg:col-span-5 print:col-span-5 flex flex-col gap-6 print:gap-3.5">
+            <div className="lg:col-span-5 print:col-span-5 flex flex-col gap-6">
               {/* 진로 영역 적합도: 취업 vs 창업 vs 연구 */}
-              <div className="border border-slate-300 rounded-2xl p-5 print:p-3.5">
+              <div className="border border-slate-300 rounded-2xl p-5">
                 <span className="inline-block px-2.5 py-0.5 rounded bg-slate-900 text-white text-[11px] font-bold mb-1">
                   CAREER PATH FIT
                 </span>
-                <h3 className="text-lg print:text-base font-black text-slate-900 mb-3 print:mb-2">
+                <h3 className="text-lg font-black text-slate-900 mb-3">
                   진로 영역 적합도 (취업 vs 창업 vs 연구)
                 </h3>
 
-                <div className="grid grid-cols-3 gap-2.5 print:gap-2">
+                <div className="grid grid-cols-3 gap-2.5">
                   {[
                     {
                       label: '취업',
@@ -793,14 +793,14 @@ export default function GraphmeReportView({
                     return (
                       <div
                         key={cf.label}
-                        className="bg-slate-50 border border-slate-200 rounded-xl p-3 print:p-2 text-center flex flex-col items-center justify-between"
+                        className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center flex flex-col items-center justify-between"
                       >
-                        <div className="text-sm print:text-xs font-black text-slate-900 mb-2 print:mb-1">
+                        <div className="text-sm font-black text-slate-900 mb-2">
                           {cf.label}
                         </div>
-                        <div className="relative w-16 h-16 print:w-14 print:h-14 flex items-center justify-center mb-2 print:mb-1">
+                        <div className="relative w-16 h-16 flex items-center justify-center mb-2">
                           <svg
-                            className="w-16 h-16 print:w-14 print:h-14 -rotate-90"
+                            className="w-16 h-16 -rotate-90"
                             viewBox="0 0 100 100"
                           >
                             <circle
@@ -822,11 +822,11 @@ export default function GraphmeReportView({
                               strokeLinecap="round"
                             />
                           </svg>
-                          <span className="absolute text-xs print:text-[11px] font-black text-slate-900">
+                          <span className="absolute text-xs font-black text-slate-900">
                             {cf.score.toFixed(1)}%
                           </span>
                         </div>
-                        <p className="text-[11px] print:text-[10px] text-slate-600 leading-snug">
+                        <p className="text-[11px] text-slate-600 leading-snug">
                           {cf.desc}
                         </p>
                       </div>
@@ -836,49 +836,49 @@ export default function GraphmeReportView({
               </div>
 
               {/* 마음이 편해지는 곳 / 마음이 불편해지는 곳 */}
-              <div className="border-2 border-slate-900 bg-slate-50 rounded-2xl p-5 print:p-3.5 flex-1 flex flex-col justify-between">
+              <div className="border-2 border-slate-900 bg-slate-50 rounded-2xl p-5 flex-1 flex flex-col justify-between">
                 <div>
                   <span className="inline-block px-2.5 py-0.5 rounded bg-slate-900 text-white text-[11px] font-bold mb-1">
                     ORGANIZATIONAL FIT
                   </span>
-                  <h3 className="text-lg print:text-base font-black text-slate-900 mb-3 print:mb-2">
+                  <h3 className="text-lg font-black text-slate-900 mb-3">
                     마음이 편해지는 곳 · 마음이 불편해지는 곳
                   </h3>
-                  <p className="text-xs sm:text-sm print:text-xs text-slate-800 leading-relaxed bg-white border border-slate-200 rounded-xl p-4 print:p-2.5 font-medium mb-4 print:mb-2.5">
+                  <p className="text-xs sm:text-sm print:text-sm text-slate-800 leading-relaxed bg-white border border-slate-200 rounded-xl p-4 font-medium mb-4">
                     {report.orgFit.fullNarrative}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-2 text-xs">
-                  <div className="bg-white border border-slate-200 rounded-xl p-2.5 print:p-2">
+                  <div className="bg-white border border-slate-200 rounded-xl p-2.5">
                     <div className="text-[10px] font-bold text-indigo-600">
                       잠재력 발휘 조직
                     </div>
-                    <div className="font-bold text-slate-900 mt-0.5 print:text-[11px]">
+                    <div className="font-bold text-slate-900 mt-0.5">
                       {report.orgFit.potentialOrg}
                     </div>
                   </div>
-                  <div className="bg-white border border-slate-200 rounded-xl p-2.5 print:p-2">
+                  <div className="bg-white border border-slate-200 rounded-xl p-2.5">
                     <div className="text-[10px] font-bold text-emerald-600">
                       견딜 수 있는 환경
                     </div>
-                    <div className="font-bold text-slate-900 mt-0.5 print:text-[11px]">
+                    <div className="font-bold text-slate-900 mt-0.5">
                       {report.orgFit.tolerableEnv}
                     </div>
                   </div>
-                  <div className="bg-white border border-slate-200 rounded-xl p-2.5 print:p-2">
+                  <div className="bg-white border border-slate-200 rounded-xl p-2.5">
                     <div className="text-[10px] font-bold text-rose-600">
                       힘들어하는 환경
                     </div>
-                    <div className="font-bold text-slate-900 mt-0.5 print:text-[11px]">
+                    <div className="font-bold text-slate-900 mt-0.5">
                       {report.orgFit.stressfulEnv}
                     </div>
                   </div>
-                  <div className="bg-white border border-slate-200 rounded-xl p-2.5 print:p-2">
+                  <div className="bg-white border border-slate-200 rounded-xl p-2.5">
                     <div className="text-[10px] font-bold text-slate-600">
                       잘 맞는 직무 특성
                     </div>
-                    <div className="font-bold text-slate-900 mt-0.5 print:text-[11px]">
+                    <div className="font-bold text-slate-900 mt-0.5">
                       {report.orgFit.suitableJob}
                     </div>
                   </div>
@@ -888,7 +888,7 @@ export default function GraphmeReportView({
           </div>
 
           {/* Page Footer */}
-          <div className="mt-6 pt-3 print:mt-3 print:pt-2 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+          <div className="mt-6 pt-3 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-400 font-mono">
             <span>GRAPHME INTEGRATED DIAGNOSTIC REPORT</span>
             <span>SERIAL NO. {report.serialNo} · PAGE 03 / 04</span>
           </div>
@@ -897,19 +897,19 @@ export default function GraphmeReportView({
         {/* ================= PAGE 4: 학습 로드맵 ================= */}
         <section
           data-report-page="4"
-          className={`report-print-page bg-white border-2 border-slate-800 rounded-2xl p-6 sm:p-10 shadow-sm print:shadow-none print:rounded-xl print:border-2 print:border-slate-800 print:p-5 print:break-inside-avoid ${
+          className={`report-print-page bg-white border-2 border-slate-800 rounded-2xl p-6 sm:p-10 shadow-sm print:shadow-none print:rounded-2xl print:border-2 print:border-slate-800 print:break-inside-avoid ${
             breakAfterLastPage ? 'print:break-after-page' : ''
           } ${
             activeTab !== 'all' && activeTab !== 4 ? 'hidden print:block' : ''
           }`}
         >
           {/* Page Header */}
-          <div className="flex items-end justify-between border-b-2 border-slate-900 pb-4 mb-5 print:pb-2.5 print:mb-3">
+          <div className="flex items-end justify-between border-b-2 border-slate-900 pb-4 mb-5">
             <div>
               <div className="text-xs font-bold tracking-widest uppercase text-slate-500">
                 Study Roadmap
               </div>
-              <h2 className="text-2xl sm:text-3xl print:text-2xl font-black text-slate-900 mt-0.5">
+              <h2 className="text-2xl sm:text-3xl print:text-3xl font-black text-slate-900 mt-0.5">
                 학습 로드맵
               </h2>
             </div>
@@ -923,14 +923,14 @@ export default function GraphmeReportView({
                   <span className="text-indigo-700">{report.totalLitType}</span>
                 </div>
               </div>
-              <div className="w-11 h-11 print:w-9 print:h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center text-lg print:text-base font-black">
+              <div className="w-11 h-11 rounded-xl bg-slate-900 text-white flex items-center justify-center text-lg font-black">
                 04
               </div>
             </div>
           </div>
 
           {/* Intro Notice */}
-          <div className="bg-slate-100 border border-slate-300 rounded-xl px-4 py-3 text-xs sm:text-sm print:text-xs print:py-2 text-slate-700 leading-relaxed mb-6 print:mb-3.5">
+          <div className="bg-slate-100 border border-slate-300 rounded-xl px-4 py-3 text-xs sm:text-sm print:text-sm text-slate-700 leading-relaxed mb-6">
             본 결과지는 그래프미 검사과정에서 나타난{' '}
             <strong className="font-extrabold text-slate-900">
               {report.name}
@@ -943,17 +943,17 @@ export default function GraphmeReportView({
           </div>
 
           {/* Strengths & Weaknesses Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-6 mb-6 print:gap-4 print:mb-3.5">
+          <div className="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-6 mb-6">
             {/* 강점과 추천 학습법 */}
-            <div className="border-2 border-slate-800 rounded-2xl p-5 print:p-3.5 bg-slate-50 flex flex-col justify-between">
+            <div className="border-2 border-slate-800 rounded-2xl p-5 bg-slate-50 flex flex-col justify-between">
               <div>
-                <span className="inline-block px-2.5 py-0.5 rounded bg-slate-900 text-white text-[11px] font-bold mb-1.5 print:mb-1">
+                <span className="inline-block px-2.5 py-0.5 rounded bg-slate-900 text-white text-[11px] font-bold mb-1.5">
                   STRENGTH & RECOMMENDED METHOD
                 </span>
-                <h3 className="text-lg print:text-base font-black text-slate-900 mb-3 print:mb-2">
+                <h3 className="text-lg font-black text-slate-900 mb-3">
                   강점과 추천 학습법
                 </h3>
-                <div className="space-y-3 print:space-y-2 text-xs sm:text-sm print:text-xs text-slate-800 leading-relaxed bg-white p-4 print:p-3 rounded-xl border border-slate-200 font-medium">
+                <div className="space-y-3 text-xs sm:text-sm print:text-sm text-slate-800 leading-relaxed bg-white p-4 rounded-xl border border-slate-200 font-medium">
                   <p>{report.studyStrength.paragraph1}</p>
                   <p>{report.studyStrength.paragraph2}</p>
                 </div>
@@ -961,15 +961,15 @@ export default function GraphmeReportView({
             </div>
 
             {/* 약점과 추천 학습법 */}
-            <div className="border-2 border-slate-800 rounded-2xl p-5 print:p-3.5 bg-slate-50 flex flex-col justify-between">
+            <div className="border-2 border-slate-800 rounded-2xl p-5 bg-slate-50 flex flex-col justify-between">
               <div>
-                <span className="inline-block px-2.5 py-0.5 rounded bg-slate-900 text-white text-[11px] font-bold mb-1.5 print:mb-1">
+                <span className="inline-block px-2.5 py-0.5 rounded bg-slate-900 text-white text-[11px] font-bold mb-1.5">
                   WEAKNESS & ALTERNATIVE STRATEGY
                 </span>
-                <h3 className="text-lg print:text-base font-black text-slate-900 mb-3 print:mb-2">
+                <h3 className="text-lg font-black text-slate-900 mb-3">
                   약점과 추천 학습법
                 </h3>
-                <div className="space-y-3 print:space-y-2 text-xs sm:text-sm print:text-xs text-slate-800 leading-relaxed bg-white p-4 print:p-3 rounded-xl border border-slate-200 font-medium">
+                <div className="space-y-3 text-xs sm:text-sm print:text-sm text-slate-800 leading-relaxed bg-white p-4 rounded-xl border border-slate-200 font-medium">
                   <p>{report.studyWeakness.paragraph1}</p>
                   <p>{report.studyWeakness.paragraph2}</p>
                 </div>
@@ -978,23 +978,23 @@ export default function GraphmeReportView({
           </div>
 
           {/* 최적 학습 플랜 */}
-          <div className="border border-slate-300 rounded-2xl p-5 print:p-4">
-            <div className="flex flex-wrap items-center justify-between gap-2 mb-4 print:mb-2.5">
+          <div className="border border-slate-300 rounded-2xl p-5">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
               <div>
                 <span className="inline-block px-2.5 py-0.5 rounded bg-slate-900 text-white text-[11px] font-bold mb-1">
                   OPTIMAL STUDY PLAN
                 </span>
-                <h3 className="text-lg print:text-base font-black text-slate-900">
+                <h3 className="text-lg font-black text-slate-900">
                   최적 학습 플랜
                 </h3>
               </div>
-              <p className="text-xs print:text-[11px] text-slate-600">
+              <p className="text-xs text-slate-600">
                 각 원과 비율은 학습 효과를 높일 수 있는 상황별 최적 비율을 상대적으로
                 표현한 것입니다.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 print:grid-cols-5 gap-3 print:gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 print:grid-cols-5 gap-3">
               {studyPairs.map((pair) => {
                 const lPct = Math.round(pair.leftVal * 100);
                 const rPct = Math.round(pair.rightVal * 100);
@@ -1003,17 +1003,17 @@ export default function GraphmeReportView({
                 return (
                   <div
                     key={pair.category}
-                    className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 print:p-2.5 flex flex-col justify-between"
+                    className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between"
                   >
-                    <div className="text-xs font-extrabold text-slate-500 text-center mb-3 print:mb-2">
+                    <div className="text-xs font-extrabold text-slate-500 text-center mb-3">
                       {pair.category}
                     </div>
 
                     {/* Proportional Circles */}
-                    <div className="flex items-center justify-around h-20 print:h-16 mb-3 print:mb-2">
+                    <div className="flex items-center justify-around h-20 mb-3">
                       <div className="flex flex-col items-center">
                         <div
-                          className={`rounded-full flex items-center justify-center text-xs print:text-[11px] font-black ${
+                          className={`rounded-full flex items-center justify-center text-xs font-black ${
                             lPct >= rPct
                               ? 'bg-slate-900 text-white'
                               : 'bg-slate-200 text-slate-700'
@@ -1022,7 +1022,7 @@ export default function GraphmeReportView({
                         >
                           {lPct}%
                         </div>
-                        <span className="text-xs print:text-[11px] font-bold text-slate-800 mt-1.5 print:mt-1">
+                        <span className="text-xs font-bold text-slate-800 mt-1.5">
                           {pair.leftLabel}
                         </span>
                       </div>
@@ -1033,7 +1033,7 @@ export default function GraphmeReportView({
 
                       <div className="flex flex-col items-center">
                         <div
-                          className={`rounded-full flex items-center justify-center text-xs print:text-[11px] font-black ${
+                          className={`rounded-full flex items-center justify-center text-xs font-black ${
                             rPct > lPct
                               ? 'bg-slate-900 text-white'
                               : 'bg-slate-200 text-slate-700'
@@ -1042,14 +1042,14 @@ export default function GraphmeReportView({
                         >
                           {rPct}%
                         </div>
-                        <span className="text-xs print:text-[11px] font-bold text-slate-800 mt-1.5 print:mt-1">
+                        <span className="text-xs font-bold text-slate-800 mt-1.5">
                           {pair.rightLabel}
                         </span>
                       </div>
                     </div>
 
                     {/* Bar */}
-                    <div className="h-2.5 print:h-2 w-full rounded-full bg-slate-200 overflow-hidden flex">
+                    <div className="h-2.5 w-full rounded-full bg-slate-200 overflow-hidden flex">
                       <div
                         className="bg-slate-900 h-full"
                         style={{
@@ -1064,7 +1064,7 @@ export default function GraphmeReportView({
           </div>
 
           {/* Page Footer */}
-          <div className="mt-6 pt-3 print:mt-3 print:pt-2 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+          <div className="mt-6 pt-3 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-400 font-mono">
             <span>GRAPHME INTEGRATED DIAGNOSTIC REPORT</span>
             <span>SERIAL NO. {report.serialNo} · PAGE 04 / 04</span>
           </div>

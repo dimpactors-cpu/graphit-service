@@ -28,6 +28,12 @@ body {
     margin: 6mm;
   }
   html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background-color: #ffffff !important;
+  }
+  html,
   body,
   * {
     -webkit-print-color-adjust: exact !important;
@@ -35,9 +41,15 @@ body {
     color-adjust: exact !important;
   }
   .report-print-page {
+    width: 1020px !important;
+    min-width: 1020px !important;
+    max-width: 1020px !important;
+    zoom: 0.73 !important;
+    margin: 0 auto !important;
+    padding: 36px 40px !important;
+    box-sizing: border-box !important;
     break-inside: avoid !important;
     page-break-inside: avoid !important;
-    box-sizing: border-box !important;
   }
 }
 
