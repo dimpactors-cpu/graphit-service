@@ -578,7 +578,7 @@ export default function GroupAdminClient({
                         </td>
                       </tr>
                     ) : (
-                      pagedRecords.map((r) => (
+                      pagedRecords.map((r, idx) => (
                         <tr
                           key={r.test_no}
                           className="hover:bg-slate-50/80 transition"
@@ -601,8 +601,8 @@ export default function GroupAdminClient({
                               <span className="text-slate-300 text-xs">-</span>
                             )}
                           </td>
-                          <td className="py-3.5 px-4 text-center font-mono text-xs text-slate-400">
-                            {r.test_no}
+                          <td className="py-3.5 px-4 text-center font-mono text-xs font-bold text-slate-600">
+                            {(currentPage - 1) * pageSize + idx + 1}
                           </td>
                           <td className="py-3.5 px-4">
                             <span className="inline-block px-2.5 py-0.5 rounded bg-indigo-50 text-indigo-700 text-xs font-extrabold">

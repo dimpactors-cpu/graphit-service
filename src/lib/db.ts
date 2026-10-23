@@ -725,7 +725,35 @@ function applyDeltaToState(state: DatabaseState, delta: CompactDelta | null): Da
         (x) => Number(x.test_no) === Number(tst.test_no)
       );
       if (idx >= 0) {
-        state.graphit_test[idx] = { ...state.graphit_test[idx], ...tst };
+        const existing = state.graphit_test[idx];
+        if (
+          existing.mb_id &&
+          tst.mb_id &&
+          existing.mb_id.toLowerCase() !== tst.mb_id.toLowerCase()
+        ) {
+          // Prevent dynamic test_no collision from overwriting a different student's seed test record
+          const sameEntryIdx = state.graphit_test.findIndex(
+            (x) =>
+              x.mb_id.toLowerCase() === tst.mb_id.toLowerCase() &&
+              String(x.group_code || "") === String(tst.group_code || "") &&
+              String(x.test_datetime || "") === String(tst.test_datetime || "")
+          );
+          if (sameEntryIdx >= 0) {
+            state.graphit_test[sameEntryIdx] = {
+              ...state.graphit_test[sameEntryIdx],
+              ...tst,
+              test_no: state.graphit_test[sameEntryIdx].test_no,
+            };
+          } else {
+            const maxNo = state.graphit_test.reduce(
+              (m, r) => Math.max(m, Number(r.test_no) || 0),
+              0
+            );
+            state.graphit_test.unshift({ ...tst, test_no: maxNo + 1 });
+          }
+        } else {
+          state.graphit_test[idx] = { ...existing, ...tst };
+        }
       } else {
         state.graphit_test.unshift(tst);
       }

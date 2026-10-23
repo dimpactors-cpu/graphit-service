@@ -172,8 +172,11 @@ export default function BulkPdfDownloadModal({
         // Render this student's report in the offscreen container
         setCurrentRenderRecord(rec);
 
-        // Wait for React to paint the 4 sections
+        // Wait for React to paint the 4 sections and web fonts to be ready
         await new Promise((r) => setTimeout(r, 180));
+        if ((document as any).fonts?.ready) {
+          await (document as any).fonts.ready;
+        }
 
         const container = offscreenContainerRef.current;
         if (!container) continue;
@@ -197,30 +200,52 @@ export default function BulkPdfDownloadModal({
         const maxW = pageWidthMm - marginMm * 2;
         const maxH = pageHeightMm - marginMm * 2;
 
-        for (let p = 0; p < sections.length; p++) {
-          const sec = sections[p];
-          const canvas = await html2canvas(sec, {
-            scale: 1.6,
-            useCORS: true,
-            backgroundColor: '#ffffff',
-            logging: false,
-          });
-
-          const imgData = canvas.toDataURL('image/jpeg', 0.88);
-          const ratio = canvas.width / canvas.height;
-          let drawW = maxW;
-          let drawH = drawW / ratio;
-          if (drawH > maxH) {
-            drawH = maxH;
-            drawW = drawH * ratio;
+        // Compensate for html2canvas CJK font baseline downward offset (~0.26 * fontSize)
+        const ctxProto = CanvasRenderingContext2D.prototype;
+        const origFillText = ctxProto.fillText;
+        ctxProto.fillText = function (
+          text: string,
+          x: number,
+          y: number,
+          maxWidth?: number
+        ) {
+          const m = (this.font || '').match(/(\d+(?:\.\d+)?)px/);
+          const fontSize = m ? parseFloat(m[1]) : 12;
+          const adjustedY = y - fontSize * 0.26;
+          if (maxWidth !== undefined) {
+            return origFillText.call(this, text, x, adjustedY, maxWidth);
           }
-          const offsetX = (pageWidthMm - drawW) / 2;
-          const offsetY = marginMm;
+          return origFillText.call(this, text, x, adjustedY);
+        };
 
-          if (p > 0) {
-            pdf.addPage();
+        try {
+          for (let p = 0; p < sections.length; p++) {
+            const sec = sections[p];
+            const canvas = await html2canvas(sec, {
+              scale: 1.8,
+              useCORS: true,
+              backgroundColor: '#ffffff',
+              logging: false,
+            });
+
+            const imgData = canvas.toDataURL('image/jpeg', 0.9);
+            const ratio = canvas.width / canvas.height;
+            let drawW = maxW;
+            let drawH = drawW / ratio;
+            if (drawH > maxH) {
+              drawH = maxH;
+              drawW = drawH * ratio;
+            }
+            const offsetX = (pageWidthMm - drawW) / 2;
+            const offsetY = marginMm;
+
+            if (p > 0) {
+              pdf.addPage();
+            }
+            pdf.addImage(imgData, 'JPEG', offsetX, offsetY, drawW, drawH, undefined, 'FAST');
           }
-          pdf.addImage(imgData, 'JPEG', offsetX, offsetY, drawW, drawH, undefined, 'FAST');
+        } finally {
+          ctxProto.fillText = origFillText;
         }
 
         const safeName = (rec.mb_name || '수강생').replace(/[\\/:*?"<>|]/g, '_');

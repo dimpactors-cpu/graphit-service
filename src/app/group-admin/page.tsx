@@ -190,14 +190,20 @@ export default async function GroupAdminPage({
     return raw;
   };
 
-  // Build student test records belonging to authorized group codes
+  // Build student test records belonging to authorized group codes (ordered 1..N by registration/student order)
   const matchingTests = db.graphit_test
     .filter((t) =>
       authorizedCodeSet.has(String(t.group_code || '').trim().toUpperCase())
     )
-    .sort((a, b) => Number(b.test_no) - Number(a.test_no));
+    .sort((a, b) => Number(a.test_no) - Number(b.test_no));
 
-  const records: StudentTestRecord[] = matchingTests.map((t, idx) => {
+  const groupSeqCounters = new Map<string, number>();
+
+  const records: StudentTestRecord[] = matchingTests.map((t) => {
+    const cleanCodeUpper = String(t.group_code || '').trim().toUpperCase();
+    const nextGroupSeq = (groupSeqCounters.get(cleanCodeUpper) || 0) + 1;
+    groupSeqCounters.set(cleanCodeUpper, nextGroupSeq);
+    const idx = nextGroupSeq - 1;
     const mb = memberMap.get(t.mb_id);
     const itId = String(t.it_id || '');
     const item = itemMap.get(itId);
