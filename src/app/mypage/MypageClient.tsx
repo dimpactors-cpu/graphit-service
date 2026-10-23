@@ -130,7 +130,24 @@ export default function MypageClient({
 
         <div className="flex-1 w-full min-w-0">
           {isGroup ? (
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm">
+            <div className="space-y-4">
+              <div className="bg-indigo-950 text-white rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <span className="inline-block px-2.5 py-0.5 rounded-full bg-indigo-500 text-[11px] font-extrabold mb-1">
+                    학교 · 기관 담당자 전용 기능
+                  </span>
+                  <h2 className="text-base sm:text-lg font-extrabold">
+                    수강생 4페이지 결과지 열람·인쇄 및 결과DB 산출 테이블은 「단체관리자 센터」에서 확인하실 수 있습니다.
+                  </h2>
+                </div>
+                <Link
+                  href="/group-admin"
+                  className="px-4 py-2.5 rounded-xl bg-white hover:bg-indigo-50 text-indigo-950 text-xs sm:text-sm font-extrabold shrink-0 transition text-center"
+                >
+                  📊 단체관리자 전용 페이지로 이동 →
+                </Link>
+              </div>
+              <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5 mb-6">
                 <div>
                   <h1 className="text-2xl font-extrabold text-slate-900">
@@ -296,6 +313,7 @@ export default function MypageClient({
                     )}
                   </tbody>
                 </table>
+              </div>
               </div>
             </div>
           ) : (

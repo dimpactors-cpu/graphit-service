@@ -27,6 +27,15 @@ export async function POST(req: NextRequest) {
     const maxNo = db.g5_member.reduce((acc, m) => Math.max(acc, Number(m.mb_no || 0)), 0);
     const now = formatKstNow();
 
+    const assignedCodes: string[] = Array.isArray(body.assigned_group_codes)
+      ? body.assigned_group_codes.map((c: any) => String(c).trim()).filter(Boolean)
+      : body.mb_7
+      ? String(body.mb_7)
+          .split(",")
+          .map((c) => c.trim())
+          .filter(Boolean)
+      : [];
+
     const newMember = {
       mb_no: maxNo + 1,
       mb_id: String(body.mb_id).trim(),
@@ -59,7 +68,7 @@ export async function POST(req: NextRequest) {
       mb_4: "",
       mb_5: "",
       mb_6: "",
-      mb_7: body.mb_7 || "",
+      mb_7: assignedCodes.join(","),
       mb_8: body.mb_8 || "",
       mb_9: "",
       mb_10: body.mb_10 || "",
@@ -70,7 +79,7 @@ export async function POST(req: NextRequest) {
       test_status: "",
       group_name: body.mb_8 || "",
       test_end: null,
-      group_code: body.mb_7 || "",
+      group_code: assignedCodes[0] || "",
     };
 
     db.g5_member.unshift(newMember);
@@ -94,9 +103,12 @@ export async function POST(req: NextRequest) {
           it_id: String(body.initial_it_id || db.g5_shop_item[0]?.it_id || "1698900476"),
           reg_datetime: now,
         });
-        newMember.mb_7 = codeClean;
-        newMember.group_code = codeClean;
       }
+      if (!assignedCodes.some((c) => c.toUpperCase() === codeClean.toUpperCase())) {
+        assignedCodes.push(codeClean);
+      }
+      newMember.mb_7 = assignedCodes.join(",");
+      newMember.group_code = assignedCodes[0] || codeClean;
     }
 
     await saveDb(db);
@@ -149,7 +161,25 @@ export async function PUT(req: NextRequest) {
 
     for (const f of fields) {
       if (body[f] !== undefined) {
-        (member as any)[f] = body[f];
+        (member as any)[f] = f === "mb_level" ? Number(body[f]) : body[f];
+      }
+    }
+
+    if (Array.isArray(body.assigned_group_codes)) {
+      const codes = body.assigned_group_codes
+        .map((c: any) => String(c).trim())
+        .filter(Boolean);
+      member.mb_7 = codes.join(",");
+      if (codes.length > 0) {
+        member.group_code = codes[0];
+      }
+      if (body.transfer_group_ownership) {
+        const upperSet = new Set(codes.map((c: string) => c.toUpperCase()));
+        for (const g of db.graphit_group) {
+          if (upperSet.has(String(g.group_code || "").trim().toUpperCase())) {
+            g.mb_id = member.mb_id;
+          }
+        }
       }
     }
 

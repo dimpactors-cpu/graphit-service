@@ -52,12 +52,24 @@ export default async function AdminPersonalMemberDetailPage({
       od_time: o.od_time || '',
     }));
 
+  const allGroupCodes = db.graphit_group
+    .sort((a, b) => Number(b.group_no) - Number(a.group_no))
+    .map((g) => ({
+      group_code: String(g.group_code).trim(),
+      it_name:
+        db.g5_shop_item.find((it) => String(it.it_id) === String(g.it_id))
+          ?.it_name || String(g.it_id),
+    }));
+
   return (
     <PersonalMemberDetailClient
       member={{
         mb_no: Number(member.mb_no),
         mb_id: member.mb_id,
         mb_name: member.mb_name,
+        mb_level: Number(member.mb_level || 2),
+        mb_8: member.mb_8 || '',
+        mb_10: member.mb_10 || member.mb_nick || '',
         mb_email: member.mb_email || '',
         mb_hp: member.mb_hp || '',
         mb_sex: member.mb_sex || '',
@@ -71,6 +83,7 @@ export default async function AdminPersonalMemberDetailPage({
       }}
       tests={tests}
       orders={orders}
+      allGroupCodes={allGroupCodes}
     />
   );
 }

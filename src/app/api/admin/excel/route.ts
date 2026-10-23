@@ -39,6 +39,23 @@ export async function GET(req: NextRequest) {
   let filename = `${type}_${ymd}.xls`;
   let htmlBody = "";
 
+  // If user is a group manager (mb_level < 9), restrict to their authorized group codes
+  const isSuperAdmin = user.mb_level >= 9;
+  const allowedGroupCodes = new Set<string>();
+  if (!isSuperAdmin) {
+    const me = db.g5_member.find((m) => m.mb_id.toLowerCase() === user.mb_id.toLowerCase());
+    for (const g of db.graphit_group) {
+      if (String(g.mb_id || "").toLowerCase() === user.mb_id.toLowerCase()) {
+        allowedGroupCodes.add(String(g.group_code || "").trim().toUpperCase());
+      }
+    }
+    const extraCodes = String(me?.mb_7 || user.mb_7 || "")
+      .split(",")
+      .map((c) => c.trim().toUpperCase())
+      .filter(Boolean);
+    for (const c of extraCodes) allowedGroupCodes.add(c);
+  }
+
   const inDateRange = (dtStr: string | null | undefined) => {
     if (!fr_date || !to_date) return true;
     if (!dtStr) return false;
@@ -64,6 +81,17 @@ export async function GET(req: NextRequest) {
     }
 
     let rows = [...db.graphit_test].sort((a, b) => Number(b.test_no) - Number(a.test_no));
+    if (!isSuperAdmin) {
+      rows = rows.filter((r) =>
+        allowedGroupCodes.has(String(r.group_code || "").trim().toUpperCase())
+      );
+    }
+    const groupFilterParam = (searchParams.get("group_code") || "").trim().toUpperCase();
+    if (groupFilterParam) {
+      rows = rows.filter(
+        (r) => String(r.group_code || "").trim().toUpperCase() === groupFilterParam
+      );
+    }
     if (fr_date && to_date) {
       rows = rows.filter((r) => inDateRange(r.test_datetime));
     }
@@ -272,6 +300,17 @@ export async function GET(req: NextRequest) {
       .filter((t) => t.group_code && String(t.group_code).trim() !== "")
       .sort((a, b) => Number(b.test_no) - Number(a.test_no));
 
+    if (!isSuperAdmin) {
+      rows = rows.filter((r) =>
+        allowedGroupCodes.has(String(r.group_code || "").trim().toUpperCase())
+      );
+    }
+    const groupFilterParam = (searchParams.get("group_code") || "").trim().toUpperCase();
+    if (groupFilterParam) {
+      rows = rows.filter(
+        (r) => String(r.group_code || "").trim().toUpperCase() === groupFilterParam
+      );
+    }
     if (fr_date && to_date) {
       rows = rows.filter((r) => inDateRange(r.test_datetime));
     }
@@ -469,8 +508,16 @@ export async function GET(req: NextRequest) {
       .filter((r) => r.test_status === "완료")
       .sort((a, b) => Number(b.test_no) - Number(a.test_no));
 
+    if (!isSuperAdmin) {
+      rows = rows.filter((r) =>
+        allowedGroupCodes.has(String(r.group_code || "").trim().toUpperCase())
+      );
+    }
     if (groupFilter) {
-      rows = rows.filter((r) => String(r.group_code) === groupFilter);
+      const gfUpper = groupFilter.trim().toUpperCase();
+      rows = rows.filter(
+        (r) => String(r.group_code || "").trim().toUpperCase() === gfUpper
+      );
     }
     if (itemFilter) {
       rows = rows.filter((r) => String(r.it_id) === itemFilter);

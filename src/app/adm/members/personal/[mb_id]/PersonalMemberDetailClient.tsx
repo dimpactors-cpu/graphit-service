@@ -10,6 +10,9 @@ interface PersonalMemberDetailProps {
     mb_no: number;
     mb_id: string;
     mb_name: string;
+    mb_level?: number;
+    mb_8?: string;
+    mb_10?: string;
     mb_email: string;
     mb_hp: string;
     mb_sex: string;
@@ -39,15 +42,29 @@ interface PersonalMemberDetailProps {
     od_settle_case: string;
     od_time: string;
   }>;
+  allGroupCodes?: Array<{
+    group_code: string;
+    it_name: string;
+  }>;
 }
 
 export default function PersonalMemberDetailClient({
   member,
   tests,
   orders,
+  allGroupCodes = [],
 }: PersonalMemberDetailProps) {
   const router = useRouter();
   const [mbName, setMbName] = useState(member.mb_name || '');
+  const [mbLevel, setMbLevel] = useState<number>(member.mb_level || 2);
+  const [mb8, setMb8] = useState(member.mb_8 || '');
+  const [mb10, setMb10] = useState(member.mb_10 || '');
+  const [assignedCodes, setAssignedCodes] = useState<string[]>(
+    String(member.mb_7 || '')
+      .split(',')
+      .map((c) => c.trim())
+      .filter(Boolean)
+  );
   const [mbHp, setMbHp] = useState(member.mb_hp || '');
   const [mbSex, setMbSex] = useState(member.mb_sex || '');
   const [mbBirth, setMbBirth] = useState(member.mb_birth || '');
@@ -67,6 +84,10 @@ export default function PersonalMemberDetailClient({
         body: JSON.stringify({
           mb_id: member.mb_id,
           mb_name: mbName,
+          mb_level: mbLevel,
+          mb_8: mb8,
+          mb_10: mb10,
+          assigned_group_codes: assignedCodes,
           mb_hp: mbHp,
           mb_sex: mbSex,
           mb_birth: mbBirth,
@@ -218,12 +239,103 @@ export default function PersonalMemberDetailClient({
             />
           </div>
 
+          <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-200 space-y-3">
+            <div className="text-xs font-extrabold text-indigo-950">
+              🔑 계정 권한(등급) 및 단체관리자(학교 담당자) 지정
+            </div>
+            <div>
+              <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                회원 권한 등급
+              </label>
+              <select
+                value={mbLevel}
+                onChange={(e) => setMbLevel(Number(e.target.value))}
+                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-extrabold text-slate-900"
+              >
+                <option value={2}>Lv.2 일반 수강생 (개인회원)</option>
+                <option value={3}>Lv.3 단체관리자 (학교/기관 담당자)</option>
+                <option value={10}>Lv.10 통합관리자 (최고관리자)</option>
+              </select>
+            </div>
+
+            {mbLevel === 3 && (
+              <>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                      소속 학교/기관명
+                    </label>
+                    <input
+                      type="text"
+                      value={mb8}
+                      onChange={(e) => setMb8(e.target.value)}
+                      placeholder="예: 차의과학대학교"
+                      className="w-full rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                      담당자명/부서
+                    </label>
+                    <input
+                      type="text"
+                      value={mb10}
+                      onChange={(e) => setMb10(e.target.value)}
+                      placeholder="예: 학생처 담당자"
+                      className="w-full rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    열람/관리할 단체코드 선택 ({assignedCodes.length}개)
+                  </label>
+                  <div className="max-h-32 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 space-y-1 text-xs">
+                    {allGroupCodes.map((gc) => {
+                      const checked = assignedCodes.includes(gc.group_code);
+                      return (
+                        <label
+                          key={gc.group_code}
+                          className="flex items-center gap-2 px-1.5 py-1 rounded hover:bg-slate-50 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => {
+                              if (checked) {
+                                setAssignedCodes(
+                                  assignedCodes.filter((c) => c !== gc.group_code)
+                                );
+                              } else {
+                                setAssignedCodes([
+                                  ...assignedCodes,
+                                  gc.group_code,
+                                ]);
+                              }
+                            }}
+                          />
+                          <span className="font-mono font-bold">
+                            {gc.group_code}
+                          </span>
+                          <span className="text-[10px] text-slate-400 truncate">
+                            ({gc.it_name})
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
           <button
             type="submit"
             disabled={saving}
             className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold shadow-sm transition disabled:opacity-50"
           >
-            {saving ? '저장 중...' : '회원정보 수정 저장'}
+            {saving ? '저장 중...' : '회원정보 및 권한 수정 저장'}
           </button>
         </form>
 

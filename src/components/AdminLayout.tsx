@@ -8,7 +8,8 @@ const NAV_ITEMS = [
   { href: '/adm', label: '대시보드', exact: true },
   { href: '/adm/tests', label: '수강생 검사현황' },
   { href: '/adm/members/personal', label: '개인회원' },
-  { href: '/adm/members/groups', label: '단체관리 (단체코드)' },
+  { href: '/adm/members/groups', label: '단체관리 (권한·코드)' },
+  { href: '/group-admin', label: '학교담당자 센터 ↗' },
   { href: '/adm/questions', label: '문항관리' },
   { href: '/adm/checkups', label: '검사관리' },
   { href: '/adm/orders', label: '주문내역' },
@@ -30,9 +31,9 @@ export default function AdminLayout({
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col">
+    <div className="min-h-screen bg-slate-100 flex flex-col print:min-h-0 print:bg-white">
       {/* Top Admin Header */}
-      <header className="bg-slate-900 text-white shadow-md sticky top-0 z-30">
+      <header className="print:hidden bg-slate-900 text-white shadow-md sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
@@ -94,9 +95,9 @@ export default function AdminLayout({
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 print:p-0 print:max-w-none">
         {(title || actions) && (
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div className="print:hidden flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
               {title && (
                 <h1 className="text-2xl font-extrabold text-slate-900">

@@ -45,14 +45,26 @@ export default async function AdminGroupMemberDetailPage({
     }
   }
 
+  const assignedUpper = new Set(
+    String(member.mb_7 || '')
+      .split(',')
+      .map((c) => c.trim().toUpperCase())
+      .filter(Boolean)
+  );
+
   const groups = db.graphit_group
-    .filter((g) => g.mb_id === mbId)
+    .filter(
+      (g) =>
+        String(g.mb_id || '').toLowerCase() === mbId.toLowerCase() ||
+        assignedUpper.has(String(g.group_code || '').trim().toUpperCase())
+    )
     .sort((a, b) => Number(b.group_no) - Number(a.group_no))
     .map((g) => {
       const itId = String(g.it_id || '');
       const shopItem = itemMap.get(itId);
+      const codeUpper = String(g.group_code || '').trim().toUpperCase();
       const groupTests = db.graphit_test
-        .filter((t) => t.group_code === g.group_code)
+        .filter((t) => String(t.group_code || '').trim().toUpperCase() === codeUpper)
         .sort((a, b) => Number(b.test_no) - Number(a.test_no));
 
       let beforeStart = 0;
@@ -113,10 +125,26 @@ export default async function AdminGroupMemberDetailPage({
     it_name: it.it_name,
   }));
 
+  const allGroupCodes = db.graphit_group
+    .sort((a, b) => Number(b.group_no) - Number(a.group_no))
+    .map((g) => {
+      const codeUpper = String(g.group_code || '').trim().toUpperCase();
+      const cnt = db.graphit_test.filter(
+        (t) => String(t.group_code || '').trim().toUpperCase() === codeUpper
+      ).length;
+      const it = itemMap.get(String(g.it_id));
+      return {
+        group_code: String(g.group_code).trim(),
+        it_name: it?.it_name || String(g.it_id),
+        applied_count: cnt,
+      };
+    });
+
   return (
     <GroupMemberDetailClient
       member={{
         mb_id: member.mb_id,
+        mb_level: Number(member.mb_level || 3),
         mb_8: member.mb_8 || member.mb_name || member.mb_id,
         mb_10: member.mb_10 || member.mb_nick || '',
         mb_hp: member.mb_hp || '',
@@ -126,9 +154,11 @@ export default async function AdminGroupMemberDetailPage({
         mb_addr1: member.mb_addr1 || '',
         mb_addr2: member.mb_addr2 || '',
         mb_memo: member.mb_memo || '',
+        assignedCodes: groups.map((g) => g.group_code),
       }}
       groups={groups}
       items={items}
+      allGroupCodes={allGroupCodes}
       initialCode={searchParams?.group_code}
     />
   );

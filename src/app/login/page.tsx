@@ -35,6 +35,8 @@ export default function LoginPage() {
       }
       if (data.user?.mb_level >= 9 && redirectUrl === "/mypage") {
         router.push("/adm");
+      } else if (data.user?.mb_level === 3 && redirectUrl === "/mypage") {
+        router.push("/group-admin");
       } else {
         router.push(redirectUrl);
       }

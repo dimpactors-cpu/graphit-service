@@ -36,6 +36,7 @@ interface GroupCodeDetail {
 interface GroupMemberDetailClientProps {
   member: {
     mb_id: string;
+    mb_level?: number;
     mb_8: string; // 단체명
     mb_10: string; // 대표자/담당자
     mb_hp: string;
@@ -45,9 +46,15 @@ interface GroupMemberDetailClientProps {
     mb_addr1: string;
     mb_addr2: string;
     mb_memo: string;
+    assignedCodes?: string[];
   };
   groups: GroupCodeDetail[];
   items: Array<{ it_id: string; it_name: string }>;
+  allGroupCodes?: Array<{
+    group_code: string;
+    it_name: string;
+    applied_count: number;
+  }>;
   initialCode?: string;
 }
 
@@ -55,6 +62,7 @@ export default function GroupMemberDetailClient({
   member,
   groups,
   items,
+  allGroupCodes = [],
   initialCode,
 }: GroupMemberDetailClientProps) {
   const router = useRouter();
@@ -63,6 +71,7 @@ export default function GroupMemberDetailClient({
   );
 
   // Edit group info state
+  const [mbLevel, setMbLevel] = useState<number>(member.mb_level || 3);
   const [mb8, setMb8] = useState(member.mb_8 || '');
   const [mb10, setMb10] = useState(member.mb_10 || '');
   const [mbHp, setMbHp] = useState(member.mb_hp || '');
@@ -70,6 +79,9 @@ export default function GroupMemberDetailClient({
   const [mbCoemail, setMbCoemail] = useState(member.mb_coemail || '');
   const [mbAddr1, setMbAddr1] = useState(member.mb_addr1 || '');
   const [mbMemo, setMbMemo] = useState(member.mb_memo || '');
+  const [assignedCodes, setAssignedCodes] = useState<string[]>(
+    member.assignedCodes || groups.map((g) => g.group_code)
+  );
   const [newPassword, setNewPassword] = useState('');
   const [savingInfo, setSavingInfo] = useState(false);
 
@@ -93,6 +105,7 @@ export default function GroupMemberDetailClient({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           mb_id: member.mb_id,
+          mb_level: mbLevel,
           mb_name: mb8,
           mb_8: mb8,
           mb_10: mb10,
@@ -101,6 +114,7 @@ export default function GroupMemberDetailClient({
           mb_coemail: mbCoemail,
           mb_addr1: mbAddr1,
           mb_memo: mbMemo,
+          assigned_group_codes: assignedCodes,
           new_password: newPassword || undefined,
         }),
       });
@@ -182,12 +196,20 @@ export default function GroupMemberDetailClient({
       title={`단체 상세관리 — ${member.mb_8} (${member.mb_id})`}
       subtitle="단체 기본정보 수정, 신규 단체코드 발급 및 코드별 수강생 검사 진행현황을 관리합니다."
       actions={
-        <Link
-          href="/adm/members/groups"
-          className="px-4 py-2 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
-        >
-          ← 단체 목록으로
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href={`/group-admin?mb_id=${encodeURIComponent(member.mb_id)}`}
+            className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold transition shadow-sm"
+          >
+            📊 이 담당자의 단체관리자 페이지 열기 ↗
+          </Link>
+          <Link
+            href="/adm/members/groups"
+            className="px-4 py-2 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
+          >
+            ← 단체 목록으로
+          </Link>
+        </div>
       }
     >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
@@ -278,7 +300,7 @@ export default function GroupMemberDetailClient({
 
           <div>
             <label className="block text-xs font-bold text-slate-500 mb-1">
-              세금계산서 이메일
+              세금계산서 / 담당자 이메일
             </label>
             <input
               type="text"
@@ -288,12 +310,64 @@ export default function GroupMemberDetailClient({
             />
           </div>
 
+          <div>
+            <label className="block text-xs font-bold text-slate-500 mb-1">
+              계정 권한 등급
+            </label>
+            <select
+              value={mbLevel}
+              onChange={(e) => setMbLevel(Number(e.target.value))}
+              className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-extrabold text-indigo-900 bg-indigo-50/40"
+            >
+              <option value={3}>Lv.3 단체관리자 (학교/기관 담당자)</option>
+              <option value={2}>Lv.2 일반 수강생 (개인회원)</option>
+              <option value={10}>Lv.10 통합관리자 (최고관리자)</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-500 mb-1">
+              담당 단체코드 열람/관리 권한 배정 ({assignedCodes.length}개 선택됨)
+            </label>
+            <div className="max-h-32 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50 p-2 space-y-1 text-xs">
+              {allGroupCodes.map((gc) => {
+                const checked = assignedCodes.includes(gc.group_code);
+                return (
+                  <label
+                    key={gc.group_code}
+                    className="flex items-center gap-2 px-2 py-1 rounded hover:bg-white cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => {
+                        if (checked) {
+                          setAssignedCodes(
+                            assignedCodes.filter((c) => c !== gc.group_code)
+                          );
+                        } else {
+                          setAssignedCodes([...assignedCodes, gc.group_code]);
+                        }
+                      }}
+                    />
+                    <span className="font-mono font-bold text-slate-800">
+                      {gc.group_code}
+                    </span>
+                    <span className="text-[10px] text-slate-500 truncate">
+                      ({gc.applied_count}명 · {gc.it_name})
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
           <button
             type="submit"
             disabled={savingInfo}
             className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold transition"
           >
-            {savingInfo ? '저장 중...' : '단체 기본정보 저장'}
+            {savingInfo ? '저장 중...' : '단체 정보 및 권한 저장'}
           </button>
         </form>
 

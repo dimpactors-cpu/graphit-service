@@ -50,6 +50,12 @@ export default function SiteHeader({
             </span>
             <div className="flex items-center gap-2">
               <Link
+                href="/group-admin"
+                className="bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 py-1.5 rounded font-semibold transition"
+              >
+                단체관리자 센터
+              </Link>
+              <Link
                 href="/adm/banners"
                 className="bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1.5 rounded font-semibold transition"
               >
@@ -60,6 +66,27 @@ export default function SiteHeader({
                 className="bg-[#e14d64] hover:bg-[#c83b52] text-white px-3 py-1.5 rounded font-semibold transition"
               >
                 관리자 대시보드 (ADMIN)
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {user && user.mb_level === 3 && (
+        <div className="bg-indigo-950 text-white text-xs shadow-sm">
+          <div className="max-w-[1080px] mx-auto px-4 flex items-center justify-between h-10">
+            <span>
+              <strong className="text-indigo-300 font-bold">
+                단체관리자 (학교/기관 담당자)
+              </strong>{' '}
+              ({user.mb_8 || user.mb_name}) 계정으로 접속하셨습니다.
+            </span>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/group-admin"
+                className="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded font-bold transition"
+              >
+                📊 단체관리자 전용 센터 (응시현황·결과조회)
               </Link>
             </div>
           </div>
@@ -91,12 +118,22 @@ export default function SiteHeader({
                     </span>
                   )}
                 </li>
+                {user.mb_level === 3 && (
+                  <li>
+                    <Link
+                      href="/group-admin"
+                      className="text-indigo-600 font-bold hover:underline"
+                    >
+                      단체관리자 센터
+                    </Link>
+                  </li>
+                )}
                 <li>
                   <Link
                     href="/mypage"
                     className="hover:text-[#0066F9] transition"
                   >
-                    {user.mb_level === 3 ? "단체관리페이지" : "마이페이지"}
+                    마이페이지
                   </Link>
                 </li>
                 {user.mb_level >= 9 && (

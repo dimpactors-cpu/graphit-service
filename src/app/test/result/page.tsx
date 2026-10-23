@@ -49,12 +49,22 @@ export default async function TestResultPage({
   // If non-admin tries to view another user's test_idx, fallback to their own
   if (testRecord && !isAdmin && testRecord.mb_id !== user.mb_id) {
     // Allow group owners (level 3) to view students in their group
-    const userGroups = new Set(
-      db.graphit_group
-        .filter((g) => g.mb_id === user.mb_id)
-        .map((g) => g.group_code)
+    const me = db.g5_member.find(
+      (m) => m.mb_id.toLowerCase() === user.mb_id.toLowerCase()
     );
-    if (!userGroups.has(testRecord.group_code)) {
+    const userGroups = new Set<string>(
+      db.graphit_group
+        .filter((g) => String(g.mb_id || '').toLowerCase() === user.mb_id.toLowerCase())
+        .map((g) => String(g.group_code || '').trim().toUpperCase())
+    );
+    for (const c of String(me?.mb_7 || user.mb_7 || '')
+      .split(',')
+      .map((s) => s.trim().toUpperCase())
+      .filter(Boolean)) {
+      userGroups.add(c);
+    }
+    const recCodeUpper = String(testRecord.group_code || '').trim().toUpperCase();
+    if (!userGroups.has(recCodeUpper)) {
       testRecord = db.graphit_test.find((t) => t.mb_id === user.mb_id);
     }
   }
@@ -125,6 +135,14 @@ export default async function TestResultPage({
                     className="px-3.5 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-extrabold transition"
                   >
                     ← 관리자 결과/응시 관리로 돌아가기
+                  </Link>
+                )}
+                {user.mb_level === 3 && (
+                  <Link
+                    href="/group-admin"
+                    className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold transition"
+                  >
+                    ← 단체관리자 센터로 돌아가기
                   </Link>
                 )}
                 <Link

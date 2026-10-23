@@ -135,6 +135,7 @@ export default function AdminTestsClient({
         </div>
       }
     >
+      <div className="print:hidden">
       {/* Top View Mode Tabs */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div className="inline-flex rounded-2xl bg-slate-200/80 p-1.5 gap-1">
@@ -769,11 +770,12 @@ export default function AdminTestsClient({
           </button>
         </div>
       )}
+      </div>
 
       {/* Modal for 4-Page Student Report (결과지 생성기) */}
       {reportModalRecord && reportModalRecord.report && (
-        <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs overflow-y-auto p-3 sm:p-6 print:static print:bg-white print:p-0">
-          <div className="max-w-6xl mx-auto">
+        <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs overflow-y-auto p-3 sm:p-6 print:static print:bg-white print:p-0 print:overflow-visible">
+          <div className="max-w-6xl mx-auto print:max-w-none">
             <div className="print:hidden flex items-center justify-between bg-slate-900 text-white px-5 py-3.5 rounded-t-2xl">
               <div className="flex items-center gap-3">
                 <span className="px-2.5 py-1 rounded-lg bg-indigo-500 text-xs font-extrabold">
@@ -816,7 +818,7 @@ export default function AdminTestsClient({
 
       {/* Modal for Student Question-by-Question Answers */}
       {selectedRecord && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="print:hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
             <div className="px-6 py-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
               <div>
