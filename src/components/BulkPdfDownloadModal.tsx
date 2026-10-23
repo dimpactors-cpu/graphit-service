@@ -588,10 +588,10 @@ export default function BulkPdfDownloadModal({
 
       {/* Print-Only Container for Combined Vector PDF / Bulk Print */}
       {isBulkPrintMode && (
-        <div className="hidden print:block print:bg-white print:p-0">
+        <div className="report-print-wrapper hidden print:block print:bg-white print:p-0">
           {selectedRecords.map((rec, idx) =>
             rec.report ? (
-              <div key={rec.test_no}>
+              <div key={rec.test_no} className="report-print-wrapper">
                 <GraphmeReportView
                   report={rec.report}
                   hideToolbar

@@ -28,9 +28,13 @@ body {
     margin: 6mm;
   }
   html,
-  body {
+  body,
+  main,
+  .report-print-wrapper {
     margin: 0 !important;
     padding: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
     background-color: #ffffff !important;
   }
   html,
@@ -41,12 +45,12 @@ body {
     color-adjust: exact !important;
   }
   .report-print-page {
-    width: 1020px !important;
-    min-width: 1020px !important;
-    max-width: 1020px !important;
-    zoom: 0.73 !important;
-    margin: 0 auto !important;
-    padding: 36px 40px !important;
+    zoom: 0.72 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 32px 36px !important;
     box-sizing: border-box !important;
     break-inside: avoid !important;
     page-break-inside: avoid !important;

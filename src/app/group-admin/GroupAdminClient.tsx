@@ -1326,8 +1326,8 @@ export default function GroupAdminClient({
 
         {/* Modal for 4-Page Student Report (Printed cleanly without table chrome) */}
         {reportModalRecord && reportModalRecord.report && (
-          <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs overflow-y-auto p-3 sm:p-6 print:static print:bg-white print:p-0 print:overflow-visible">
-            <div className="max-w-6xl mx-auto print:max-w-none">
+          <div className="report-print-wrapper fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs overflow-y-auto p-3 sm:p-6 print:static print:bg-white print:p-0 print:overflow-visible">
+            <div className="report-print-wrapper max-w-6xl mx-auto print:max-w-none">
               <div className="print:hidden flex items-center justify-between bg-slate-900 text-white px-5 py-3.5 rounded-t-2xl">
                 <div className="flex items-center gap-3">
                   <span className="px-2.5 py-1 rounded-lg bg-indigo-500 text-xs font-extrabold">
@@ -1356,7 +1356,7 @@ export default function GroupAdminClient({
                 </div>
               </div>
 
-              <div className="bg-slate-100 p-4 sm:p-6 rounded-b-2xl print:bg-white print:p-0">
+              <div className="report-print-wrapper bg-slate-100 p-4 sm:p-6 rounded-b-2xl print:bg-white print:p-0">
                 <GraphmeReportView
                   report={reportModalRecord.report}
                   resultRow={reportModalRecord.resultRow}

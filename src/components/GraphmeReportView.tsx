@@ -93,7 +93,7 @@ export default function GraphmeReportView({
 
   return (
     <div
-      className={isBw ? 'grayscale contrast-125' : ''}
+      className={`report-print-wrapper ${isBw ? 'grayscale contrast-125' : ''}`}
       style={{
         WebkitPrintColorAdjust: 'exact',
         printColorAdjust: 'exact',
@@ -185,7 +185,7 @@ export default function GraphmeReportView({
       )}
 
       {/* Pages Container */}
-      <div className="space-y-8 print:space-y-0">
+      <div className="report-print-wrapper space-y-8 print:space-y-0">
         {/* ================= PAGE 1: 자아실현 로드맵 ================= */}
         <section
           data-report-page="1"
@@ -232,9 +232,9 @@ export default function GraphmeReportView({
             님의 발전적 미래를 위한 참고 자료로 활용해 주시기 바랍니다.
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 print:grid-cols-12 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 print:!grid-cols-12 gap-6">
             {/* Left 7 cols: 나는 어떤 방향으로 향하고 있을까? */}
-            <div className="lg:col-span-7 print:col-span-7 border border-slate-300 rounded-2xl p-5 flex flex-col justify-between">
+            <div className="lg:col-span-7 print:!col-span-7 border border-slate-300 rounded-2xl p-5 flex flex-col justify-between">
               <div>
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div>
@@ -356,7 +356,7 @@ export default function GraphmeReportView({
             </div>
 
             {/* Right 5 cols: 자아일치도 + 직업가치관 */}
-            <div className="lg:col-span-5 print:col-span-5 flex flex-col gap-6">
+            <div className="lg:col-span-5 print:!col-span-5 flex flex-col gap-6">
               {/* 내가 생각하는 나 / 남이 생각하는 나 */}
               <div className="border border-slate-300 rounded-2xl p-5">
                 <span className="inline-block px-2.5 py-0.5 rounded bg-slate-900 text-white text-[11px] font-bold mb-1.5">
@@ -507,7 +507,7 @@ export default function GraphmeReportView({
 
           {/* Section 1: 습관 특성 요약 */}
           <div className="border border-slate-300 rounded-2xl p-5 mb-6">
-            <div className="flex flex-col sm:flex-row print:flex-row sm:items-center print:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row print:!flex-row sm:items-center print:!items-center justify-between gap-4">
               <div>
                 <span className="inline-block px-2.5 py-0.5 rounded bg-slate-900 text-white text-[11px] font-bold mb-1">
                   HABIT KEYWORDS
@@ -567,7 +567,7 @@ export default function GraphmeReportView({
               지금 내가 세상을 바라보는 태도
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 print:!grid-cols-2 gap-4">
               <div className="bg-slate-50 border-2 border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="w-7 h-7 rounded-lg bg-slate-900 text-white flex items-center justify-center text-xs font-black">
@@ -664,10 +664,10 @@ export default function GraphmeReportView({
             님의 발전적 미래를 위한 참고 자료로 활용해 주시기 바랍니다.
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 print:grid-cols-12 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 print:!grid-cols-12 gap-6">
             {/* Left 7 cols: 15대 성과역량 그래프 */}
-            <div className="lg:col-span-7 print:col-span-7 border border-slate-300 rounded-2xl p-5">
-              <div className="flex flex-wrap print:flex-nowrap items-start justify-between gap-3 mb-4">
+            <div className="lg:col-span-7 print:!col-span-7 border border-slate-300 rounded-2xl p-5">
+              <div className="flex flex-wrap print:!flex-nowrap items-start justify-between gap-3 mb-4">
                 <div>
                   <span className="inline-block px-2.5 py-0.5 rounded bg-slate-900 text-white text-[11px] font-bold mb-1">
                     15 PERFORMANCE COMPETENCIES
@@ -761,7 +761,7 @@ export default function GraphmeReportView({
             </div>
 
             {/* Right 5 cols: 진로 영역 적합도 + 조직/직무 환경 */}
-            <div className="lg:col-span-5 print:col-span-5 flex flex-col gap-6">
+            <div className="lg:col-span-5 print:!col-span-5 flex flex-col gap-6">
               {/* 진로 영역 적합도: 취업 vs 창업 vs 연구 */}
               <div className="border border-slate-300 rounded-2xl p-5">
                 <span className="inline-block px-2.5 py-0.5 rounded bg-slate-900 text-white text-[11px] font-bold mb-1">
@@ -849,7 +849,7 @@ export default function GraphmeReportView({
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-2 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 print:!grid-cols-2 gap-2 text-xs">
                   <div className="bg-white border border-slate-200 rounded-xl p-2.5">
                     <div className="text-[10px] font-bold text-indigo-600">
                       잠재력 발휘 조직
@@ -943,7 +943,7 @@ export default function GraphmeReportView({
           </div>
 
           {/* Strengths & Weaknesses Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 print:!grid-cols-2 gap-6 mb-6">
             {/* 강점과 추천 학습법 */}
             <div className="border-2 border-slate-800 rounded-2xl p-5 bg-slate-50 flex flex-col justify-between">
               <div>
@@ -994,7 +994,7 @@ export default function GraphmeReportView({
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 print:grid-cols-5 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 print:!grid-cols-5 gap-3">
               {studyPairs.map((pair) => {
                 const lPct = Math.round(pair.leftVal * 100);
                 const rPct = Math.round(pair.rightVal * 100);
