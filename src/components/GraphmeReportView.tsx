@@ -7,6 +7,9 @@ interface Props {
   report: StudentReportData;
   resultRow?: ResultBaseRow;
   canViewRawDb?: boolean;
+  hideToolbar?: boolean;
+  forceBwMode?: boolean;
+  breakAfterLastPage?: boolean;
   onClose?: () => void;
   isModal?: boolean;
 }
@@ -15,12 +18,16 @@ export default function GraphmeReportView({
   report,
   resultRow,
   canViewRawDb = false,
+  hideToolbar = false,
+  forceBwMode = false,
+  breakAfterLastPage = false,
   onClose,
   isModal = false,
 }: Props) {
   const [activeTab, setActiveTab] = useState<'all' | 1 | 2 | 3 | 4>('all');
   const [bwMode, setBwMode] = useState(false);
   const [showRawDbModal, setShowRawDbModal] = useState(false);
+  const isBw = forceBwMode || bwMode;
 
   const handlePrint = () => {
     setActiveTab('all');
@@ -79,13 +86,14 @@ export default function GraphmeReportView({
 
   return (
     <div
-      className={bwMode ? 'grayscale contrast-125' : ''}
+      className={isBw ? 'grayscale contrast-125' : ''}
       style={{
         WebkitPrintColorAdjust: 'exact',
         printColorAdjust: 'exact',
       }}
     >
       {/* Top Action Bar (Hidden in Print) */}
+      {!hideToolbar && (
       <div className="print:hidden bg-white border border-slate-200 rounded-2xl p-4 mb-6 shadow-sm flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold">
@@ -167,12 +175,16 @@ export default function GraphmeReportView({
           )}
         </div>
       </div>
+      )}
 
       {/* Pages Container */}
       <div className="space-y-8 print:space-y-0">
         {/* ================= PAGE 1: 자아실현 로드맵 ================= */}
         {(activeTab === 'all' || activeTab === 1) && (
-          <section className="bg-white border-2 border-slate-800 rounded-2xl p-6 sm:p-10 shadow-sm print:shadow-none print:rounded-none print:border print:break-after-page">
+          <section
+            data-report-page="1"
+            className="bg-white border-2 border-slate-800 rounded-2xl p-6 sm:p-10 shadow-sm print:shadow-none print:rounded-none print:border print:break-after-page"
+          >
             {/* Page Header */}
             <div className="flex items-end justify-between border-b-2 border-slate-900 pb-4 mb-5">
               <div>
@@ -442,7 +454,10 @@ export default function GraphmeReportView({
 
         {/* ================= PAGE 2: 습관 로드맵 ================= */}
         {(activeTab === 'all' || activeTab === 2) && (
-          <section className="bg-white border-2 border-slate-800 rounded-2xl p-6 sm:p-10 shadow-sm print:shadow-none print:rounded-none print:border print:break-after-page">
+          <section
+            data-report-page="2"
+            className="bg-white border-2 border-slate-800 rounded-2xl p-6 sm:p-10 shadow-sm print:shadow-none print:rounded-none print:border print:break-after-page"
+          >
             {/* Page Header */}
             <div className="flex items-end justify-between border-b-2 border-slate-900 pb-4 mb-5">
               <div>
@@ -598,7 +613,10 @@ export default function GraphmeReportView({
 
         {/* ================= PAGE 3: 진로 로드맵 ================= */}
         {(activeTab === 'all' || activeTab === 3) && (
-          <section className="bg-white border-2 border-slate-800 rounded-2xl p-6 sm:p-10 shadow-sm print:shadow-none print:rounded-none print:border print:break-after-page">
+          <section
+            data-report-page="3"
+            className="bg-white border-2 border-slate-800 rounded-2xl p-6 sm:p-10 shadow-sm print:shadow-none print:rounded-none print:border print:break-after-page"
+          >
             {/* Page Header */}
             <div className="flex items-end justify-between border-b-2 border-slate-900 pb-4 mb-5">
               <div>
@@ -871,7 +889,12 @@ export default function GraphmeReportView({
 
         {/* ================= PAGE 4: 학습 로드맵 ================= */}
         {(activeTab === 'all' || activeTab === 4) && (
-          <section className="bg-white border-2 border-slate-800 rounded-2xl p-6 sm:p-10 shadow-sm print:shadow-none print:rounded-none print:border">
+          <section
+            data-report-page="4"
+            className={`bg-white border-2 border-slate-800 rounded-2xl p-6 sm:p-10 shadow-sm print:shadow-none print:rounded-none print:border ${
+              breakAfterLastPage ? 'print:break-after-page' : ''
+            }`}
+          >
             {/* Page Header */}
             <div className="flex items-end justify-between border-b-2 border-slate-900 pb-4 mb-5">
               <div>

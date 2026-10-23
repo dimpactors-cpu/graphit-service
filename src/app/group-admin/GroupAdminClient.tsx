@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import GraphmeReportView from '@/components/GraphmeReportView';
+import BulkPdfDownloadModal from '@/components/BulkPdfDownloadModal';
 import type { StudentTestRecord } from '@/app/adm/tests/AdminTestsClient';
 
 export interface GroupManagerOption {
@@ -68,6 +69,8 @@ export default function GroupAdminClient({
   );
   const [reportModalRecord, setReportModalRecord] =
     useState<StudentTestRecord | null>(null);
+  const [showBulkPdfModal, setShowBulkPdfModal] = useState<boolean>(false);
+  const [checkedTestNos, setCheckedTestNos] = useState<number[]>([]);
   const [page, setPage] = useState<number>(1);
   const pageSize = 50;
 
@@ -295,6 +298,16 @@ export default function GroupAdminClient({
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowBulkPdfModal(true)}
+                className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold shadow-sm transition"
+              >
+                📦 수강생 PDF 결과지 일괄다운로드
+                {checkedTestNos.length > 0
+                  ? ` (선택 ${checkedTestNos.length}명)`
+                  : ''}
+              </button>
               <a
                 href={testExportUrl}
                 className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-sm transition"
@@ -514,6 +527,34 @@ export default function GroupAdminClient({
                 <table className="w-full text-left border-collapse text-xs sm:text-sm">
                   <thead>
                     <tr className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600">
+                      <th className="py-3.5 px-3 text-center w-10">
+                        <input
+                          type="checkbox"
+                          checked={
+                            pagedRecords.filter((r) => Boolean(r.report)).length > 0 &&
+                            pagedRecords
+                              .filter((r) => Boolean(r.report))
+                              .every((r) => checkedTestNos.includes(r.test_no))
+                          }
+                          onChange={(e) => {
+                            const pageIds = pagedRecords
+                              .filter((r) => Boolean(r.report))
+                              .map((r) => r.test_no);
+                            if (e.target.checked) {
+                              setCheckedTestNos((prev) =>
+                                Array.from(new Set([...prev, ...pageIds]))
+                              );
+                            } else {
+                              const set = new Set(pageIds);
+                              setCheckedTestNos((prev) =>
+                                prev.filter((id) => !set.has(id))
+                              );
+                            }
+                          }}
+                          className="rounded text-indigo-600 cursor-pointer"
+                          title="현재 페이지 결과지 생성 수강생 전체 선택"
+                        />
+                      </th>
                       <th className="py-3.5 px-4 text-center w-14">번호</th>
                       <th className="py-3.5 px-4">단체코드</th>
                       <th className="py-3.5 px-4">수강생 정보</th>
@@ -530,7 +571,7 @@ export default function GroupAdminClient({
                     {pagedRecords.length === 0 ? (
                       <tr>
                         <td
-                          colSpan={10}
+                          colSpan={11}
                           className="py-16 text-center text-slate-400"
                         >
                           조회된 수강생 응시 내역이 없습니다.
@@ -542,6 +583,24 @@ export default function GroupAdminClient({
                           key={r.test_no}
                           className="hover:bg-slate-50/80 transition"
                         >
+                          <td className="py-3.5 px-3 text-center">
+                            {r.report ? (
+                              <input
+                                type="checkbox"
+                                checked={checkedTestNos.includes(r.test_no)}
+                                onChange={() => {
+                                  setCheckedTestNos((prev) =>
+                                    prev.includes(r.test_no)
+                                      ? prev.filter((id) => id !== r.test_no)
+                                      : [...prev, r.test_no]
+                                  );
+                                }}
+                                className="rounded text-indigo-600 cursor-pointer"
+                              />
+                            ) : (
+                              <span className="text-slate-300 text-xs">-</span>
+                            )}
+                          </td>
                           <td className="py-3.5 px-4 text-center font-mono text-xs text-slate-400">
                             {r.test_no}
                           </td>
@@ -1396,6 +1455,19 @@ export default function GroupAdminClient({
             </div>
           </div>
         )}
+
+        {/* Bulk PDF Download Modal */}
+        <BulkPdfDownloadModal
+          isOpen={showBulkPdfModal}
+          onClose={() => setShowBulkPdfModal(false)}
+          records={filtered}
+          preselectedTestNos={checkedTestNos}
+          groupTitle={
+            groupFilter !== 'ALL'
+              ? `${currentManager.group_name}_${groupFilter}`
+              : currentManager.group_name
+          }
+        />
       </main>
     </div>
   );

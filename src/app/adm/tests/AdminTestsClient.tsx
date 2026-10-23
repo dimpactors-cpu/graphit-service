@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import AdminLayout from '@/components/AdminLayout';
 import GraphmeReportView from '@/components/GraphmeReportView';
+import BulkPdfDownloadModal from '@/components/BulkPdfDownloadModal';
 import type { ResultBaseRow, StudentReportData } from '@/lib/reportEngine';
 
 export interface StudentTestRecord {
@@ -57,6 +58,7 @@ export default function AdminTestsClient({
   const [keyword, setKeyword] = useState<string>('');
   const [selectedRecord, setSelectedRecord] = useState<StudentTestRecord | null>(null);
   const [reportModalRecord, setReportModalRecord] = useState<StudentTestRecord | null>(null);
+  const [showBulkPdfModal, setShowBulkPdfModal] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
   const pageSize = 50;
 
@@ -112,6 +114,13 @@ export default function AdminTestsClient({
       subtitle="전체 수강생의 검사 신청 내역, 문항별 응답, AL 데이터셋 기반 결과DB(result_base_set) 산출 및 4페이지 결과지를 통합 관리합니다."
       actions={
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowBulkPdfModal(true)}
+            className="px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-extrabold shadow-sm transition"
+          >
+            📦 수강생 PDF 결과지 일괄다운로드
+          </button>
           <a
             href={`${resultDbExportUrl}&format=xls`}
             className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold shadow-sm transition"
@@ -902,6 +911,18 @@ export default function AdminTestsClient({
           </div>
         </div>
       )}
+
+      {/* Bulk PDF Download Modal */}
+      <BulkPdfDownloadModal
+        isOpen={showBulkPdfModal}
+        onClose={() => setShowBulkPdfModal(false)}
+        records={filtered}
+        groupTitle={
+          groupFilter !== 'ALL' && groupFilter !== 'PERSONAL'
+            ? `그래프미_${groupFilter}`
+            : '그래프미_수강생'
+        }
+      />
     </AdminLayout>
   );
 }
