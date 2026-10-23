@@ -808,6 +808,7 @@ export default function AdminTestsClient({
               <GraphmeReportView
                 report={reportModalRecord.report}
                 resultRow={reportModalRecord.resultRow}
+                canViewRawDb
                 onClose={() => setReportModalRecord(null)}
                 isModal
               />

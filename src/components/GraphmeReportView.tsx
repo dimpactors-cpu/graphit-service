@@ -6,6 +6,7 @@ import type { StudentReportData, ResultBaseRow } from '@/lib/reportEngine';
 interface Props {
   report: StudentReportData;
   resultRow?: ResultBaseRow;
+  canViewRawDb?: boolean;
   onClose?: () => void;
   isModal?: boolean;
 }
@@ -13,6 +14,7 @@ interface Props {
 export default function GraphmeReportView({
   report,
   resultRow,
+  canViewRawDb = false,
   onClose,
   isModal = false,
 }: Props) {
@@ -76,7 +78,13 @@ export default function GraphmeReportView({
   const congruencePct = Math.round(report.selfCongruenceRate * 1000) / 10;
 
   return (
-    <div className={bwMode ? 'grayscale contrast-125' : ''}>
+    <div
+      className={bwMode ? 'grayscale contrast-125' : ''}
+      style={{
+        WebkitPrintColorAdjust: 'exact',
+        printColorAdjust: 'exact',
+      }}
+    >
       {/* Top Action Bar (Hidden in Print) */}
       <div className="print:hidden bg-white border border-slate-200 rounded-2xl p-4 mb-6 shadow-sm flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
@@ -130,7 +138,7 @@ export default function GraphmeReportView({
             {bwMode ? '🎨 컬러 모드로 보기' : '⚫ 흑백(원본) 모드로 보기'}
           </button>
 
-          {resultRow && (
+          {canViewRawDb && resultRow && (
             <button
               type="button"
               onClick={() => setShowRawDbModal(true)}
@@ -1033,8 +1041,8 @@ export default function GraphmeReportView({
         )}
       </div>
 
-      {/* Raw ResultDB Modal */}
-      {showRawDbModal && resultRow && (
+      {/* Raw ResultDB Modal (Super-Admin Only) */}
+      {canViewRawDb && showRawDbModal && resultRow && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 print:hidden">
           <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
             <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">

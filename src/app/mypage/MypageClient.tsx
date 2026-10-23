@@ -167,14 +167,6 @@ export default function MypageClient({
                       신청 {currentGroup.students.length} / 정원 {currentGroup.gr_cnt}명
                     </span>
                     <a
-                      href={`/api/admin/excel?type=result_db&group_code=${encodeURIComponent(
-                        currentGroup.gr_code
-                      )}`}
-                      className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold transition"
-                    >
-                      📊 결과DB 다운로드 (.csv)
-                    </a>
-                    <a
                       href={`/api/admin/excel?type=test&stx=${encodeURIComponent(
                         currentGroup.gr_code
                       )}`}

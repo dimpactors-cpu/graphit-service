@@ -296,22 +296,10 @@ export default function GroupAdminClient({
 
             <div className="flex flex-wrap items-center gap-2">
               <a
-                href={`${resultDbExportUrl}&format=xls`}
-                className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold shadow-sm transition"
-              >
-                📊 결과DB 엑셀 다운로드 (.xls)
-              </a>
-              <a
-                href={`${resultDbExportUrl}&format=csv`}
-                className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-extrabold shadow-sm transition"
-              >
-                📄 결과DB CSV (.csv)
-              </a>
-              <a
                 href={testExportUrl}
                 className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-sm transition"
               >
-                📥 응시내역+지표 엑셀 (.xls)
+                📥 수강생 응시결과 엑셀 다운로드 (.xls)
               </a>
             </div>
           </div>
@@ -431,20 +419,6 @@ export default function GroupAdminClient({
               <button
                 type="button"
                 onClick={() => {
-                  setViewMode('result_db');
-                  setPage(1);
-                }}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition ${
-                  viewMode === 'result_db'
-                    ? 'bg-indigo-600 text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                🗄️ 결과 DB (result_base_set) 산출 테이블
-              </button>
-              <button
-                type="button"
-                onClick={() => {
                   setViewMode('codes');
                 }}
                 className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition ${
@@ -456,31 +430,6 @@ export default function GroupAdminClient({
                 🏫 담당 단체코드 및 기관 정보 ({groups.length}개)
               </button>
             </div>
-
-            {viewMode === 'result_db' && (
-              <div className="inline-flex flex-wrap rounded-xl bg-white border border-slate-200 p-1 gap-1 text-xs font-bold">
-                {[
-                  { key: 'summary', label: '1. 유형 · 방향성 · 진로 · AQ 요약' },
-                  { key: 'competency', label: '2. 15대 성과역량 (정보처리~관계대응)' },
-                  { key: 'direction', label: '3. 성향 지표 (seL~obJ)' },
-                  { key: 'ability', label: '4. 16대 기초역량 (kwD~dcS)' },
-                  { key: 'roadmap_aq', label: '5. 학습비율(motive~space) · AQ성취지수' },
-                ].map((tab) => (
-                  <button
-                    key={tab.key}
-                    type="button"
-                    onClick={() => setDbColGroup(tab.key as any)}
-                    className={`px-3 py-1.5 rounded-lg transition ${
-                      dbColGroup === tab.key
-                        ? 'bg-slate-900 text-white font-extrabold'
-                        : 'text-slate-600 hover:bg-slate-100'
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
 
           {/* Filter Bar for list and result_db */}

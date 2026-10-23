@@ -488,6 +488,12 @@ export async function GET(req: NextRequest) {
     }
     htmlBody = `<table border="1" style="table-layout:fixed">${trs}</table>`;
   } else if (type === "result_db") {
+    if (!isSuperAdmin) {
+      return NextResponse.json(
+        { ok: false, message: "결과DB 산출 수치는 통합관리자만 조회 및 다운로드할 수 있습니다." },
+        { status: 403 }
+      );
+    }
     const groupFilter = (searchParams.get("group_code") || "").trim();
     const itemFilter = (searchParams.get("it_id") || "").trim();
     const itemMap = new Map(db.g5_shop_item.map((it) => [String(it.it_id), it]));

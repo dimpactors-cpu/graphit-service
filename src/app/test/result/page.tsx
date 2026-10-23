@@ -154,7 +154,11 @@ export default async function TestResultPage({
               </div>
             </div>
 
-            <GraphmeReportView report={reportData} resultRow={resultRow} />
+            <GraphmeReportView
+              report={reportData}
+              resultRow={resultRow}
+              canViewRawDb={isAdmin}
+            />
           </div>
         ) : (
           <div className="max-w-lg mx-auto bg-white rounded-3xl border border-slate-200 p-8 sm:p-12 text-center shadow-sm">
