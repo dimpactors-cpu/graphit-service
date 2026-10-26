@@ -40,11 +40,16 @@ export default function TestRunnerClient({
 
   const [selectedAnswer, setSelectedAnswer] = useState<string>('');
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [exiting, setExiting] = useState<boolean>(false);
+  const [isSyncingBg, setIsSyncingBg] = useState<boolean>(false);
   const [timeLeft, setTimeLeft] = useState<number>(
     currentQ?.item_timer ? Number(currentQ.item_timer) : 0
   );
 
   const submittingRef = useRef(false);
+  const isSyncingRef = useRef(false);
+  const hasPendingSyncRef = useRef(false);
+  const activeSyncPromiseRef = useRef<Promise<boolean> | null>(null);
   const answersMapRef = useRef<
     Map<number, { item_seq: number; qa_no: number; test_answer: string }>
   >(new Map());
@@ -66,6 +71,80 @@ export default function TestRunnerClient({
     }
     answersMapRef.current = map;
   }, [questions]);
+
+  const flushAnswersToServer = useCallback(
+    async (isComplete: boolean): Promise<boolean> => {
+      if (isComplete) {
+        if (activeSyncPromiseRef.current) {
+          await activeSyncPromiseRef.current.catch(() => {});
+        }
+        const allAnswers = Array.from(answersMapRef.current.values());
+        const lastAns = allAnswers[allAnswers.length - 1];
+        const res = await fetch('/api/test/answer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          keepalive: true,
+          body: JSON.stringify({
+            it_id: itId,
+            item_seq: lastAns?.item_seq,
+            qa_no: lastAns?.qa_no,
+            test_answer: lastAns?.test_answer ?? '',
+            answers: allAnswers,
+            is_complete: true,
+          }),
+        });
+        const data = await res.json();
+        return Boolean(data?.ok);
+      }
+
+      if (isSyncingRef.current) {
+        hasPendingSyncRef.current = true;
+        return activeSyncPromiseRef.current || Promise.resolve(true);
+      }
+
+      isSyncingRef.current = true;
+      setIsSyncingBg(true);
+
+      const runLoop = async (): Promise<boolean> => {
+        let ok = true;
+        try {
+          do {
+            hasPendingSyncRef.current = false;
+            const snapshot = Array.from(answersMapRef.current.values());
+            if (snapshot.length === 0) break;
+            const latest = snapshot[snapshot.length - 1];
+            const res = await fetch('/api/test/answer', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              keepalive: true,
+              body: JSON.stringify({
+                it_id: itId,
+                item_seq: latest.item_seq,
+                qa_no: latest.qa_no,
+                test_answer: latest.test_answer,
+                answers: snapshot,
+                is_complete: false,
+              }),
+            });
+            const data = await res.json();
+            ok = Boolean(data?.ok);
+          } while (hasPendingSyncRef.current);
+        } catch {
+          ok = false;
+        } finally {
+          isSyncingRef.current = false;
+          activeSyncPromiseRef.current = null;
+          setIsSyncingBg(false);
+        }
+        return ok;
+      };
+
+      const p = runLoop();
+      activeSyncPromiseRef.current = p;
+      return p;
+    },
+    [itId]
+  );
 
   // Preload upcoming question images for instant rendering
   useEffect(() => {
@@ -106,6 +185,28 @@ export default function TestRunnerClient({
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  const handleExitTest = useCallback(async () => {
+    if (exiting) return;
+    setExiting(true);
+    try {
+      // If user has selected/entered an answer on the current screen, include it before exiting
+      if (currentQ && selectedAnswer.trim()) {
+        answersMapRef.current.set(currentQ.item_seq, {
+          item_seq: currentQ.item_seq,
+          qa_no: currentQ.qa_no,
+          test_answer: selectedAnswer.trim(),
+        });
+      }
+      if (answersMapRef.current.size > 0) {
+        await flushAnswersToServer(false);
+      }
+    } catch {
+      // ignore
+    } finally {
+      window.location.href = '/mypage';
+    }
+  }, [currentQ, exiting, flushAnswersToServer, selectedAnswer]);
+
   const submitCurrentQuestion = useCallback(
     async (answerValue: string, isAutoTimeout = false) => {
       if (submittingRef.current || !currentQ) return;
@@ -126,23 +227,11 @@ export default function TestRunnerClient({
         test_answer: trimmed,
       });
 
-      // Fast optimistic transition for intermediate questions
+      // Fast optimistic transition for intermediate questions while persisting to remote DB in background
       if (!isLast) {
         submittingRef.current = true;
         setCurrentIndex((prev) => prev + 1);
-        // Save asynchronously in background without blocking UI
-        fetch('/api/test/answer', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          keepalive: true,
-          body: JSON.stringify({
-            it_id: itId,
-            item_seq: currentQ.item_seq,
-            qa_no: currentQ.qa_no,
-            test_answer: trimmed,
-            is_complete: false,
-          }),
-        }).catch(() => {});
+        flushAnswersToServer(false);
         return;
       }
 
@@ -151,35 +240,22 @@ export default function TestRunnerClient({
       setSubmitting(true);
 
       try {
-        const res = await fetch('/api/test/answer', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            it_id: itId,
-            item_seq: currentQ.item_seq,
-            qa_no: currentQ.qa_no,
-            test_answer: trimmed,
-            answers: Array.from(answersMapRef.current.values()),
-            is_complete: true,
-          }),
-        });
-        const data = await res.json();
-        if (!data.ok) {
-          alert(data.message || '답변 저장에 실패했습니다.');
+        const ok = await flushAnswersToServer(true);
+        if (!ok) {
+          alert('답변 저장에 실패했습니다. 다시 시도해 주세요.');
           submittingRef.current = false;
           setSubmitting(false);
           return;
         }
 
-        router.push(`/test/result?it_id=${encodeURIComponent(itId)}`);
-        router.refresh();
+        window.location.href = `/test/result?it_id=${encodeURIComponent(itId)}`;
       } catch {
         alert('네트워크 오류가 발생했습니다. 다시 시도해 주세요.');
         submittingRef.current = false;
         setSubmitting(false);
       }
     },
-    [currentIndex, currentQ, itId, questions.length, router]
+    [currentIndex, currentQ, flushAnswersToServer, itId, questions.length]
   );
 
   // Per-question countdown timer
@@ -242,15 +318,22 @@ export default function TestRunnerClient({
       <header className="sticky top-0 z-30 bg-white border-b border-slate-200 shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-3.5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            <Link
-              href="/mypage"
-              className="text-xs font-bold text-slate-500 hover:text-slate-900 border border-slate-200 rounded-lg px-2.5 py-1.5 shrink-0"
+            <button
+              type="button"
+              disabled={exiting}
+              onClick={handleExitTest}
+              className="text-xs font-bold text-slate-500 hover:text-slate-900 border border-slate-200 rounded-lg px-2.5 py-1.5 shrink-0 disabled:opacity-50"
             >
-              나가기
-            </Link>
+              {exiting ? '저장 후 이동 중...' : '나가기'}
+            </button>
             <h1 className="text-sm sm:text-base font-extrabold text-slate-900 truncate">
               {itName}
             </h1>
+            {isSyncingBg && (
+              <span className="hidden sm:inline-block text-[11px] font-semibold text-slate-400">
+                자동저장 중...
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-3 shrink-0">

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDb, saveDb, formatKstNow } from "@/lib/db";
+import { getDb, saveDb, formatKstNow, MY_ANSWERS_COOKIE } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
@@ -16,8 +16,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, message: "비정상적인 접근입니다." }, { status: 400 });
     }
 
-    const skipRemote = !is_complete;
-    const db = await getDb({ skipRemote });
+    const db = await getDb();
     const now = formatKstNow();
 
     // Ensure user has applied for this test with a valid group_code
@@ -152,12 +151,34 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    await saveDb(db, { skipRemote });
+    await saveDb(db);
 
     const res = NextResponse.json({
       ok: true,
       status: is_complete ? "완료" : "진행중",
     });
+
+    try {
+      const myItemAnswers = db.graphit_item_test.filter(
+        (r) =>
+          r.mb_id === user.mb_id &&
+          String(r.it_id) === String(it_id) &&
+          r.test_answer !== undefined &&
+          r.test_answer !== ""
+      );
+      res.cookies.set(
+        MY_ANSWERS_COOKIE,
+        Buffer.from(JSON.stringify(myItemAnswers), "utf-8").toString("base64url"),
+        {
+          httpOnly: true,
+          path: "/",
+          sameSite: "lax",
+          maxAge: 60 * 60 * 24 * 7,
+        }
+      );
+    } catch {
+      // ignore
+    }
 
     try {
       const rawCookie = req.cookies.get("graphit_my_tests")?.value;

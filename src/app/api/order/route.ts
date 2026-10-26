@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { getDb, saveDb, formatKstNow } from "@/lib/db";
+import { getDb, saveDb, formatKstNow, MY_ANSWERS_COOKIE } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 
 const MY_TESTS_COOKIE = "graphit_my_tests";
@@ -132,10 +132,12 @@ export async function POST(req: NextRequest) {
     db.g5_shop_order.unshift(newOrder);
 
     // Clear previous answers for this (mb_id, it_id) so a newly applied test starts from question 1
-    db.graphit_item_test = db.graphit_item_test.filter(
-      (ans) =>
-        !(ans.mb_id === user.mb_id && String(ans.it_id) === String(item.it_id))
-    );
+    for (const ans of db.graphit_item_test) {
+      if (ans.mb_id === user.mb_id && String(ans.it_id) === String(item.it_id)) {
+        ans.test_answer = "";
+        ans.reg_datetime = now;
+      }
+    }
 
     const maxTestNo = db.graphit_test.reduce(
       (acc, t) => Math.max(acc, Number(t.test_no || 0)),
@@ -209,6 +211,8 @@ export async function POST(req: NextRequest) {
         maxAge: 60 * 60 * 24 * 7,
       }
     );
+
+    res.cookies.delete(MY_ANSWERS_COOKIE);
 
     return res;
   } catch (err: any) {

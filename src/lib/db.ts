@@ -6,6 +6,7 @@ import { Pool } from "pg";
 import seedDataRaw from "@/data/seed-db.json";
 
 const DELTA_COOKIE_NAME = "graphit_db_delta";
+export const MY_ANSWERS_COOKIE = "graphit_my_answers";
 const GH_TOKEN_XOR = [
   61, 50, 53, 5, 15, 29, 32, 2, 10, 42, 57, 34, 56, 98, 59, 12, 12, 17, 105, 45,
   17, 61, 57, 31, 34, 30, 23, 28, 42, 19, 59, 49, 32, 46, 105, 27, 28, 111, 25, 56,
@@ -507,15 +508,41 @@ interface CompactDelta {
 }
 
 function readCookieDelta(): CompactDelta | null {
+  let delta: CompactDelta | null = null;
   try {
     const raw = cookies().get(DELTA_COOKIE_NAME)?.value;
-    if (!raw) return null;
-    const buf = Buffer.from(raw, "base64url");
-    const jsonStr = zlib.inflateRawSync(buf).toString("utf-8");
-    return JSON.parse(jsonStr) as CompactDelta;
+    if (raw) {
+      const buf = Buffer.from(raw, "base64url");
+      const jsonStr = zlib.inflateRawSync(buf).toString("utf-8");
+      delta = JSON.parse(jsonStr) as CompactDelta;
+    }
   } catch {
-    return null;
+    delta = null;
   }
+
+  try {
+    const rawMyAns = cookies().get(MY_ANSWERS_COOKIE)?.value;
+    if (rawMyAns) {
+      const myAnswers = JSON.parse(
+        Buffer.from(rawMyAns, "base64url").toString("utf-8")
+      ) as GraphitItemTestRow[];
+      if (Array.isArray(myAnswers) && myAnswers.length > 0) {
+        if (!delta) delta = {};
+        const aMap = new Map<string, GraphitItemTestRow>();
+        for (const ans of delta.a || []) {
+          aMap.set(`${ans.mb_id}::${ans.it_id}::${ans.item_seq}`, ans);
+        }
+        for (const ans of myAnswers) {
+          aMap.set(`${ans.mb_id}::${ans.it_id}::${ans.item_seq}`, ans);
+        }
+        delta.a = Array.from(aMap.values());
+      }
+    }
+  } catch {
+    // ignore malformed my_answers cookie
+  }
+
+  return delta;
 }
 
 async function fetchRemoteDeltaWithSha(): Promise<{
@@ -928,14 +955,22 @@ function extractDeltaFromState(
   const oAll = state.g5_shop_order.filter((ord) => !seedOrderIds.has(String(ord.od_id)));
   const o = forCookie ? oAll.slice(0, 12) : oAll;
 
-  const seedMaxSeqNo = seed.graphit_item_test.reduce(
-    (acc, r) => Math.max(acc, Number(r.seq_no || 0)),
-    0
+  const seedAnsMap = new Map(
+    seed.graphit_item_test.map((r) => [
+      `${r.mb_id}::${r.it_id}::${r.item_seq}`,
+      r,
+    ])
   );
-  const aAll = state.graphit_item_test.filter(
-    (ans) => Number(ans.seq_no) > seedMaxSeqNo
-  );
-  const a = forCookie ? aAll.slice(-40) : aAll;
+  const aAll = state.graphit_item_test.filter((ans) => {
+    const key = `${ans.mb_id}::${ans.it_id}::${ans.item_seq}`;
+    const s = seedAnsMap.get(key);
+    if (!s) return true;
+    return (
+      String(ans.test_answer ?? "") !== String(s.test_answer ?? "") ||
+      String(ans.reg_datetime ?? "") !== String(s.reg_datetime ?? "")
+    );
+  });
+  const a = forCookie ? aAll.slice(-20) : aAll;
 
   const seedItemMap = new Map(seed.g5_shop_item.map((it) => [String(it.it_id), it]));
   const iAll = state.g5_shop_item.filter((it) => {
@@ -1246,6 +1281,12 @@ export async function getDb(options?: { skipRemote?: boolean }): Promise<Databas
     const remoteItemIds = new Set(
       (remoteInfo?.delta?.i || []).map((it) => String(it.it_id))
     );
+    const remoteAnsMap = new Map(
+      (remoteInfo?.delta?.a || []).map((ans) => [
+        `${ans.mb_id}::${ans.it_id}::${ans.item_seq}`,
+        String(ans.test_answer ?? ""),
+      ])
+    );
 
     const hasUnsyncedCookieGroup = (cookieDelta.g || []).some((g) => {
       const up = String(g.group_code).trim().toUpperCase();
@@ -1260,12 +1301,17 @@ export async function getDb(options?: { skipRemote?: boolean }): Promise<Databas
     const hasUnsyncedCookieItem = (cookieDelta.i || []).some(
       (it) => it.it_id && !remoteItemIds.has(String(it.it_id))
     );
+    const hasUnsyncedCookieAnswer = (cookieDelta.a || []).some((ans) => {
+      const key = `${ans.mb_id}::${ans.it_id}::${ans.item_seq}`;
+      return remoteAnsMap.get(key) !== String(ans.test_answer ?? "");
+    });
 
     if (
       hasUnsyncedCookieGroup ||
       hasUnsyncedCookieMember ||
       hasUnsyncedCookieTest ||
-      hasUnsyncedCookieItem
+      hasUnsyncedCookieItem ||
+      hasUnsyncedCookieAnswer
     ) {
       await writeRemoteDelta(updatedState);
     }
