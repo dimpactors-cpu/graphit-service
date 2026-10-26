@@ -10,13 +10,14 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { it_id, item_seq, qa_no, test_answer, is_complete } = body;
+    const { it_id, item_seq, qa_no, test_answer, answers, is_complete } = body;
 
     if (!it_id) {
       return NextResponse.json({ ok: false, message: "비정상적인 접근입니다." }, { status: 400 });
     }
 
-    const db = await getDb();
+    const skipRemote = !is_complete;
+    const db = await getDb({ skipRemote });
     const now = formatKstNow();
 
     // Ensure user has applied for this test with a valid group_code
@@ -53,15 +54,55 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Update or insert answer if item_seq is provided
+    const itemsToSave: Array<{
+      item_seq: number;
+      qa_no?: number;
+      test_answer: string;
+    }> = [];
+
+    if (Array.isArray(answers)) {
+      for (const a of answers) {
+        if (a && a.item_seq !== undefined && a.item_seq !== null) {
+          itemsToSave.push({
+            item_seq: Number(a.item_seq),
+            qa_no: a.qa_no ? Number(a.qa_no) : undefined,
+            test_answer: String(a.test_answer ?? ""),
+          });
+        }
+      }
+    }
+
     if (item_seq !== undefined && item_seq !== null) {
       const seqNum = Number(item_seq);
-      let resolvedQaNo = qa_no;
+      const existingIdx = itemsToSave.findIndex((x) => x.item_seq === seqNum);
+      if (existingIdx >= 0) {
+        itemsToSave[existingIdx] = {
+          item_seq: seqNum,
+          qa_no: qa_no ? Number(qa_no) : itemsToSave[existingIdx].qa_no,
+          test_answer: String(test_answer ?? ""),
+        };
+      } else {
+        itemsToSave.push({
+          item_seq: seqNum,
+          qa_no: qa_no ? Number(qa_no) : undefined,
+          test_answer: String(test_answer ?? ""),
+        });
+      }
+    }
+
+    let maxSeqNo = db.graphit_item_test.reduce(
+      (acc, r) => Math.max(acc, Number(r.seq_no || 0)),
+      0
+    );
+
+    for (const entry of itemsToSave) {
+      const seqNum = Number(entry.item_seq);
+      let resolvedQaNo = entry.qa_no;
       if (!resolvedQaNo) {
         const mapped = db.graphit_item.find(
           (gi) => String(gi.it_id) === String(it_id) && Number(gi.item_seq) === seqNum
         );
-        resolvedQaNo = mapped ? mapped.qa_no : 1;
+        resolvedQaNo = mapped ? Number(mapped.qa_no) : 1;
       }
 
       const existing = db.graphit_item_test.find(
@@ -72,20 +113,17 @@ export async function POST(req: NextRequest) {
       );
 
       if (existing) {
-        existing.test_answer = String(test_answer ?? "");
+        existing.test_answer = String(entry.test_answer ?? "");
         existing.reg_datetime = now;
       } else {
-        const maxSeqNo = db.graphit_item_test.reduce(
-          (acc, r) => Math.max(acc, Number(r.seq_no || 0)),
-          0
-        );
+        maxSeqNo += 1;
         db.graphit_item_test.push({
-          seq_no: maxSeqNo + 1,
+          seq_no: maxSeqNo,
           item_seq: seqNum,
           mb_id: user.mb_id,
           it_id: String(it_id),
           qa_no: Number(resolvedQaNo),
-          test_answer: String(test_answer ?? ""),
+          test_answer: String(entry.test_answer ?? ""),
           reg_datetime: now,
         });
       }
@@ -114,7 +152,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    await saveDb(db);
+    await saveDb(db, { skipRemote });
 
     const res = NextResponse.json({
       ok: true,

@@ -330,6 +330,8 @@ declare global {
   // eslint-disable-next-line no-var
   var __graphitRemoteDeltaCache: CompactDelta | undefined;
   // eslint-disable-next-line no-var
+  var __graphitRemoteDeltaFetchedAt: number | undefined;
+  // eslint-disable-next-line no-var
   var __graphitPgPool: Pool | undefined;
   // eslint-disable-next-line no-var
   var __graphitPgInitialized: boolean | undefined;
@@ -563,6 +565,7 @@ async function fetchRemoteDeltaWithSha(): Promise<{
     }
     const delta = JSON.parse(jsonStr) as CompactDelta;
     global.__graphitRemoteDeltaCache = delta;
+    global.__graphitRemoteDeltaFetchedAt = Date.now();
     return { sha: data.updated_at || "", delta };
   } catch {
     if (global.__graphitRemoteDeltaCache) {
@@ -1052,7 +1055,14 @@ function writeCookieDelta(state: DatabaseState): void {
 async function writeRemoteDelta(state: DatabaseState): Promise<void> {
   try {
     for (let attempt = 0; attempt < 4; attempt++) {
-      const remoteInfo = await fetchRemoteDeltaWithSha();
+      const recentlyFetched =
+        attempt === 0 &&
+        global.__graphitRemoteDeltaCache &&
+        global.__graphitRemoteDeltaFetchedAt &&
+        Date.now() - global.__graphitRemoteDeltaFetchedAt < 4000;
+      const remoteInfo = recentlyFetched
+        ? { sha: "", delta: global.__graphitRemoteDeltaCache! }
+        : await fetchRemoteDeltaWithSha();
       const cookieDelta = readCookieDelta();
       const baseKnown = mergeDeltas(remoteInfo?.delta || null, cookieDelta);
       const stateDelta = extractDeltaFromState(state, baseKnown, false);
@@ -1076,6 +1086,7 @@ async function writeRemoteDelta(state: DatabaseState): Promise<void> {
       }
 
       global.__graphitRemoteDeltaCache = finalDelta;
+      global.__graphitRemoteDeltaFetchedAt = Date.now();
 
       const patchRes = await fetch(GH_GIST_URL, {
         method: "PATCH",
@@ -1172,7 +1183,7 @@ function loadInitialStateFromDisk(): DatabaseState {
   return JSON.parse(JSON.stringify(seedDataRaw)) as DatabaseState;
 }
 
-export async function getDb(): Promise<DatabaseState> {
+export async function getDb(options?: { skipRemote?: boolean }): Promise<DatabaseState> {
   const pool = getPgPool();
   if (pool) {
     try {
@@ -1202,6 +1213,12 @@ export async function getDb(): Promise<DatabaseState> {
     global.__graphitDbCache = loadInitialStateFromDisk();
   } else {
     ensureSeedUpgrades(global.__graphitDbCache);
+  }
+
+  if (options?.skipRemote) {
+    const cookieDelta = readCookieDelta();
+    const mergedDelta = mergeDeltas(global.__graphitRemoteDeltaCache || null, cookieDelta);
+    return applyDeltaToState(global.__graphitDbCache, mergedDelta);
   }
 
   const [remoteInfo, cookieDelta] = await Promise.all([
@@ -1257,14 +1274,19 @@ export async function getDb(): Promise<DatabaseState> {
   return updatedState;
 }
 
-export async function saveDb(state: DatabaseState): Promise<void> {
+export async function saveDb(
+  state: DatabaseState,
+  options?: { skipRemote?: boolean }
+): Promise<void> {
   global.__graphitDbCache = state;
 
   // Save to compressed delta cookie
   writeCookieDelta(state);
 
-  // Save to global remote state (db-state branch) so all Vercel instances/browsers share state immediately
-  await writeRemoteDelta(state);
+  if (!options?.skipRemote) {
+    // Save to global remote state (db-state branch) so all Vercel instances/browsers share state immediately
+    await writeRemoteDelta(state);
+  }
 
   // Save to local/tmp runtime file
   try {
@@ -1276,7 +1298,7 @@ export async function saveDb(state: DatabaseState): Promise<void> {
 
   // Save to Cloud PostgreSQL if DATABASE_URL is configured
   const pool = getPgPool();
-  if (pool) {
+  if (pool && !options?.skipRemote) {
     try {
       if (!global.__graphitPgInitialized) {
         await pool.query(POSTGRES_DDL);

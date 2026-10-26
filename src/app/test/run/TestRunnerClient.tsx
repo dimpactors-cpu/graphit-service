@@ -45,12 +45,50 @@ export default function TestRunnerClient({
   );
 
   const submittingRef = useRef(false);
+  const answersMapRef = useRef<
+    Map<number, { item_seq: number; qa_no: number; test_answer: string }>
+  >(new Map());
+
+  // Initialize answersMapRef from existingAnswers
+  useEffect(() => {
+    const map = new Map<
+      number,
+      { item_seq: number; qa_no: number; test_answer: string }
+    >();
+    for (const q of questions) {
+      if (q.existingAnswer !== undefined && q.existingAnswer !== '') {
+        map.set(q.item_seq, {
+          item_seq: q.item_seq,
+          qa_no: q.qa_no,
+          test_answer: q.existingAnswer,
+        });
+      }
+    }
+    answersMapRef.current = map;
+  }, [questions]);
+
+  // Preload upcoming question images for instant rendering
+  useEffect(() => {
+    for (let offset = 1; offset <= 2; offset++) {
+      const nextQ = questions[currentIndex + offset];
+      if (nextQ?.qa_file) {
+        const img = new window.Image();
+        img.src =
+          nextQ.qa_file.startsWith('data:') ||
+          nextQ.qa_file.startsWith('http') ||
+          nextQ.qa_file.startsWith('/')
+            ? nextQ.qa_file
+            : `/data/test/${nextQ.qa_file}`;
+      }
+    }
+  }, [currentIndex, questions]);
 
   // Reset answer & timer when question index changes
   useEffect(() => {
     const q = questions[currentIndex];
     if (!q) return;
-    setSelectedAnswer(q.existingAnswer || '');
+    const saved = answersMapRef.current.get(q.item_seq)?.test_answer;
+    setSelectedAnswer(saved ?? q.existingAnswer ?? '');
     setTimeLeft(q.item_timer ? Number(q.item_timer) : 0);
     submittingRef.current = false;
     setSubmitting(false);
@@ -71,7 +109,8 @@ export default function TestRunnerClient({
   const submitCurrentQuestion = useCallback(
     async (answerValue: string, isAutoTimeout = false) => {
       if (submittingRef.current || !currentQ) return;
-      if (!isAutoTimeout && !answerValue.trim()) {
+      const trimmed = answerValue.trim();
+      if (!isAutoTimeout && !trimmed) {
         alert(
           currentQ.qa_type === 'y'
             ? '답변을 입력해 주세요.'
@@ -80,10 +119,36 @@ export default function TestRunnerClient({
         return;
       }
 
+      const isLast = currentIndex >= questions.length - 1;
+      answersMapRef.current.set(currentQ.item_seq, {
+        item_seq: currentQ.item_seq,
+        qa_no: currentQ.qa_no,
+        test_answer: trimmed,
+      });
+
+      // Fast optimistic transition for intermediate questions
+      if (!isLast) {
+        submittingRef.current = true;
+        setCurrentIndex((prev) => prev + 1);
+        // Save asynchronously in background without blocking UI
+        fetch('/api/test/answer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          keepalive: true,
+          body: JSON.stringify({
+            it_id: itId,
+            item_seq: currentQ.item_seq,
+            qa_no: currentQ.qa_no,
+            test_answer: trimmed,
+            is_complete: false,
+          }),
+        }).catch(() => {});
+        return;
+      }
+
+      // Final question: send all answers atomically and wait for remote DB persistence
       submittingRef.current = true;
       setSubmitting(true);
-
-      const isLast = currentIndex >= questions.length - 1;
 
       try {
         const res = await fetch('/api/test/answer', {
@@ -93,8 +158,9 @@ export default function TestRunnerClient({
             it_id: itId,
             item_seq: currentQ.item_seq,
             qa_no: currentQ.qa_no,
-            test_answer: answerValue.trim(),
-            is_complete: isLast,
+            test_answer: trimmed,
+            answers: Array.from(answersMapRef.current.values()),
+            is_complete: true,
           }),
         });
         const data = await res.json();
@@ -105,12 +171,8 @@ export default function TestRunnerClient({
           return;
         }
 
-        if (isLast) {
-          router.push(`/test/result?it_id=${encodeURIComponent(itId)}`);
-          router.refresh();
-        } else {
-          setCurrentIndex((prev) => prev + 1);
-        }
+        router.push(`/test/result?it_id=${encodeURIComponent(itId)}`);
+        router.refresh();
       } catch {
         alert('네트워크 오류가 발생했습니다. 다시 시도해 주세요.');
         submittingRef.current = false;
