@@ -1,5 +1,6 @@
 import React from 'react';
 import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { getSessionUser } from '@/lib/auth';
 import { getDb } from '@/lib/db';
 import TestRunnerClient, { TestQuestionItem } from './TestRunnerClient';
@@ -19,14 +20,51 @@ export default async function TestRunPage({
   const db = await getDb();
   const isFresh = searchParams?.fresh === '1';
 
-  let itId = searchParams?.it_id || '';
-  if (!itId) {
-    const firstTest = db.graphit_test.find((t) => t.mb_id === user.mb_id);
-    if (firstTest) itId = String(firstTest.it_id);
+  // Merge user's test records from DB and cookie
+  const userTests = [...db.graphit_test.filter((t) => t.mb_id === user.mb_id)];
+  try {
+    const rawCookie = cookies().get('graphit_my_tests')?.value;
+    if (rawCookie) {
+      const cookieTests = JSON.parse(
+        Buffer.from(rawCookie, 'base64url').toString('utf-8')
+      );
+      for (const ct of cookieTests) {
+        if (
+          ct.mb_id === user.mb_id &&
+          !userTests.some(
+            (existing) =>
+              Number(existing.test_no) === Number(ct.test_no) ||
+              String(existing.od_id) === String(ct.od_id)
+          )
+        ) {
+          userTests.unshift(ct);
+        }
+      }
+    }
+  } catch {
+    // ignore
   }
-  if (!itId) {
-    itId = '1698900476';
+
+  const validGroupTests = userTests.filter(
+    (t) => String(t.group_code || '').trim() !== ''
+  );
+
+  let matchedTest = searchParams?.it_id
+    ? validGroupTests.find(
+        (t) => String(t.it_id) === String(searchParams.it_id)
+      )
+    : validGroupTests[0];
+
+  if (!matchedTest) {
+    matchedTest = validGroupTests[0];
   }
+
+  if (!matchedTest) {
+    const targetItId = searchParams?.it_id || '1698900476';
+    redirect(`/shop/orderform?it_id=${encodeURIComponent(targetItId)}`);
+  }
+
+  const itId = String(matchedTest.it_id || searchParams?.it_id || '1698900476');
 
   const shopItem = db.g5_shop_item.find((it) => String(it.it_id) === itId);
   const qaMap = new Map(db.graphit_qa.map((q) => [Number(q.qa_no), q]));

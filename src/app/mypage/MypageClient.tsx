@@ -417,6 +417,13 @@ export default function MypageClient({
                             >
                               📊 결과지 보기
                             </Link>
+                          ) : !item.gr_code || !item.gr_code.trim() ? (
+                            <Link
+                              href={`/shop/orderform?it_id=${item.it_id}`}
+                              className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold shadow-sm transition text-center min-w-[140px]"
+                            >
+                              단체코드 입력 후 시작
+                            </Link>
                           ) : isStarted ? (
                             <Link
                               href={`/test?it_id=${item.it_id}&test_idx=${item.test_idx}`}

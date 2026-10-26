@@ -78,7 +78,7 @@ export default async function HomePage() {
               어떤 검사를 찾으시나요?
             </h2>
             <p className="text-sm sm:text-base text-gray-500 mt-2">
-              개인 신청 또는 단체코드를 인증하여 온라인 진로·역량 진단을 바로 시작하실 수 있습니다.
+              학교·기관에서 발급받으신 단체코드를 인증하여 온라인 진로·역량 진단을 시작하실 수 있습니다.
             </p>
           </div>
 

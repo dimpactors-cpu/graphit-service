@@ -19,6 +19,40 @@ export async function POST(req: NextRequest) {
     const db = await getDb();
     const now = formatKstNow();
 
+    // Ensure user has applied for this test with a valid group_code
+    let hasValidGroupTest = db.graphit_test.some(
+      (t) =>
+        t.mb_id === user.mb_id &&
+        String(t.it_id) === String(it_id) &&
+        String(t.group_code || "").trim() !== ""
+    );
+
+    if (!hasValidGroupTest) {
+      try {
+        const rawCookie = req.cookies.get("graphit_my_tests")?.value;
+        if (rawCookie) {
+          const cookieTests = JSON.parse(
+            Buffer.from(rawCookie, "base64url").toString("utf-8")
+          );
+          hasValidGroupTest = cookieTests.some(
+            (t: any) =>
+              t.mb_id === user.mb_id &&
+              String(t.it_id) === String(it_id) &&
+              String(t.group_code || "").trim() !== ""
+          );
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    if (!hasValidGroupTest) {
+      return NextResponse.json(
+        { ok: false, message: "단체코드를 입력하고 검사를 신청한 후 응시할 수 있습니다." },
+        { status: 403 }
+      );
+    }
+
     // Update or insert answer if item_seq is provided
     if (item_seq !== undefined && item_seq !== null) {
       const seqNum = Number(item_seq);

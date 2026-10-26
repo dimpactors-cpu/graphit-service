@@ -48,21 +48,44 @@ export async function POST(req: NextRequest) {
     const randSuffix = String(Math.floor(10 + Math.random() * 89));
     const od_id = `${compactTs}${randSuffix}`;
 
-    let resolvedGroupCode = "";
+    if (!group_code || String(group_code).trim() === "") {
+      return NextResponse.json(
+        { ok: false, message: "단체코드를 입력하고 인증해 주세요." },
+        { status: 400 }
+      );
+    }
+
+    const codeClean = String(group_code).trim().toUpperCase();
+    const gRow = db.graphit_group.find(
+      (g) => String(g.group_code || "").trim().toUpperCase() === codeClean
+    );
+    const groupMember = !gRow
+      ? db.g5_member.find(
+          (m) =>
+            Number(m.mb_level) === 3 &&
+            (String(m.mb_7 || "").trim().toUpperCase() === codeClean ||
+              String(m.group_code || "").trim().toUpperCase() === codeClean ||
+              String(m.mb_id || "").trim().toUpperCase() === codeClean ||
+              String(m.mb_8 || "").trim().toUpperCase() === codeClean)
+        )
+      : undefined;
+
+    if (!gRow && !groupMember) {
+      return NextResponse.json(
+        { ok: false, message: "유효하지 않은 단체코드입니다. 단체코드를 확인해 주세요." },
+        { status: 400 }
+      );
+    }
+
+    let resolvedGroupCode = gRow
+      ? gRow.group_code
+      : groupMember?.mb_7 || groupMember?.group_code || String(group_code).trim();
     let resolvedGroupName = "";
-    let finalPrice = Number(item.it_price || 0);
+    let finalPrice = 0;
     const odStatus = "입금";
 
-    if (group_code && String(group_code).trim() !== "") {
-      const codeClean = String(group_code).trim();
-      const gRow = db.graphit_group.find(
-        (g) =>
-          String(g.group_code || "")
-            .trim()
-            .toUpperCase() === codeClean.toUpperCase()
-      );
-      resolvedGroupCode = gRow ? gRow.group_code : codeClean;
-      if (gRow?.it_id) {
+    if (gRow) {
+      if (gRow.it_id) {
         const groupItem = db.g5_shop_item.find(
           (it) => String(it.it_id) === String(gRow.it_id)
         );
@@ -70,13 +93,13 @@ export async function POST(req: NextRequest) {
           item = groupItem;
         }
       }
-      const gOwner = gRow
-        ? db.g5_member.find(
-            (m) => m.mb_id === gRow.mb_id && Number(m.mb_level) === 3
-          )
-        : undefined;
+      const gOwner = db.g5_member.find(
+        (m) => m.mb_id === gRow.mb_id && Number(m.mb_level) === 3
+      );
       resolvedGroupName = gOwner?.mb_8 || "";
-      finalPrice = 0;
+    } else if (groupMember) {
+      resolvedGroupName =
+        groupMember.mb_8 || groupMember.mb_name || groupMember.mb_id || "";
     }
 
     const newOrder = {

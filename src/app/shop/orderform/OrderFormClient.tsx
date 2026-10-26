@@ -91,11 +91,16 @@ export default function OrderFormClient({
       return;
     }
 
+    if (!codeVerified && !groupCode.trim()) {
+      alert("단체코드를 입력하고 인증을 완료해 주세요. 단체코드가 있어야 검사를 신청할 수 있습니다.");
+      return;
+    }
+
     setSubmitting(true);
     try {
       let finalGroupCode = codeVerified ? groupCode.trim() : "";
       let submitItId = resolvedItId || String(item.it_id);
-      if (!codeVerified && groupCode.trim()) {
+      if (!codeVerified) {
         const vRes = await fetch("/api/group-code/verify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -107,10 +112,16 @@ export default function OrderFormClient({
           if (vData.it_id) submitItId = String(vData.it_id);
           setCodeVerified(true);
         } else {
-          alert(vData.message || "입력하신 단체코드를 다시 확인해주세요.");
+          alert(vData.message || "유효한 단체코드를 입력 및 인증해 주세요.");
           setSubmitting(false);
           return;
         }
+      }
+
+      if (!finalGroupCode) {
+        alert("단체코드 인증이 필요합니다.");
+        setSubmitting(false);
+        return;
       }
 
       const res = await fetch("/api/order", {
@@ -243,15 +254,16 @@ export default function OrderFormClient({
         <div className="bg-[#eceff4] border border-gray-200 rounded-xl p-5 shadow-sm">
           <div className="bg-white p-4 rounded-lg border border-gray-200 mb-4">
             <label className="block text-xs font-bold text-gray-800 mb-2">
-              단체코드 인증
+              단체코드 인증 <span className="text-red-600">(필수) *</span>
             </label>
             <div className="flex gap-2">
               <input
                 type="text"
+                required
                 value={groupCode}
                 readOnly={codeVerified}
                 onChange={(e) => setGroupCode(e.target.value)}
-                placeholder="단체이신가요? 코드를 입력해 주세요."
+                placeholder="발급받으신 단체코드를 입력해 주세요."
                 className={`flex-1 h-10 px-3 border border-gray-300 rounded text-xs ${
                   codeVerified ? "bg-[#cecece] text-gray-800 font-bold" : "bg-white"
                 }`}
@@ -278,19 +290,27 @@ export default function OrderFormClient({
                 </button>
               )}
             </div>
-            {codeVerified && (
+            {codeVerified ? (
               <p className="mt-2 text-xs text-green-700 font-semibold">
                 ✓ 단체코드({groupCode}{verifiedGroupName ? ` · ${verifiedGroupName}` : ""}) 인증 완료
+              </p>
+            ) : (
+              <p className="mt-2 text-[11px] text-red-600 font-medium">
+                * 단체코드를 입력하고 [인증]을 완료해야 검사를 수행할 수 있습니다.
               </p>
             )}
           </div>
 
           <button
             type="submit"
-            disabled={submitting}
-            className="mt-2 w-full py-3.5 bg-[#0066F9] hover:bg-[#0052cc] text-white font-bold text-base rounded-lg shadow transition disabled:opacity-50"
+            disabled={submitting || !codeVerified}
+            className="mt-2 w-full py-3.5 bg-[#0066F9] hover:bg-[#0052cc] text-white font-bold text-base rounded-lg shadow transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {submitting ? "처리 중..." : "검사 신청 완료하기"}
+            {submitting
+              ? "처리 중..."
+              : codeVerified
+              ? "검사 신청 완료하기"
+              : "단체코드 인증 후 신청 가능"}
           </button>
         </div>
       </div>

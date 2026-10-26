@@ -22,43 +22,59 @@ export default async function TestIntroPage({
   const db = await getDb();
   const isFresh = searchParams?.fresh === '1';
 
-  let itId = searchParams?.it_id || '';
-  if (!itId && searchParams?.test_idx) {
-    const t = db.graphit_test.find(
-      (row) => Number(row.test_no) === Number(searchParams.test_idx)
-    );
-    if (t) itId = String(t.it_id);
-  }
-
-  // Also check cookie tests if not found in db
-  if (!itId) {
-    try {
-      const rawCookie = cookies().get('graphit_my_tests')?.value;
-      if (rawCookie) {
-        const cookieTests = JSON.parse(
-          Buffer.from(rawCookie, 'base64url').toString('utf-8')
-        );
-        const myCookieTest = cookieTests.find(
-          (t: any) => t.mb_id === user.mb_id
-        );
-        if (myCookieTest?.it_id) {
-          itId = String(myCookieTest.it_id);
+  // Merge user's test records from DB and cookie
+  const userTests = [...db.graphit_test.filter((t) => t.mb_id === user.mb_id)];
+  try {
+    const rawCookie = cookies().get('graphit_my_tests')?.value;
+    if (rawCookie) {
+      const cookieTests = JSON.parse(
+        Buffer.from(rawCookie, 'base64url').toString('utf-8')
+      );
+      for (const ct of cookieTests) {
+        if (
+          ct.mb_id === user.mb_id &&
+          !userTests.some(
+            (existing) =>
+              Number(existing.test_no) === Number(ct.test_no) ||
+              String(existing.od_id) === String(ct.od_id)
+          )
+        ) {
+          userTests.unshift(ct);
         }
       }
-    } catch {
-      // ignore
     }
+  } catch {
+    // ignore
   }
 
-  if (!itId) {
-    const myFirstTest = db.graphit_test.find((t) => t.mb_id === user.mb_id);
-    if (myFirstTest) itId = String(myFirstTest.it_id);
+  // Filter to only tests that have a valid non-empty group_code
+  const validGroupTests = userTests.filter(
+    (t) => String(t.group_code || '').trim() !== ''
+  );
+
+  let matchedTest = searchParams?.test_idx
+    ? validGroupTests.find(
+        (t) => Number(t.test_no) === Number(searchParams.test_idx)
+      )
+    : undefined;
+
+  if (!matchedTest && searchParams?.it_id) {
+    matchedTest = validGroupTests.find(
+      (t) => String(t.it_id) === String(searchParams.it_id)
+    );
   }
 
-  // Fallback to default test item if still empty
-  if (!itId) {
-    itId = '1698900476';
+  if (!matchedTest) {
+    matchedTest = validGroupTests[0];
   }
+
+  // If the user has NOT applied with a group code, redirect to the order form to enter a group code
+  if (!matchedTest) {
+    const targetItId = searchParams?.it_id || '1698900476';
+    redirect(`/shop/orderform?it_id=${encodeURIComponent(targetItId)}`);
+  }
+
+  const itId = String(matchedTest.it_id || searchParams?.it_id || '1698900476');
 
   const shopItem = db.g5_shop_item.find((it) => String(it.it_id) === itId);
   let mappedQuestions = db.graphit_item
