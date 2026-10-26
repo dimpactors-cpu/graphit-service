@@ -171,6 +171,7 @@ export interface GraphitTestRow {
   od_id: string | number;
   test_datetime: string;
   end_datetime: string | null;
+  result_open?: boolean; // 통합관리자 수동 결과 공개 여부
 }
 
 export interface GraphitItemTestRow {
@@ -954,7 +955,11 @@ function extractDeltaFromState(
   const tAll = state.graphit_test.filter((tst) => {
     const s = seedTestMap.get(Number(tst.test_no));
     if (!s) return true;
-    return tst.test_status !== s.test_status || tst.end_datetime !== s.end_datetime;
+    return (
+      tst.test_status !== s.test_status ||
+      tst.end_datetime !== s.end_datetime ||
+      Boolean(tst.result_open) !== Boolean(s.result_open)
+    );
   });
   const t = forCookie ? tAll.slice(0, 12) : tAll;
 
@@ -1565,4 +1570,26 @@ export function formatKstNow(): string {
 export function formatKstDate(): string {
   const now = new Date(Date.now() + 9 * 60 * 60 * 1000);
   return now.toISOString().substring(0, 10);
+}
+
+export const RESULT_DELAY_MS = 2 * 60 * 60 * 1000; // 2 hours
+
+export function isTestResultOpen(testRow: {
+  test_status?: string | null;
+  end_datetime?: string | null;
+  result_open?: boolean | null;
+}): boolean {
+  if (testRow.result_open === true) {
+    return true;
+  }
+  const endStr = String(testRow.end_datetime || "").trim();
+  if (!endStr || endStr.startsWith("0000")) {
+    return true;
+  }
+  const isoStr = endStr.includes("T") ? endStr : `${endStr.replace(" ", "T")}+09:00`;
+  const endMs = Date.parse(isoStr);
+  if (Number.isNaN(endMs)) {
+    return true;
+  }
+  return Date.now() - endMs >= RESULT_DELAY_MS;
 }

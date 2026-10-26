@@ -2,7 +2,7 @@ import React from 'react';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { getSessionUser } from '@/lib/auth';
-import { getDb, GraphitTestRow } from '@/lib/db';
+import { getDb, isTestResultOpen, GraphitTestRow } from '@/lib/db';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
 import MypageClient from './MypageClient';
@@ -146,6 +146,7 @@ export default async function MypagePage({
         totalQuestions: totalQ,
         answeredQuestions: t.test_status === '완료' ? totalQ : answeredQ,
         progressPercent,
+        isResultOpen: isTestResultOpen(t),
       };
     });
 
@@ -202,6 +203,7 @@ export default async function MypagePage({
               totalQuestions: totalQ,
               answeredQuestions: t.test_status === '완료' ? totalQ : answeredQ,
               progressPercent,
+              isResultOpen: isTestResultOpen(t),
             };
           });
 

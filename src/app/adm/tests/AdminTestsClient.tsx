@@ -22,6 +22,8 @@ export interface StudentTestRecord {
   test_status: string;
   test_datetime: string;
   end_datetime: string;
+  result_open?: boolean;
+  isResultOpen?: boolean;
   totalQuestions: number;
   answeredQuestions: number;
   progressPercent: number;
@@ -50,6 +52,8 @@ export default function AdminTestsClient({
   groupCodes,
   items,
 }: AdminTestsClientProps) {
+  const [recordsState, setRecordsState] = useState<StudentTestRecord[]>(records);
+  const [releasingNo, setReleasingNo] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'result_db'>('list');
   const [dbColGroup, setDbColGroup] = useState<'summary' | 'competency' | 'direction' | 'ability' | 'roadmap_aq'>('summary');
   const [statusFilter, setStatusFilter] = useState<'ALL' | '완료' | '진행중' | '시작전'>('ALL');
@@ -62,8 +66,68 @@ export default function AdminTestsClient({
   const [page, setPage] = useState<number>(1);
   const pageSize = 50;
 
+  const handleToggleResultOpen = async (testNo: number, nextOpen: boolean) => {
+    setReleasingNo(testNo);
+    try {
+      const res = await fetch('/api/admin/test-release', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ test_no: testNo, result_open: nextOpen }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setRecordsState((prev) =>
+          prev.map((item) =>
+            item.test_no === testNo
+              ? {
+                  ...item,
+                  result_open: nextOpen,
+                  isResultOpen: nextOpen ? true : false,
+                }
+              : item
+          )
+        );
+      } else {
+        alert(data.message || '결과 공개 설정 변경에 실패했습니다.');
+      }
+    } catch {
+      alert('서버 통신 오류가 발생했습니다.');
+    } finally {
+      setReleasingNo(null);
+    }
+  };
+
+  const handleBulkReleaseWaiting = async (targetNos: number[]) => {
+    if (targetNos.length === 0) return;
+    setReleasingNo(-1);
+    try {
+      const res = await fetch('/api/admin/test-release', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ test_nos: targetNos, result_open: true }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        const setNos = new Set(targetNos);
+        setRecordsState((prev) =>
+          prev.map((item) =>
+            setNos.has(item.test_no)
+              ? { ...item, result_open: true, isResultOpen: true }
+              : item
+          )
+        );
+      } else {
+        alert(data.message || '일괄 공개 처리에 실패했습니다.');
+      }
+    } catch {
+      alert('서버 통신 오류가 발생했습니다.');
+    } finally {
+      setReleasingNo(null);
+    }
+  };
+
   const filtered = useMemo(() => {
-    return records.filter((r) => {
+    return recordsState.filter((r) => {
       if (viewMode === 'result_db' && !r.resultRow) return false;
       if (statusFilter !== 'ALL' && r.test_status !== statusFilter) return false;
       if (groupFilter === 'PERSONAL' && r.group_code) return false;
@@ -85,7 +149,15 @@ export default function AdminTestsClient({
       }
       return true;
     });
-  }, [records, viewMode, statusFilter, groupFilter, itemFilter, keyword]);
+  }, [recordsState, viewMode, statusFilter, groupFilter, itemFilter, keyword]);
+
+  const waitingFilteredNos = useMemo(
+    () =>
+      filtered
+        .filter((r) => r.test_status === '완료' && r.isResultOpen === false)
+        .map((r) => r.test_no),
+    [filtered]
+  );
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPage = Math.min(page, totalPages);
@@ -227,9 +299,21 @@ export default function AdminTestsClient({
             ))}
           </div>
 
-          <div className="text-xs font-bold text-slate-500">
-            조회된 수강생: <strong className="text-indigo-600">{filtered.length}</strong>명
-            {totalPages > 1 && ` (페이지 ${currentPage} / ${totalPages})`}
+          <div className="flex flex-wrap items-center gap-2">
+            {waitingFilteredNos.length > 0 && (
+              <button
+                type="button"
+                disabled={releasingNo !== null}
+                onClick={() => handleBulkReleaseWaiting(waitingFilteredNos)}
+                className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-extrabold transition disabled:opacity-50"
+              >
+                🔓 대기 중인 완료건 일괄 수동 공개 ({waitingFilteredNos.length}건)
+              </button>
+            )}
+            <div className="text-xs font-bold text-slate-500">
+              조회된 수강생: <strong className="text-indigo-600">{filtered.length}</strong>명
+              {totalPages > 1 && ` (페이지 ${currentPage} / ${totalPages})`}
+            </div>
           </div>
         </div>
 
@@ -387,17 +471,34 @@ export default function AdminTestsClient({
                         </div>
                       </td>
                       <td className="py-3.5 px-4 text-center">
-                        <span
-                          className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                            r.test_status === '완료'
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : r.test_status === '진행중'
-                              ? 'bg-blue-100 text-blue-800'
-                              : 'bg-amber-100 text-amber-800'
-                          }`}
-                        >
-                          {r.test_status || '시작전'}
-                        </span>
+                        <div className="flex flex-col items-center gap-1">
+                          <span
+                            className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                              r.test_status === '완료'
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : r.test_status === '진행중'
+                                ? 'bg-blue-100 text-blue-800'
+                                : 'bg-amber-100 text-amber-800'
+                            }`}
+                          >
+                            {r.test_status || '시작전'}
+                          </span>
+                          {r.test_status === '완료' && (
+                            <span
+                              className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                                r.isResultOpen !== false
+                                  ? 'bg-indigo-50 text-indigo-700'
+                                  : 'bg-amber-50 text-amber-700'
+                              }`}
+                            >
+                              {r.isResultOpen !== false
+                                ? r.result_open
+                                  ? '🔓 수동공개됨'
+                                  : '✅ 결과공개됨'
+                                : '⏳ 분석중(2시간대기)'}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="py-3.5 px-4 text-xs text-slate-500">
                         <div>{(r.test_datetime || '-').slice(0, 16)}</div>
@@ -409,6 +510,28 @@ export default function AdminTestsClient({
                       </td>
                       <td className="py-3.5 px-4 text-center">
                         <div className="flex flex-wrap items-center justify-center gap-1.5">
+                          {r.test_status === '완료' && (
+                            r.isResultOpen === false ? (
+                              <button
+                                type="button"
+                                disabled={releasingNo === r.test_no}
+                                onClick={() => handleToggleResultOpen(r.test_no, true)}
+                                className="px-2.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-extrabold shadow-2xs transition disabled:opacity-50"
+                              >
+                                {releasingNo === r.test_no ? '처리중...' : '🔓 수동 조회 허용'}
+                              </button>
+                            ) : r.result_open ? (
+                              <button
+                                type="button"
+                                disabled={releasingNo === r.test_no}
+                                onClick={() => handleToggleResultOpen(r.test_no, false)}
+                                className="px-2 py-1.5 rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 text-[11px] font-bold transition disabled:opacity-50"
+                                title="수동 공개 해제 (완료 후 2시간 미만인 경우 다시 대기 상태로 전환)"
+                              >
+                                🔒 수동공개 해제
+                              </button>
+                            ) : null
+                          )}
                           {r.report && (
                             <button
                               type="button"

@@ -248,7 +248,7 @@ export default function TestRunnerClient({
           return;
         }
 
-        window.location.href = `/test/result?it_id=${encodeURIComponent(itId)}`;
+        window.location.href = `/test/result?it_id=${encodeURIComponent(itId)}&submitted=1`;
       } catch {
         alert('네트워크 오류가 발생했습니다. 다시 시도해 주세요.');
         submittingRef.current = false;

@@ -25,9 +25,8 @@ export default function GraphmeReportView({
   isModal = false,
 }: Props) {
   const [activeTab, setActiveTab] = useState<'all' | 1 | 2 | 3 | 4>('all');
-  const [bwMode, setBwMode] = useState(false);
   const [showRawDbModal, setShowRawDbModal] = useState(false);
-  const isBw = forceBwMode || bwMode;
+  const isBw = forceBwMode;
 
   const handlePrint = () => {
     setActiveTab('all');
@@ -112,9 +111,6 @@ export default function GraphmeReportView({
           <span className="text-xs text-slate-500">
             ({report.groupName} · #{report.serialNo})
           </span>
-          <span className="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-extrabold border border-indigo-200">
-            통합유형: {report.totalLitType} ({report.mbti})
-          </span>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -140,18 +136,6 @@ export default function GraphmeReportView({
               </button>
             ))}
           </div>
-
-          <button
-            type="button"
-            onClick={() => setBwMode(!bwMode)}
-            className={`px-3 py-2 rounded-xl border text-xs font-bold transition ${
-              bwMode
-                ? 'bg-slate-900 text-white border-slate-900'
-                : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
-            }`}
-          >
-            {bwMode ? '🎨 컬러 모드로 보기' : '⚫ 흑백(원본) 모드로 보기'}
-          </button>
 
           {canViewRawDb && resultRow && (
             <button
@@ -349,7 +333,7 @@ export default function GraphmeReportView({
                     종합 유형 (Total)
                   </div>
                   <div className="text-sm font-black text-indigo-900 mt-0.5">
-                    {report.totalLitType} ({report.mbti})
+                    {report.totalLitType}
                   </div>
                 </div>
               </div>

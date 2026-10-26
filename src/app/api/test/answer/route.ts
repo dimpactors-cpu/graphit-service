@@ -138,6 +138,7 @@ export async function POST(req: NextRequest) {
       if (testRecord) {
         testRecord.test_status = "완료";
         testRecord.end_datetime = now;
+        testRecord.result_open = false;
       }
       if (member) {
         member.test_status = "완료";
@@ -192,6 +193,7 @@ export async function POST(req: NextRequest) {
               ...t,
               test_status: is_complete ? "완료" : "진행중",
               end_datetime: is_complete ? now : t.end_datetime,
+              result_open: is_complete ? false : t.result_open,
             };
           }
           return t;

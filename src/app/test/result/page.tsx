@@ -1,8 +1,9 @@
 import React from 'react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { getSessionUser } from '@/lib/auth';
-import { getDb } from '@/lib/db';
+import { getDb, isTestResultOpen, GraphitTestRow } from '@/lib/db';
 import {
   buildNoAnswersMap,
   computeResultBaseRow,
@@ -17,7 +18,12 @@ export const dynamic = 'force-dynamic';
 export default async function TestResultPage({
   searchParams,
 }: {
-  searchParams?: { it_id?: string; test_idx?: string; mb_id?: string };
+  searchParams?: {
+    it_id?: string;
+    test_idx?: string;
+    mb_id?: string;
+    submitted?: string;
+  };
 }) {
   const user = getSessionUser();
   if (!user) {
@@ -26,9 +32,30 @@ export default async function TestResultPage({
 
   const db = await getDb();
   const isAdmin = user.mb_level >= 9;
+  const isJustSubmitted = searchParams?.submitted === '1';
+
+  const combinedTests: GraphitTestRow[] = [...db.graphit_test];
+  try {
+    const rawCookie = cookies().get('graphit_my_tests')?.value;
+    if (rawCookie) {
+      const cookieTests = JSON.parse(
+        Buffer.from(rawCookie, 'base64url').toString('utf-8')
+      ) as GraphitTestRow[];
+      for (const ct of cookieTests) {
+        const existingIdx = combinedTests.findIndex(
+          (t) => Number(t.test_no) === Number(ct.test_no)
+        );
+        if (existingIdx < 0) {
+          combinedTests.unshift(ct);
+        }
+      }
+    }
+  } catch {
+    // ignore
+  }
 
   let testRecord = searchParams?.test_idx
-    ? db.graphit_test.find(
+    ? combinedTests.find(
         (t) => Number(t.test_no) === Number(searchParams.test_idx)
       )
     : undefined;
@@ -36,14 +63,14 @@ export default async function TestResultPage({
   if (!testRecord && searchParams?.it_id) {
     const targetMbId =
       isAdmin && searchParams?.mb_id ? searchParams.mb_id : user.mb_id;
-    testRecord = db.graphit_test.find(
+    testRecord = combinedTests.find(
       (t) =>
         t.mb_id === targetMbId &&
         String(t.it_id) === String(searchParams.it_id)
     );
   }
   if (!testRecord) {
-    testRecord = db.graphit_test.find((t) => t.mb_id === user.mb_id);
+    testRecord = combinedTests.find((t) => t.mb_id === user.mb_id);
   }
 
   // If non-admin tries to view another user's test_idx, fallback to their own
@@ -65,7 +92,7 @@ export default async function TestResultPage({
     }
     const recCodeUpper = String(testRecord.group_code || '').trim().toUpperCase();
     if (!userGroups.has(recCodeUpper)) {
-      testRecord = db.graphit_test.find((t) => t.mb_id === user.mb_id);
+      testRecord = combinedTests.find((t) => t.mb_id === user.mb_id);
     }
   }
 
@@ -73,10 +100,15 @@ export default async function TestResultPage({
   const shopItem = db.g5_shop_item.find((it) => String(it.it_id) === itId);
   const qaMap = new Map(db.graphit_qa.map((q) => [Number(q.qa_no), q]));
 
+  const canShowReport =
+    !isJustSubmitted &&
+    Boolean(testRecord) &&
+    (isAdmin || isTestResultOpen(testRecord!));
+
   let resultRow = undefined;
   let reportData = undefined;
 
-  if (testRecord) {
+  if (testRecord && canShowReport) {
     const rawAnswers = db.graphit_item_test.filter(
       (a) =>
         a.mb_id === testRecord.mb_id &&
@@ -168,13 +200,15 @@ export default async function TestResultPage({
             <span className="inline-block px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold mb-2">
               온라인 진단검사 제출 완료
             </span>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-3">
-              검사가 완료되었습니다!
+            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 mb-4 leading-snug">
+              응답이 잘 제출되었습니다.
             </h1>
-            <p className="text-sm sm:text-base text-slate-600 leading-relaxed mb-8">
-              모든 문항에 성실히 응답해 주셔서 감사합니다.
+            <p className="text-sm sm:text-base text-slate-700 font-semibold leading-relaxed mb-8 bg-slate-50 border border-slate-200 rounded-2xl p-5">
+              응답이 잘 제출되었습니다.
               <br />
-              응답하신 데이터는 정상적으로 저장 및 제출되었습니다.
+              분석에는 최대 하루 정도 시간이 소요되며,
+              <br />
+              결과는 마이페이지에서 확인할 수 있습니다
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Link

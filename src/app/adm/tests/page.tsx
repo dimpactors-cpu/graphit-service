@@ -1,7 +1,7 @@
 import React from 'react';
 import { redirect } from 'next/navigation';
 import { getSessionUser } from '@/lib/auth';
-import { getDb } from '@/lib/db';
+import { getDb, isTestResultOpen } from '@/lib/db';
 import {
   buildNoAnswersMap,
   computeResultBaseRow,
@@ -198,6 +198,8 @@ export default async function AdminTestsPage() {
         test_status: t.test_status || '시작전',
         test_datetime: t.test_datetime || '',
         end_datetime: t.end_datetime || '',
+        result_open: Boolean(t.result_open),
+        isResultOpen: isTestResultOpen(t),
         totalQuestions: totalQ,
         answeredQuestions: t.test_status === '완료' ? totalQ : answeredCount,
         progressPercent,

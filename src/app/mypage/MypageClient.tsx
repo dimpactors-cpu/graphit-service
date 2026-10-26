@@ -16,6 +16,7 @@ interface PersonalTestItem {
   totalQuestions: number;
   answeredQuestions: number;
   progressPercent: number;
+  isResultOpen?: boolean;
 }
 
 interface GroupStudentRow {
@@ -31,6 +32,7 @@ interface GroupStudentRow {
   totalQuestions: number;
   answeredQuestions: number;
   progressPercent: number;
+  isResultOpen?: boolean;
 }
 
 interface GroupData {
@@ -411,12 +413,21 @@ export default function MypageClient({
 
                         <div className="flex sm:flex-col items-center sm:items-end gap-2 w-full sm:w-auto justify-end shrink-0 border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100">
                           {isCompleted ? (
-                            <Link
-                              href={`/test/result?test_idx=${item.test_idx}`}
-                              className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold shadow-sm transition text-center min-w-[140px]"
-                            >
-                              📊 결과지 보기
-                            </Link>
+                            item.isResultOpen !== false ? (
+                              <Link
+                                href={`/test/result?test_idx=${item.test_idx}`}
+                                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold shadow-sm transition text-center min-w-[140px]"
+                              >
+                                📊 결과지 보기
+                              </Link>
+                            ) : (
+                              <Link
+                                href={`/test/result?test_idx=${item.test_idx}`}
+                                className="px-5 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-800 text-white text-sm font-bold shadow-sm transition text-center min-w-[140px]"
+                              >
+                                ⏳ 결과 분석중
+                              </Link>
+                            )
                           ) : !item.gr_code || !item.gr_code.trim() ? (
                             <Link
                               href={`/shop/orderform?it_id=${item.it_id}`}
