@@ -77,6 +77,8 @@ export default function CheckupDetailClient({
   const [itUse, setItUse] = useState(String(item.it_use));
   const [itImg1, setItImg1] = useState(item.it_img1 || '');
   const [itBasic, setItBasic] = useState(item.it_basic || '');
+  const [itExplan, setItExplan] = useState(item.it_explan || '');
+  const [showExplanPreview, setShowExplanPreview] = useState(true);
   const [savingInfo, setSavingInfo] = useState(false);
 
   const resolveThumb = (raw: string) => {
@@ -178,6 +180,7 @@ export default function CheckupDetailClient({
           it_use: Number(itUse),
           it_img1: itImg1,
           it_basic: itBasic,
+          it_explan: itExplan,
         }),
       });
       const data = await res.json();
@@ -415,6 +418,79 @@ export default function CheckupDetailClient({
               }}
             />
           </label>
+        </div>
+
+        {/* 하단 상세 안내 (it_explan) 설정 */}
+        <div className="mt-5 pt-5 border-t border-slate-100 text-xs space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <div className="font-extrabold text-slate-800 text-sm">
+                하단 상세 안내 설정 (신청하기 페이지 하단 영역)
+              </div>
+              <div className="text-slate-400 mt-0.5">
+                검사 소개 페이지(`/shop/item/{item.it_id}`) 하단의 &ldquo;상세 안내&rdquo; 영역에 표시되는 내용(HTML 또는 이미지)입니다. 비워두면 상세 안내 영역이 숨겨집니다.
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <label className="cursor-pointer px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold transition">
+                <span>🖼️ 상세안내 이미지 추가 업로드</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const dataUrl = await fileToDataUrl(file, 1100);
+                    setItExplan(
+                      (prev) =>
+                        `${prev ? prev + '\n' : ''}<p><img src="${dataUrl}" alt="상세안내 이미지" /></p>`
+                    );
+                  }}
+                />
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowExplanPreview((v) => !v)}
+                className="px-3 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold transition"
+              >
+                {showExplanPreview ? '미리보기 접기' : '미리보기 펼치기'}
+              </button>
+              {itExplan && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (confirm('하단 상세 안내 내용을 모두 비우시겠습니까? (기본정보 저장 시 반영됩니다)')) {
+                      setItExplan('');
+                    }
+                  }}
+                  className="px-3 py-1.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold transition"
+                >
+                  🗑️ 상세안내 전체 비우기
+                </button>
+              )}
+            </div>
+          </div>
+
+          <textarea
+            rows={5}
+            value={itExplan}
+            onChange={(e) => setItExplan(e.target.value)}
+            placeholder="상세 안내 텍스트 또는 HTML 코드 (<p>...</p>, <img src='...' /> 등)를 입력해 주세요. 비워두면 화면에서 상세 안내 섹션이 표시되지 않습니다."
+            className="w-full rounded-xl border border-slate-300 p-3 font-mono text-xs text-slate-800 focus:border-indigo-600 focus:outline-none"
+          />
+
+          {showExplanPreview && itExplan.trim() !== '' && (
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 max-h-96 overflow-y-auto">
+              <div className="text-[11px] font-bold text-slate-400 mb-2">
+                [실제 화면 미리보기]
+              </div>
+              <div
+                className="prose max-w-none mx-auto text-center bg-white p-4 rounded-lg border border-slate-100 [&_img]:mx-auto [&_img]:max-w-full [&_img]:h-auto"
+                dangerouslySetInnerHTML={{ __html: itExplan }}
+              />
+            </div>
+          )}
         </div>
       </form>
 
