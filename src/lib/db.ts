@@ -811,6 +811,13 @@ function applyDeltaToState(state: DatabaseState, delta: CompactDelta | null): Da
     for (const rawQa of delta.q) {
       const qa: GraphitQaRow = {
         ...rawQa,
+        qa_file:
+          rawQa.qa_file &&
+          String(rawQa.qa_file).includes(
+            "3034920154_lkbdSW9J_dd8672a765179cb45043fc3232a8f2fdbcf56342.png"
+          )
+            ? ""
+            : rawQa.qa_file,
         qa_subject: String(rawQa.qa_subject || "").replace(/^\s*Q\.\s*/i, "").trim(),
         qa_q1: rawQa.qa_q1 ? String(rawQa.qa_q1).replace(/^\s*[1-5]\s*\.\s*/, "").trim() : rawQa.qa_q1,
         qa_q2: rawQa.qa_q2 ? String(rawQa.qa_q2).replace(/^\s*[1-5]\s*\.\s*/, "").trim() : rawQa.qa_q2,
@@ -1174,9 +1181,17 @@ function ensureSeedUpgrades(state: DatabaseState): DatabaseState {
       state.graphit_qa.push({ ...sQa });
     } else {
       const cur = state.graphit_qa[idx];
+      const cleanedFile =
+        cur.qa_file &&
+        String(cur.qa_file).includes(
+          "3034920154_lkbdSW9J_dd8672a765179cb45043fc3232a8f2fdbcf56342.png"
+        )
+          ? ""
+          : cur.qa_file ?? sQa.qa_file;
       state.graphit_qa[idx] = {
         ...sQa,
         ...cur,
+        qa_file: cleanedFile,
         qa_code: sQa.qa_code,
         qa_answer: cur.qa_answer ?? sQa.qa_answer,
         qa_metric: cur.qa_metric ?? sQa.qa_metric,
