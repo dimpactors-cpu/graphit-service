@@ -131,11 +131,33 @@ export async function POST(req: NextRequest) {
 
     db.g5_shop_order.unshift(newOrder);
 
-    // Clear previous answers for this (mb_id, it_id) so a newly applied test starts from question 1
-    for (const ans of db.graphit_item_test) {
-      if (ans.mb_id === user.mb_id && String(ans.it_id) === String(item.it_id)) {
-        ans.test_answer = "";
-        ans.reg_datetime = now;
+    // Preserve previous answers for any earlier test of the same (mb_id, it_id) by tagging untagged rows with the previous test_no
+    const previousTestsForSameItem = db.graphit_test
+      .filter(
+        (t) => t.mb_id === user.mb_id && String(t.it_id) === String(item.it_id)
+      )
+      .sort((a, b) => Number(b.test_no) - Number(a.test_no));
+    const latestPrevTest = previousTestsForSameItem[0];
+
+    if (latestPrevTest) {
+      const prevTestNo = Number(latestPrevTest.test_no);
+      const prevAnswersMap: Record<string, string> = {
+        ...(latestPrevTest.test_answers || {}),
+      };
+      for (const ans of db.graphit_item_test) {
+        if (
+          ans.mb_id === user.mb_id &&
+          String(ans.it_id) === String(item.it_id) &&
+          !ans.test_no &&
+          ans.test_answer !== undefined &&
+          ans.test_answer !== ""
+        ) {
+          ans.test_no = prevTestNo;
+          prevAnswersMap[String(ans.item_seq)] = String(ans.test_answer);
+        }
+      }
+      if (Object.keys(prevAnswersMap).length > 0) {
+        latestPrevTest.test_answers = prevAnswersMap;
       }
     }
 
@@ -156,6 +178,7 @@ export async function POST(req: NextRequest) {
       od_id,
       test_datetime: now,
       end_datetime: null,
+      test_answers: {},
     };
 
     db.graphit_test.unshift(newTest);
@@ -168,7 +191,7 @@ export async function POST(req: NextRequest) {
 
     await saveDb(db);
 
-    // Also persist to cookie so serverless functions on Vercel immediately see the new test
+    // Also persist to cookie so serverless functions on Vercel immediately see the new test while preserving previous test history
     let existingCookieTests: any[] = [];
     try {
       const rawCookie = cookies().get(MY_TESTS_COOKIE)?.value;
@@ -184,10 +207,9 @@ export async function POST(req: NextRequest) {
     const updatedCookieTests = [
       newTest,
       ...existingCookieTests.filter(
-        (t) =>
-          !(t.mb_id === user.mb_id && String(t.it_id) === String(item.it_id))
+        (t) => Number(t.test_no) !== Number(newTest.test_no)
       ),
-    ].slice(0, 10);
+    ].slice(0, 15);
 
     const res = NextResponse.json({
       ok: true,

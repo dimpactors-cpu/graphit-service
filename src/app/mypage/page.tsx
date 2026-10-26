@@ -2,7 +2,12 @@ import React from 'react';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { getSessionUser } from '@/lib/auth';
-import { getDb, isTestResultOpen, GraphitTestRow } from '@/lib/db';
+import {
+  getDb,
+  isTestResultOpen,
+  getAnswersForTest,
+  GraphitTestRow,
+} from '@/lib/db';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
 import MypageClient from './MypageClient';
@@ -80,15 +85,6 @@ export default async function MypagePage({
     db.g5_shop_item.map((it) => [String(it.it_id), it])
   );
 
-  // Map user answers count per (mb_id, it_id)
-  const answerCountMap = new Map<string, number>();
-  for (const ans of db.graphit_item_test) {
-    if (ans.test_answer !== undefined && ans.test_answer !== '') {
-      const key = `${ans.mb_id}::${ans.it_id}`;
-      answerCountMap.set(key, (answerCountMap.get(key) || 0) + 1);
-    }
-  }
-
   // Merge cookie tests with db.graphit_test so serverless instances always show newly applied tests
   const combinedTests: GraphitTestRow[] = [
     ...db.graphit_test.filter((t) => t.mb_id === memberRow.mb_id),
@@ -123,10 +119,8 @@ export default async function MypagePage({
       const itId = String(t.it_id);
       const shopItem = shopItemMap.get(itId);
       const totalQ = itemQuestionCountMap.get(itId) || 7;
-      const answeredQ = Math.min(
-        totalQ,
-        answerCountMap.get(`${t.mb_id}::${itId}`) || 0
-      );
+      const testAnswers = getAnswersForTest(db, t);
+      const answeredQ = Math.min(totalQ, testAnswers.length);
       const progressPercent =
         t.test_status === '완료'
           ? 100
@@ -171,10 +165,8 @@ export default async function MypagePage({
             const stMember = memberByIdMap.get(t.mb_id);
             const tItId = String(t.it_id || itId);
             const totalQ = itemQuestionCountMap.get(tItId) || 7;
-            const answeredQ = Math.min(
-              totalQ,
-              answerCountMap.get(`${t.mb_id}::${tItId}`) || 0
-            );
+            const testAnswers = getAnswersForTest(db, t);
+            const answeredQ = Math.min(totalQ, testAnswers.length);
             const progressPercent =
               t.test_status === '완료'
                 ? 100

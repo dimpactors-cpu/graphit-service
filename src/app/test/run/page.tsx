@@ -2,7 +2,7 @@ import React from 'react';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { getSessionUser } from '@/lib/auth';
-import { getDb } from '@/lib/db';
+import { getDb, getAnswersForTest } from '@/lib/db';
 import TestRunnerClient, { TestQuestionItem } from './TestRunnerClient';
 
 export const dynamic = 'force-dynamic';
@@ -10,7 +10,12 @@ export const dynamic = 'force-dynamic';
 export default async function TestRunPage({
   searchParams,
 }: {
-  searchParams?: { it_id?: string; seq?: string; fresh?: string };
+  searchParams?: {
+    it_id?: string;
+    test_idx?: string;
+    seq?: string;
+    fresh?: string;
+  };
 }) {
   const user = getSessionUser();
   if (!user) {
@@ -49,14 +54,28 @@ export default async function TestRunPage({
     (t) => String(t.group_code || '').trim() !== ''
   );
 
-  let matchedTest = searchParams?.it_id
+  let matchedTest = searchParams?.test_idx
     ? validGroupTests.find(
-        (t) => String(t.it_id) === String(searchParams.it_id)
+        (t) => Number(t.test_no) === Number(searchParams.test_idx)
       )
-    : validGroupTests[0];
+    : undefined;
+
+  if (!matchedTest && searchParams?.it_id) {
+    matchedTest =
+      validGroupTests.find(
+        (t) =>
+          String(t.it_id) === String(searchParams.it_id) &&
+          t.test_status !== '완료'
+      ) ||
+      validGroupTests.find(
+        (t) => String(t.it_id) === String(searchParams.it_id)
+      );
+  }
 
   if (!matchedTest) {
-    matchedTest = validGroupTests[0];
+    matchedTest =
+      validGroupTests.find((t) => t.test_status !== '완료') ||
+      validGroupTests[0];
   }
 
   if (!matchedTest) {
@@ -65,15 +84,12 @@ export default async function TestRunPage({
   }
 
   const itId = String(matchedTest.it_id || searchParams?.it_id || '1698900476');
+  const testIdx = Number(matchedTest.test_no);
 
   const shopItem = db.g5_shop_item.find((it) => String(it.it_id) === itId);
   const qaMap = new Map(db.graphit_qa.map((q) => [Number(q.qa_no), q]));
 
-  const userAnswers = isFresh
-    ? []
-    : db.graphit_item_test.filter(
-        (ans) => ans.mb_id === user.mb_id && String(ans.it_id) === itId
-      );
+  const userAnswers = isFresh ? [] : getAnswersForTest(db, matchedTest);
   const answerBySeq = new Map(
     userAnswers.map((a) => [Number(a.item_seq), a.test_answer])
   );
@@ -125,6 +141,7 @@ export default async function TestRunPage({
   return (
     <TestRunnerClient
       itId={itId}
+      testIdx={testIdx}
       itName={shopItem?.it_name || '그래프잇 온라인 진단검사'}
       questions={questions}
       initialIndex={initialIndex}

@@ -3,7 +3,12 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { getSessionUser } from '@/lib/auth';
-import { getDb, isTestResultOpen, GraphitTestRow } from '@/lib/db';
+import {
+  getDb,
+  isTestResultOpen,
+  getAnswersForTest,
+  GraphitTestRow,
+} from '@/lib/db';
 import {
   buildNoAnswersMap,
   computeResultBaseRow,
@@ -63,14 +68,24 @@ export default async function TestResultPage({
   if (!testRecord && searchParams?.it_id) {
     const targetMbId =
       isAdmin && searchParams?.mb_id ? searchParams.mb_id : user.mb_id;
-    testRecord = combinedTests.find(
-      (t) =>
-        t.mb_id === targetMbId &&
-        String(t.it_id) === String(searchParams.it_id)
-    );
+    testRecord =
+      combinedTests.find(
+        (t) =>
+          t.mb_id === targetMbId &&
+          String(t.it_id) === String(searchParams.it_id) &&
+          t.test_status === '완료'
+      ) ||
+      combinedTests.find(
+        (t) =>
+          t.mb_id === targetMbId &&
+          String(t.it_id) === String(searchParams.it_id)
+      );
   }
   if (!testRecord) {
-    testRecord = combinedTests.find((t) => t.mb_id === user.mb_id);
+    testRecord =
+      combinedTests.find(
+        (t) => t.mb_id === user.mb_id && t.test_status === '완료'
+      ) || combinedTests.find((t) => t.mb_id === user.mb_id);
   }
 
   // If non-admin tries to view another user's test_idx, fallback to their own
@@ -109,11 +124,7 @@ export default async function TestResultPage({
   let reportData = undefined;
 
   if (testRecord && canShowReport) {
-    const rawAnswers = db.graphit_item_test.filter(
-      (a) =>
-        a.mb_id === testRecord.mb_id &&
-        String(a.it_id) === String(testRecord.it_id)
-    );
+    const rawAnswers = getAnswersForTest(db, testRecord);
     const noAnswersMap = buildNoAnswersMap(testRecord, rawAnswers, qaMap);
     resultRow = computeResultBaseRow(
       {

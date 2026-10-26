@@ -16,6 +16,7 @@ const AGREEMENT_ITEMS = [
 
 interface TestIntroClientProps {
   itId: string;
+  testIdx?: number;
   itName: string;
   totalQuestions: number;
   answeredQuestions: number;
@@ -25,6 +26,7 @@ interface TestIntroClientProps {
 
 export default function TestIntroClient({
   itId,
+  testIdx,
   itName,
   totalQuestions,
   answeredQuestions,
@@ -52,9 +54,9 @@ export default function TestIntroClient({
       return;
     }
     router.push(
-      `/test/run?it_id=${encodeURIComponent(itId)}&seq=${nextSeq}${
-        isFresh ? '&fresh=1' : ''
-      }`
+      `/test/run?it_id=${encodeURIComponent(itId)}${
+        testIdx ? `&test_idx=${testIdx}` : ''
+      }&seq=${nextSeq}${isFresh ? '&fresh=1' : ''}`
     );
   };
 

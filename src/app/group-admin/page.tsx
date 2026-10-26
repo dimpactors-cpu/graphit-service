@@ -1,7 +1,7 @@
 import React from 'react';
 import { redirect } from 'next/navigation';
 import { getSessionUser } from '@/lib/auth';
-import { getDb } from '@/lib/db';
+import { getDb, getAnswersForTest } from '@/lib/db';
 import {
   buildNoAnswersMap,
   computeResultBaseRow,
@@ -93,17 +93,6 @@ export default async function GroupAdminPage({
   for (const gi of db.graphit_item) {
     const k = String(gi.it_id);
     itemQCountMap.set(k, (itemQCountMap.get(k) || 0) + 1);
-  }
-
-  const answersByKey = new Map<string, typeof db.graphit_item_test>();
-  for (const ans of db.graphit_item_test) {
-    const key = `${ans.mb_id}::${ans.it_id}`;
-    let arr = answersByKey.get(key);
-    if (!arr) {
-      arr = [];
-      answersByKey.set(key, arr);
-    }
-    arr.push(ans);
   }
 
   // Build authorized groups summary
@@ -207,7 +196,7 @@ export default async function GroupAdminPage({
     const mb = memberMap.get(t.mb_id);
     const itId = String(t.it_id || '');
     const item = itemMap.get(itId);
-    const rawAnswers = answersByKey.get(`${t.mb_id}::${itId}`) || [];
+    const rawAnswers = getAnswersForTest(db, t);
     const hasCompactAnswers =
       Array.isArray((t as any).no_answers) && (t as any).no_answers.length > 0;
     const totalQ = hasCompactAnswers

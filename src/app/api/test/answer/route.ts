@@ -10,7 +10,15 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { it_id, item_seq, qa_no, test_answer, answers, is_complete } = body;
+    const {
+      it_id,
+      test_no,
+      item_seq,
+      qa_no,
+      test_answer,
+      answers,
+      is_complete,
+    } = body;
 
     if (!it_id) {
       return NextResponse.json({ ok: false, message: "비정상적인 접근입니다." }, { status: 400 });
@@ -19,38 +27,70 @@ export async function POST(req: NextRequest) {
     const db = await getDb();
     const now = formatKstNow();
 
-    // Ensure user has applied for this test with a valid group_code
-    let hasValidGroupTest = db.graphit_test.some(
-      (t) =>
-        t.mb_id === user.mb_id &&
-        String(t.it_id) === String(it_id) &&
-        String(t.group_code || "").trim() !== ""
-    );
+    // Find target test record by test_no or latest incomplete test for (mb_id, it_id)
+    let testRecord = test_no
+      ? db.graphit_test.find(
+          (t) =>
+            t.mb_id === user.mb_id &&
+            Number(t.test_no) === Number(test_no)
+        )
+      : undefined;
 
-    if (!hasValidGroupTest) {
+    if (!testRecord) {
+      const sameItemTests = db.graphit_test
+        .filter(
+          (t) =>
+            t.mb_id === user.mb_id &&
+            String(t.it_id) === String(it_id) &&
+            String(t.group_code || "").trim() !== ""
+        )
+        .sort((a, b) => Number(b.test_no) - Number(a.test_no));
+      testRecord =
+        sameItemTests.find((t) => t.test_status !== "완료") ||
+        sameItemTests[0];
+    }
+
+    if (!testRecord) {
       try {
         const rawCookie = req.cookies.get("graphit_my_tests")?.value;
         if (rawCookie) {
           const cookieTests = JSON.parse(
             Buffer.from(rawCookie, "base64url").toString("utf-8")
           );
-          hasValidGroupTest = cookieTests.some(
-            (t: any) =>
-              t.mb_id === user.mb_id &&
-              String(t.it_id) === String(it_id) &&
-              String(t.group_code || "").trim() !== ""
-          );
+          const matchedCookieTest =
+            (test_no
+              ? cookieTests.find(
+                  (t: any) =>
+                    t.mb_id === user.mb_id &&
+                    Number(t.test_no) === Number(test_no)
+                )
+              : undefined) ||
+            cookieTests.find(
+              (t: any) =>
+                t.mb_id === user.mb_id &&
+                String(t.it_id) === String(it_id) &&
+                String(t.group_code || "").trim() !== ""
+            );
+          if (matchedCookieTest) {
+            db.graphit_test.unshift(matchedCookieTest);
+            testRecord = matchedCookieTest;
+          }
         }
       } catch {
         // ignore
       }
     }
 
-    if (!hasValidGroupTest) {
+    if (!testRecord || String(testRecord.group_code || "").trim() === "") {
       return NextResponse.json(
         { ok: false, message: "단체코드를 입력하고 검사를 신청한 후 응시할 수 있습니다." },
         { status: 403 }
       );
+    }
+
+    const resolvedTestNo = Number(testRecord.test_no);
+    if (!testRecord.test_answers || typeof testRecord.test_answers !== "object") {
+      testRecord.test_answers = {};
     }
 
     const itemsToSave: Array<{
@@ -101,19 +141,24 @@ export async function POST(req: NextRequest) {
         const mapped = db.graphit_item.find(
           (gi) => String(gi.it_id) === String(it_id) && Number(gi.item_seq) === seqNum
         );
-        resolvedQaNo = mapped ? Number(mapped.qa_no) : 1;
+        resolvedQaNo = mapped ? Number(mapped.qa_no) : 1000 + seqNum;
       }
+
+      const ansVal = String(entry.test_answer ?? "");
+      testRecord.test_answers[String(seqNum)] = ansVal;
 
       const existing = db.graphit_item_test.find(
         (r) =>
           r.mb_id === user.mb_id &&
           String(r.it_id) === String(it_id) &&
+          Number(r.test_no || 0) === resolvedTestNo &&
           Number(r.item_seq) === seqNum
       );
 
       if (existing) {
-        existing.test_answer = String(entry.test_answer ?? "");
+        existing.test_answer = ansVal;
         existing.reg_datetime = now;
+        existing.test_no = resolvedTestNo;
       } else {
         maxSeqNo += 1;
         db.graphit_item_test.push({
@@ -122,16 +167,13 @@ export async function POST(req: NextRequest) {
           mb_id: user.mb_id,
           it_id: String(it_id),
           qa_no: Number(resolvedQaNo),
-          test_answer: String(entry.test_answer ?? ""),
+          test_answer: ansVal,
           reg_datetime: now,
+          test_no: resolvedTestNo,
         });
       }
     }
 
-    // Update graphit_test status
-    const testRecord = db.graphit_test.find(
-      (t) => t.mb_id === user.mb_id && String(t.it_id) === String(it_id)
-    );
     const member = db.g5_member.find((m) => m.mb_id === user.mb_id);
 
     if (is_complete) {
@@ -156,6 +198,7 @@ export async function POST(req: NextRequest) {
 
     const res = NextResponse.json({
       ok: true,
+      test_no: resolvedTestNo,
       status: is_complete ? "완료" : "진행중",
     });
 
@@ -164,6 +207,7 @@ export async function POST(req: NextRequest) {
         (r) =>
           r.mb_id === user.mb_id &&
           String(r.it_id) === String(it_id) &&
+          Number(r.test_no || 0) === resolvedTestNo &&
           r.test_answer !== undefined &&
           r.test_answer !== ""
       );
@@ -188,7 +232,10 @@ export async function POST(req: NextRequest) {
           Buffer.from(rawCookie, "base64url").toString("utf-8")
         );
         const updated = cookieTests.map((t: any) => {
-          if (t.mb_id === user.mb_id && String(t.it_id) === String(it_id)) {
+          if (
+            t.mb_id === user.mb_id &&
+            Number(t.test_no) === resolvedTestNo
+          ) {
             return {
               ...t,
               test_status: is_complete ? "완료" : "진행중",

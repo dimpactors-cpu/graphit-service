@@ -2,7 +2,7 @@ import React from 'react';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { getSessionUser } from '@/lib/auth';
-import { getDb } from '@/lib/db';
+import { getDb, getAnswersForTest } from '@/lib/db';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
 import TestIntroClient from './TestIntroClient';
@@ -59,13 +59,21 @@ export default async function TestIntroPage({
     : undefined;
 
   if (!matchedTest && searchParams?.it_id) {
-    matchedTest = validGroupTests.find(
-      (t) => String(t.it_id) === String(searchParams.it_id)
-    );
+    matchedTest =
+      validGroupTests.find(
+        (t) =>
+          String(t.it_id) === String(searchParams.it_id) &&
+          t.test_status !== '완료'
+      ) ||
+      validGroupTests.find(
+        (t) => String(t.it_id) === String(searchParams.it_id)
+      );
   }
 
   if (!matchedTest) {
-    matchedTest = validGroupTests[0];
+    matchedTest =
+      validGroupTests.find((t) => t.test_status !== '완료') ||
+      validGroupTests[0];
   }
 
   // If the user has NOT applied with a group code, redirect to the order form to enter a group code
@@ -75,6 +83,7 @@ export default async function TestIntroPage({
   }
 
   const itId = String(matchedTest.it_id || searchParams?.it_id || '1698900476');
+  const testIdx = Number(matchedTest.test_no);
 
   const shopItem = db.g5_shop_item.find((it) => String(it.it_id) === itId);
   let mappedQuestions = db.graphit_item
@@ -88,15 +97,7 @@ export default async function TestIntroPage({
       .sort((a, b) => Number(a.item_seq) - Number(b.item_seq));
   }
 
-  const userAnswers = isFresh
-    ? []
-    : db.graphit_item_test.filter(
-        (ans) =>
-          ans.mb_id === user.mb_id &&
-          String(ans.it_id) === itId &&
-          ans.test_answer !== undefined &&
-          ans.test_answer !== ''
-      );
+  const userAnswers = isFresh ? [] : getAnswersForTest(db, matchedTest);
 
   const answeredSeqSet = new Set(userAnswers.map((a) => Number(a.item_seq)));
   let nextSeq = 1;
@@ -107,13 +108,16 @@ export default async function TestIntroPage({
     }
   }
 
-  // Only redirect to result if NOT a fresh application and all questions are answered
+  // Only redirect to result if NOT a fresh application and all questions are answered for this test record
   if (
     !isFresh &&
     mappedQuestions.length > 0 &&
-    answeredSeqSet.size >= mappedQuestions.length
+    (matchedTest.test_status === '완료' ||
+      answeredSeqSet.size >= mappedQuestions.length)
   ) {
-    redirect(`/test/result?it_id=${encodeURIComponent(itId)}`);
+    redirect(
+      `/test/result?test_idx=${testIdx}&it_id=${encodeURIComponent(itId)}`
+    );
   }
 
   return (
@@ -122,6 +126,7 @@ export default async function TestIntroPage({
       <main className="flex-1">
         <TestIntroClient
           itId={itId}
+          testIdx={testIdx}
           itName={shopItem?.it_name || '그래프잇 진단검사'}
           totalQuestions={mappedQuestions.length}
           answeredQuestions={answeredSeqSet.size}

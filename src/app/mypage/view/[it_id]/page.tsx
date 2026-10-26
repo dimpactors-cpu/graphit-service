@@ -1,8 +1,9 @@
 import React from 'react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { getSessionUser } from '@/lib/auth';
-import { getDb } from '@/lib/db';
+import { getDb, isTestResultOpen, GraphitTestRow } from '@/lib/db';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
 import MypageSidebar from '@/components/MypageSidebar';
@@ -28,9 +29,38 @@ export default async function MypageViewItemPage({
   const itId = String(params.it_id);
   const shopItem = db.g5_shop_item.find((it) => String(it.it_id) === itId);
 
-  const myTestsForItem = db.graphit_test
-    .filter((t) => t.mb_id === memberRow.mb_id && String(t.it_id) === itId)
-    .sort((a, b) => Number(b.test_no) - Number(a.test_no));
+  const combinedTests: GraphitTestRow[] = [
+    ...db.graphit_test.filter(
+      (t) => t.mb_id === memberRow.mb_id && String(t.it_id) === itId
+    ),
+  ];
+  try {
+    const rawCookie = cookies().get('graphit_my_tests')?.value;
+    if (rawCookie) {
+      const cookieTests = JSON.parse(
+        Buffer.from(rawCookie, 'base64url').toString('utf-8')
+      ) as GraphitTestRow[];
+      for (const ct of cookieTests) {
+        if (
+          ct.mb_id === memberRow.mb_id &&
+          String(ct.it_id) === itId &&
+          !combinedTests.some(
+            (existing) =>
+              Number(existing.test_no) === Number(ct.test_no) ||
+              String(existing.od_id) === String(ct.od_id)
+          )
+        ) {
+          combinedTests.unshift(ct);
+        }
+      }
+    }
+  } catch {
+    // ignore
+  }
+
+  const myTestsForItem = combinedTests.sort(
+    (a, b) => Number(b.test_no) - Number(a.test_no)
+  );
 
   const orderMap = new Map(db.g5_shop_order.map((o) => [String(o.od_id), o]));
 
@@ -105,12 +135,13 @@ export default async function MypageViewItemPage({
                     <th className="py-3.5 px-4">신청방식</th>
                     <th className="py-3.5 px-4 text-center">진행상태</th>
                     <th className="py-3.5 px-4">신청일시</th>
+                    <th className="py-3.5 px-4 text-center">결과지 / 응시</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {myTestsForItem.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="py-12 text-center text-slate-400">
+                      <td colSpan={6} className="py-12 text-center text-slate-400">
                         해당 검사의 신청 내역이 없습니다.
                       </td>
                     </tr>
@@ -120,6 +151,7 @@ export default async function MypageViewItemPage({
                       const settleCase = t.group_code
                         ? `단체코드 (${t.group_code})`
                         : '개인신청';
+                      const isOpen = isTestResultOpen(t);
 
                       return (
                         <tr key={t.test_no} className="hover:bg-slate-50/70">
@@ -145,6 +177,31 @@ export default async function MypageViewItemPage({
                           </td>
                           <td className="py-3.5 px-4 text-xs text-slate-500">
                             {t.test_datetime || od?.od_time || '-'}
+                          </td>
+                          <td className="py-3.5 px-4 text-center">
+                            {t.test_status === '완료' ? (
+                              <Link
+                                href={`/test/result?test_idx=${t.test_no}`}
+                                className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-extrabold text-white transition ${
+                                  isOpen
+                                    ? 'bg-emerald-600 hover:bg-emerald-700'
+                                    : 'bg-slate-700 hover:bg-slate-800'
+                                }`}
+                              >
+                                {isOpen ? '📊 결과지 보기' : '⏳ 결과 분석중'}
+                              </Link>
+                            ) : (
+                              <Link
+                                href={`/test?it_id=${encodeURIComponent(
+                                  itId
+                                )}&test_idx=${t.test_no}`}
+                                className="inline-flex items-center px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold transition"
+                              >
+                                {t.test_status === '진행중'
+                                  ? '이어서하기'
+                                  : '시작하기'}
+                              </Link>
+                            )}
                           </td>
                         </tr>
                       );

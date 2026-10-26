@@ -172,6 +172,7 @@ export interface GraphitTestRow {
   test_datetime: string;
   end_datetime: string | null;
   result_open?: boolean; // 통합관리자 수동 결과 공개 여부
+  test_answers?: Record<string, string>; // 검사 이력(test_no)별 문항 답변 맵 (item_seq -> test_answer)
 }
 
 export interface GraphitItemTestRow {
@@ -182,6 +183,7 @@ export interface GraphitItemTestRow {
   qa_no: number | string;
   test_answer: string;
   reg_datetime: string;
+  test_no?: number | string; // 검사 신청 이력 번호
 }
 
 export interface FaqRow {
@@ -531,10 +533,10 @@ function readCookieDelta(): CompactDelta | null {
         if (!delta) delta = {};
         const aMap = new Map<string, GraphitItemTestRow>();
         for (const ans of delta.a || []) {
-          aMap.set(`${ans.mb_id}::${ans.it_id}::${ans.item_seq}`, ans);
+          aMap.set(`${ans.mb_id}::${ans.it_id}::${Number(ans.test_no || 0)}::${ans.item_seq}`, ans);
         }
         for (const ans of myAnswers) {
-          aMap.set(`${ans.mb_id}::${ans.it_id}::${ans.item_seq}`, ans);
+          aMap.set(`${ans.mb_id}::${ans.it_id}::${Number(ans.test_no || 0)}::${ans.item_seq}`, ans);
         }
         delta.a = Array.from(aMap.values());
       }
@@ -645,7 +647,19 @@ function mergeDeltas(
   for (const tst of b.t || []) tMap.set(Number(tst.test_no), tst);
   for (const tst of inc.t || []) {
     const prev = tMap.get(Number(tst.test_no));
-    tMap.set(Number(tst.test_no), prev ? { ...prev, ...tst } : tst);
+    tMap.set(
+      Number(tst.test_no),
+      prev
+        ? {
+            ...prev,
+            ...tst,
+            test_answers:
+              prev.test_answers || tst.test_answers
+                ? { ...(prev.test_answers || {}), ...(tst.test_answers || {}) }
+                : undefined,
+          }
+        : tst
+    );
   }
 
   const oMap = new Map<string, ShopOrderRow>();
@@ -682,10 +696,12 @@ function mergeDeltas(
 
   const aMap = new Map<string, GraphitItemTestRow>();
   for (const ans of b.a || []) {
-    aMap.set(`${ans.mb_id}::${ans.it_id}::${ans.item_seq}`, ans);
+    if (!ans.test_no && String(ans.test_answer ?? "") === "") continue;
+    aMap.set(`${ans.mb_id}::${ans.it_id}::${Number(ans.test_no || 0)}::${ans.item_seq}`, ans);
   }
   for (const ans of inc.a || []) {
-    aMap.set(`${ans.mb_id}::${ans.it_id}::${ans.item_seq}`, ans);
+    if (!ans.test_no && String(ans.test_answer ?? "") === "") continue;
+    aMap.set(`${ans.mb_id}::${ans.it_id}::${Number(ans.test_no || 0)}::${ans.item_seq}`, ans);
   }
 
   return {
@@ -886,10 +902,12 @@ function applyDeltaToState(state: DatabaseState, delta: CompactDelta | null): Da
 
   if (delta.a && delta.a.length > 0) {
     for (const ans of delta.a) {
+      const ansTestNo = Number(ans.test_no || 0);
       const idx = state.graphit_item_test.findIndex(
         (x) =>
           x.mb_id === ans.mb_id &&
           String(x.it_id) === String(ans.it_id) &&
+          Number(x.test_no || 0) === ansTestNo &&
           Number(x.item_seq) === Number(ans.item_seq)
       );
       if (idx >= 0) {
@@ -958,10 +976,17 @@ function extractDeltaFromState(
     return (
       tst.test_status !== s.test_status ||
       tst.end_datetime !== s.end_datetime ||
-      Boolean(tst.result_open) !== Boolean(s.result_open)
+      Boolean(tst.result_open) !== Boolean(s.result_open) ||
+      JSON.stringify(tst.test_answers || null) !== JSON.stringify(s.test_answers || null)
     );
   });
-  const t = forCookie ? tAll.slice(0, 12) : tAll;
+  const t = forCookie
+    ? tAll.slice(0, 12).map((tst) => {
+        const copy = { ...tst };
+        delete copy.test_answers;
+        return copy;
+      })
+    : tAll;
 
   const seedOrderIds = new Set(seed.g5_shop_order.map((o) => String(o.od_id)));
   const oAll = state.g5_shop_order.filter((ord) => !seedOrderIds.has(String(ord.od_id)));
@@ -969,12 +994,13 @@ function extractDeltaFromState(
 
   const seedAnsMap = new Map(
     seed.graphit_item_test.map((r) => [
-      `${r.mb_id}::${r.it_id}::${r.item_seq}`,
+      `${r.mb_id}::${r.it_id}::${Number(r.test_no || 0)}::${r.item_seq}`,
       r,
     ])
   );
   const aAll = state.graphit_item_test.filter((ans) => {
-    const key = `${ans.mb_id}::${ans.it_id}::${ans.item_seq}`;
+    if (!ans.test_no && String(ans.test_answer ?? "") === "") return false;
+    const key = `${ans.mb_id}::${ans.it_id}::${Number(ans.test_no || 0)}::${ans.item_seq}`;
     const s = seedAnsMap.get(key);
     if (!s) return true;
     return (
@@ -1303,7 +1329,7 @@ export async function getDb(options?: { skipRemote?: boolean }): Promise<Databas
     );
     const remoteAnsMap = new Map(
       (remoteInfo?.delta?.a || []).map((ans) => [
-        `${ans.mb_id}::${ans.it_id}::${ans.item_seq}`,
+        `${ans.mb_id}::${ans.it_id}::${Number(ans.test_no || 0)}::${ans.item_seq}`,
         String(ans.test_answer ?? ""),
       ])
     );
@@ -1322,7 +1348,7 @@ export async function getDb(options?: { skipRemote?: boolean }): Promise<Databas
       (it) => it.it_id && !remoteItemIds.has(String(it.it_id))
     );
     const hasUnsyncedCookieAnswer = (cookieDelta.a || []).some((ans) => {
-      const key = `${ans.mb_id}::${ans.it_id}::${ans.item_seq}`;
+      const key = `${ans.mb_id}::${ans.it_id}::${Number(ans.test_no || 0)}::${ans.item_seq}`;
       return remoteAnsMap.get(key) !== String(ans.test_answer ?? "");
     });
 
@@ -1592,4 +1618,103 @@ export function isTestResultOpen(testRow: {
     return true;
   }
   return Date.now() - endMs >= RESULT_DELAY_MS;
+}
+
+/**
+ * Returns the answer rows specifically belonging to a given test history record (`test_no`).
+ * Supports per-test `test_no` in `graphit_item_test`, embedded `test_answers` map on `GraphitTestRow`,
+ * and safe fallback to legacy untagged `(mb_id, it_id)` answers when appropriate.
+ */
+export function getAnswersForTest(
+  db: DatabaseState,
+  testRecord: GraphitTestRow
+): GraphitItemTestRow[] {
+  const testNo = Number(testRecord.test_no || 0);
+  const mbId = testRecord.mb_id;
+  const itId = String(testRecord.it_id || "");
+
+  const bySeq = new Map<number, GraphitItemTestRow>();
+
+  // 1. Check embedded test_answers on testRecord if present
+  if (testRecord.test_answers && typeof testRecord.test_answers === "object") {
+    const itemMappingBySeq = new Map<number, number>();
+    for (const gi of db.graphit_item) {
+      if (String(gi.it_id) === itId) {
+        itemMappingBySeq.set(Number(gi.item_seq), Number(gi.qa_no));
+      }
+    }
+    if (itemMappingBySeq.size === 0) {
+      for (const gi of db.graphit_item) {
+        if (String(gi.it_id) === "1680499166") {
+          itemMappingBySeq.set(Number(gi.item_seq), Number(gi.qa_no));
+        }
+      }
+    }
+    for (const [seqKey, ansVal] of Object.entries(testRecord.test_answers)) {
+      const seqNum = Number(seqKey);
+      const val = String(ansVal ?? "");
+      if (!Number.isNaN(seqNum) && seqNum > 0 && val !== "") {
+        bySeq.set(seqNum, {
+          seq_no: seqNum,
+          item_seq: seqNum,
+          mb_id: mbId,
+          it_id: itId,
+          qa_no: itemMappingBySeq.get(seqNum) || 1000 + seqNum,
+          test_answer: val,
+          reg_datetime: testRecord.end_datetime || testRecord.test_datetime || "",
+          test_no: testNo,
+        });
+      }
+    }
+  }
+
+  // 2. Check graphit_item_test rows explicitly tagged with this test_no
+  if (testNo > 0) {
+    for (const r of db.graphit_item_test) {
+      if (
+        r.mb_id === mbId &&
+        String(r.it_id) === itId &&
+        Number(r.test_no || 0) === testNo &&
+        r.test_answer !== undefined &&
+        r.test_answer !== ""
+      ) {
+        bySeq.set(Number(r.item_seq), r);
+      }
+    }
+  }
+
+  if (bySeq.size > 0) {
+    return Array.from(bySeq.values()).sort(
+      (a, b) => Number(a.item_seq) - Number(b.item_seq)
+    );
+  }
+
+  // 3. Legacy fallback for untagged answers (test_no is 0 / undefined)
+  // Do NOT fall back to legacy untagged answers if this test is '시작전' and the user has other tests for the same item!
+  const sameUserItemTests = db.graphit_test.filter(
+    (t) => t.mb_id === mbId && String(t.it_id) === itId
+  );
+  const canUseUntaggedFallback =
+    sameUserItemTests.length <= 1 ||
+    testRecord.test_status === "완료" ||
+    (!sameUserItemTests.some((t) => t.test_status === "완료") &&
+      testRecord.test_status === "진행중");
+
+  if (canUseUntaggedFallback) {
+    for (const r of db.graphit_item_test) {
+      if (
+        r.mb_id === mbId &&
+        String(r.it_id) === itId &&
+        !r.test_no &&
+        r.test_answer !== undefined &&
+        r.test_answer !== ""
+      ) {
+        bySeq.set(Number(r.item_seq), r);
+      }
+    }
+  }
+
+  return Array.from(bySeq.values()).sort(
+    (a, b) => Number(a.item_seq) - Number(b.item_seq)
+  );
 }

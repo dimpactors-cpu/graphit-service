@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDb, formatKstDate } from "@/lib/db";
+import { getDb, formatKstDate, getAnswersForTest } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import {
   buildNoAnswersMap,
@@ -67,18 +67,6 @@ export async function GET(req: NextRequest) {
     // Replicates exceldown_test.php
     const itemMap = new Map(db.g5_shop_item.map((it) => [String(it.it_id), it]));
     const qaMap = new Map(db.graphit_qa.map((q) => [Number(q.qa_no), q]));
-
-    // Index answers by `${mb_id}__${it_id}`
-    const ansByMemberItem = new Map<string, typeof db.graphit_item_test>();
-    for (const ans of db.graphit_item_test) {
-      const key = `${ans.mb_id}__${ans.it_id}`;
-      let list = ansByMemberItem.get(key);
-      if (!list) {
-        list = [];
-        ansByMemberItem.set(key, list);
-      }
-      list.push(ans);
-    }
 
     let rows = [...db.graphit_test].sort((a, b) => Number(b.test_no) - Number(a.test_no));
     if (!isSuperAdmin) {
@@ -148,7 +136,7 @@ export async function GET(req: NextRequest) {
     rows.forEach((r, idx) => {
       const itId = String(r.it_id || "");
       const item = itemMap.get(itId);
-      const rawAns = ansByMemberItem.get(`${r.mb_id}__${itId}`) || [];
+      const rawAns = getAnswersForTest(db, r);
       const hasCompact = Array.isArray((r as any).no_answers) && (r as any).no_answers.length > 0;
       let answerCells = "";
       let indicatorCells = "";
@@ -499,17 +487,6 @@ export async function GET(req: NextRequest) {
     const itemMap = new Map(db.g5_shop_item.map((it) => [String(it.it_id), it]));
     const qaMap = new Map(db.graphit_qa.map((q) => [Number(q.qa_no), q]));
 
-    const ansByMemberItem = new Map<string, typeof db.graphit_item_test>();
-    for (const ans of db.graphit_item_test) {
-      const key = `${ans.mb_id}__${ans.it_id}`;
-      let list = ansByMemberItem.get(key);
-      if (!list) {
-        list = [];
-        ansByMemberItem.set(key, list);
-      }
-      list.push(ans);
-    }
-
     let rows = [...db.graphit_test]
       .filter((r) => r.test_status === "완료")
       .sort((a, b) => Number(b.test_no) - Number(a.test_no));
@@ -610,7 +587,7 @@ export async function GET(req: NextRequest) {
     const computedRows = rows.map((r, idx) => {
       const itId = String(r.it_id || "");
       const shopItem = itemMap.get(itId);
-      const rawAns = ansByMemberItem.get(`${r.mb_id}__${itId}`) || [];
+      const rawAns = getAnswersForTest(db, r);
       const noMap = buildNoAnswersMap(r, rawAns, qaMap);
       return computeResultBaseRow(
         {

@@ -23,6 +23,7 @@ export interface TestQuestionItem {
 
 interface TestRunnerClientProps {
   itId: string;
+  testIdx?: number;
   itName: string;
   questions: TestQuestionItem[];
   initialIndex: number;
@@ -30,6 +31,7 @@ interface TestRunnerClientProps {
 
 export default function TestRunnerClient({
   itId,
+  testIdx,
   itName,
   questions,
   initialIndex,
@@ -86,6 +88,7 @@ export default function TestRunnerClient({
           keepalive: true,
           body: JSON.stringify({
             it_id: itId,
+            test_no: testIdx,
             item_seq: lastAns?.item_seq,
             qa_no: lastAns?.qa_no,
             test_answer: lastAns?.test_answer ?? '',
@@ -119,6 +122,7 @@ export default function TestRunnerClient({
               keepalive: true,
               body: JSON.stringify({
                 it_id: itId,
+                test_no: testIdx,
                 item_seq: latest.item_seq,
                 qa_no: latest.qa_no,
                 test_answer: latest.test_answer,
@@ -143,7 +147,7 @@ export default function TestRunnerClient({
       activeSyncPromiseRef.current = p;
       return p;
     },
-    [itId]
+    [itId, testIdx]
   );
 
   // Preload upcoming question images for instant rendering
@@ -248,14 +252,16 @@ export default function TestRunnerClient({
           return;
         }
 
-        window.location.href = `/test/result?it_id=${encodeURIComponent(itId)}&submitted=1`;
+        window.location.href = `/test/result?${
+          testIdx ? `test_idx=${testIdx}&` : ''
+        }it_id=${encodeURIComponent(itId)}&submitted=1`;
       } catch {
         alert('네트워크 오류가 발생했습니다. 다시 시도해 주세요.');
         submittingRef.current = false;
         setSubmitting(false);
       }
     },
-    [currentIndex, currentQ, flushAnswersToServer, itId, questions.length]
+    [currentIndex, currentQ, flushAnswersToServer, itId, questions.length, testIdx]
   );
 
   // Per-question countdown timer
