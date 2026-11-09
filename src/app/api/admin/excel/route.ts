@@ -129,7 +129,7 @@ export async function GET(req: NextRequest) {
         <td style="background-color:#ffff00;font-weight:bold">검사종료일</td>
         <td style="background-color:#ffff00;font-weight:bold">이용상태</td>
         ${summaryIndicatorCols.map((col) => `<td style="background-color:#e0e7ff;font-weight:bold">${esc(col)}</td>`).join("")}
-        <td style="background-color:#ffff00;font-weight:bold">답변</td>
+        ${isSuperAdmin ? `<td style="background-color:#ffff00;font-weight:bold">답변</td>` : ""}
       </tr>
     `;
 
@@ -179,30 +179,32 @@ export async function GET(req: NextRequest) {
           })
           .join("");
 
-        if (rawAns.length > 0) {
-          const sortedAns = [...rawAns].sort((a, b) => Number(a.item_seq) - Number(b.item_seq));
-          answerCells = sortedAns
-            .map((a) => {
-              const qa = qaMap.get(Number(a.qa_no));
-              let text = String(a.test_answer ?? "");
-              if (qa && qa.qa_type === "n") {
-                if (text === "1") text = qa.qa_q1 || "1";
-                else if (text === "2") text = qa.qa_q2 || "2";
-                else if (text === "3") text = qa.qa_q3 || "3";
-                else if (text === "4") text = qa.qa_q4 || "4";
-                else if (text === "5") text = qa.qa_q5 || "5";
-              }
-              if (!text) return `<td style="color:red">답변없음</td>`;
-              return `<td>${esc(text)}</td>`;
-            })
-            .join("");
-        } else if (hasCompact) {
-          answerCells = ((r as any).no_answers as string[])
-            .map((text) => {
-              if (!text) return `<td style="color:red">답변없음</td>`;
-              return `<td>${esc(text)}</td>`;
-            })
-            .join("");
+        if (isSuperAdmin) {
+          if (rawAns.length > 0) {
+            const sortedAns = [...rawAns].sort((a, b) => Number(a.item_seq) - Number(b.item_seq));
+            answerCells = sortedAns
+              .map((a) => {
+                const qa = qaMap.get(Number(a.qa_no));
+                let text = String(a.test_answer ?? "");
+                if (qa && qa.qa_type === "n") {
+                  if (text === "1") text = qa.qa_q1 || "1";
+                  else if (text === "2") text = qa.qa_q2 || "2";
+                  else if (text === "3") text = qa.qa_q3 || "3";
+                  else if (text === "4") text = qa.qa_q4 || "4";
+                  else if (text === "5") text = qa.qa_q5 || "5";
+                }
+                if (!text) return `<td style="color:red">답변없음</td>`;
+                return `<td>${esc(text)}</td>`;
+              })
+              .join("");
+          } else if (hasCompact) {
+            answerCells = ((r as any).no_answers as string[])
+              .map((text) => {
+                if (!text) return `<td style="color:red">답변없음</td>`;
+                return `<td>${esc(text)}</td>`;
+              })
+              .join("");
+          }
         }
       } else {
         indicatorCells = summaryIndicatorCols.map(() => `<td>-</td>`).join("");
@@ -222,7 +224,7 @@ export async function GET(req: NextRequest) {
           <td>${esc(r.end_datetime)}</td>
           <td>${esc(r.test_status)}</td>
           ${indicatorCells}
-          <td>${answerCells ? `<table border="1"><tr>${answerCells}</tr></table>` : ""}</td>
+          ${isSuperAdmin ? `<td>${answerCells ? `<table border="1"><tr>${answerCells}</tr></table>` : ""}</td>` : ""}
         </tr>
       `;
     });

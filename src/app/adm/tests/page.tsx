@@ -11,7 +11,15 @@ import AdminTestsClient, { StudentTestRecord } from './AdminTestsClient';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminTestsPage() {
+export default async function AdminTestsPage({
+  searchParams,
+}: {
+  searchParams?: {
+    open_answers?: string;
+    group_code?: string;
+    keyword?: string;
+  };
+}) {
   const user = getSessionUser();
   if (!user) {
     redirect('/login?redirect=/adm/tests');
@@ -215,11 +223,22 @@ export default async function AdminTestsPage() {
     it_name: it.it_name,
   }));
 
+  const openAnswersNo = searchParams?.open_answers
+    ? Number(searchParams.open_answers)
+    : undefined;
+
   return (
     <AdminTestsClient
       records={records}
       groupCodes={groupCodes}
       items={items}
+      initialOpenTestNo={
+        openAnswersNo && Number.isFinite(openAnswersNo)
+          ? openAnswersNo
+          : undefined
+      }
+      initialGroupFilter={searchParams?.group_code}
+      initialKeyword={searchParams?.keyword}
     />
   );
 }

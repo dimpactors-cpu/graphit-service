@@ -64,9 +64,6 @@ export default function GroupAdminClient({
     'ALL' | '완료' | '진행중' | '시작전'
   >('ALL');
   const [keyword, setKeyword] = useState<string>('');
-  const [selectedRecord, setSelectedRecord] = useState<StudentTestRecord | null>(
-    null
-  );
   const [reportModalRecord, setReportModalRecord] =
     useState<StudentTestRecord | null>(null);
   const [showBulkPdfModal, setShowBulkPdfModal] = useState<boolean>(false);
@@ -564,7 +561,7 @@ export default function GroupAdminClient({
                       <th className="py-3.5 px-4 text-center">진행률</th>
                       <th className="py-3.5 px-4 text-center">상태</th>
                       <th className="py-3.5 px-4">응시 일시</th>
-                      <th className="py-3.5 px-4 text-center">결과지 · 응답 조회</th>
+                      <th className="py-3.5 px-4 text-center">결과지 조회</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -699,24 +696,17 @@ export default function GroupAdminClient({
                               )}
                           </td>
                           <td className="py-3.5 px-4 text-center">
-                            <div className="flex flex-wrap items-center justify-center gap-1.5">
-                              {r.report && (
-                                <button
-                                  type="button"
-                                  onClick={() => setReportModalRecord(r)}
-                                  className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold shadow-2xs transition"
-                                >
-                                  📊 결과지 보기
-                                </button>
-                              )}
+                            {r.report ? (
                               <button
                                 type="button"
-                                onClick={() => setSelectedRecord(r)}
-                                className="px-2.5 py-1.5 rounded-lg border border-slate-300 hover:border-slate-500 text-xs font-bold text-slate-700 transition"
+                                onClick={() => setReportModalRecord(r)}
+                                className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold shadow-2xs transition"
                               >
-                                응답 ({r.answers.length})
+                                📊 결과지 보기
                               </button>
-                            </div>
+                            ) : (
+                              <span className="text-xs text-slate-300">-</span>
+                            )}
                           </td>
                         </tr>
                       ))
@@ -1363,94 +1353,6 @@ export default function GroupAdminClient({
                   onClose={() => setReportModalRecord(null)}
                   isModal
                 />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Modal for Student Question-by-Question Answers */}
-        {selectedRecord && (
-          <div className="print:hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
-              <div className="px-6 py-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-                <div>
-                  <span className="text-xs font-bold text-indigo-600">
-                    수강생 문항별 상세 응답 이력
-                  </span>
-                  <h3 className="text-lg font-extrabold text-slate-900">
-                    {selectedRecord.mb_name} ({selectedRecord.mb_id}) —{' '}
-                    {selectedRecord.it_name}
-                  </h3>
-                </div>
-                <div className="flex items-center gap-2">
-                  {selectedRecord.report && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const rec = selectedRecord;
-                        setSelectedRecord(null);
-                        setReportModalRecord(rec);
-                      }}
-                      className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold"
-                    >
-                      📊 이 학생의 결과지 보기
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => setSelectedRecord(null)}
-                    className="w-9 h-9 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 font-bold"
-                  >
-                    ✕
-                  </button>
-                </div>
-              </div>
-
-              <div className="p-6 overflow-y-auto flex-1">
-                {selectedRecord.answers.length === 0 ? (
-                  <p className="py-12 text-center text-slate-400">
-                    아직 제출된 문항 답변 데이터가 없습니다.
-                  </p>
-                ) : (
-                  <table className="w-full text-left border-collapse text-xs sm:text-sm">
-                    <thead>
-                      <tr className="bg-slate-100 border-b border-slate-200 font-bold text-slate-600">
-                        <th className="py-2.5 px-3 w-16 text-center">순번</th>
-                        <th className="py-2.5 px-3 w-36">문항코드</th>
-                        <th className="py-2.5 px-3">질문 요약</th>
-                        <th className="py-2.5 px-3 w-24 text-center">
-                          응답/채점값
-                        </th>
-                        <th className="py-2.5 px-3">응답 내용</th>
-                        <th className="py-2.5 px-3 w-36">응답일시</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {selectedRecord.answers.map((ans) => (
-                        <tr key={ans.item_seq} className="hover:bg-slate-50">
-                          <td className="py-2.5 px-3 text-center font-bold text-slate-500">
-                            No_{ans.item_seq}
-                          </td>
-                          <td className="py-2.5 px-3 font-mono text-xs text-slate-600">
-                            {ans.qa_code}
-                          </td>
-                          <td className="py-2.5 px-3 text-slate-800 font-medium">
-                            {ans.qa_subject}
-                          </td>
-                          <td className="py-2.5 px-3 text-center font-extrabold text-indigo-600">
-                            {ans.raw_answer}
-                          </td>
-                          <td className="py-2.5 px-3 text-slate-700 font-semibold">
-                            {ans.display_answer}
-                          </td>
-                          <td className="py-2.5 px-3 text-xs text-slate-400">
-                            {(ans.reg_datetime || '').slice(0, 19)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
               </div>
             </div>
           </div>

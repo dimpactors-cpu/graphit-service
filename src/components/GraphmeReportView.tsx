@@ -50,43 +50,116 @@ export default function GraphmeReportView({
     { title: '갈등의 방향', ...report.directions.conflict },
   ];
 
-  const studyPairs = [
-    {
-      category: '학습 시점',
-      leftLabel: '예습',
-      leftVal: report.studyPlanRatios.prep,
-      rightLabel: '복습',
-      rightVal: report.studyPlanRatios.review,
-    },
-    {
-      category: '학습 방식',
-      leftLabel: '개념정리',
-      leftVal: report.studyPlanRatios.concept,
-      rightLabel: '문제풀이',
-      rightVal: report.studyPlanRatios.problem,
-    },
-    {
-      category: '개인 학습',
-      leftLabel: '독학',
-      leftVal: report.studyPlanRatios.selfStudy,
-      rightLabel: '1:1 과외',
-      rightVal: report.studyPlanRatios.tutoring1on1,
-    },
-    {
-      category: '집단 학습',
-      leftLabel: '그룹과외',
-      leftVal: report.studyPlanRatios.groupTutoring,
-      rightLabel: '학원',
-      rightVal: report.studyPlanRatios.academy,
-    },
-    {
-      category: '학습 공간',
-      leftLabel: '독립형공간',
-      leftVal: report.studyPlanRatios.independentSpace,
-      rightLabel: '개방형공간',
-      rightVal: report.studyPlanRatios.openSpace,
-    },
-  ];
+  const roundTo100 = (vals: number[]): number[] => {
+    const safe = vals.map((v) => (Number.isFinite(v) && v > 0 ? v : 0));
+    const sum = safe.reduce((a, b) => a + b, 0);
+    if (sum <= 0) {
+      const base = Math.floor(100 / safe.length);
+      return safe.map((_, i) =>
+        i === 0 ? 100 - base * (safe.length - 1) : base
+      );
+    }
+    const exact = safe.map((v) => (v / sum) * 100);
+    const floored = exact.map((v) => Math.floor(v));
+    const diff = 100 - floored.reduce((a, b) => a + b, 0);
+    const indices = exact
+      .map((v, i) => ({ i, rem: v - floored[i] }))
+      .sort((a, b) => b.rem - a.rem || a.i - b.i);
+    for (let k = 0; k < diff && k < indices.length; k++) {
+      floored[indices[k].i] += 1;
+    }
+    return floored;
+  };
+
+  const [prepPct, reviewPct] = roundTo100([
+    report.studyPlanRatios.prep,
+    report.studyPlanRatios.review,
+  ]);
+  const [conceptPct, problemPct] = roundTo100([
+    report.studyPlanRatios.concept,
+    report.studyPlanRatios.problem,
+  ]);
+  const [selfPct, tutor1on1Pct, groupTutorPct, academyPct] = roundTo100([
+    report.studyPlanRatios.selfStudy,
+    report.studyPlanRatios.tutoring1on1,
+    report.studyPlanRatios.groupTutoring,
+    report.studyPlanRatios.academy,
+  ]);
+  const personalTotalPct = selfPct + tutor1on1Pct;
+  const groupTotalPct = groupTutorPct + academyPct;
+  const maxPathPct = Math.max(selfPct, tutor1on1Pct, groupTutorPct, academyPct);
+  const [indepSpacePct, openSpacePct] = roundTo100([
+    report.studyPlanRatios.independentSpace,
+    report.studyPlanRatios.openSpace,
+  ]);
+
+  const renderBinaryStudyCard = (pair: {
+    category: string;
+    leftLabel: string;
+    lPct: number;
+    rightLabel: string;
+    rPct: number;
+  }) => {
+    const lSize = 28 + Math.round((pair.lPct / 100) * 32);
+    const rSize = 28 + Math.round((pair.rPct / 100) * 32);
+    return (
+      <div
+        key={pair.category}
+        className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between"
+      >
+        <div className="text-xs font-extrabold text-slate-500 text-center mb-3">
+          {pair.category}
+        </div>
+
+        {/* Proportional Circles */}
+        <div className="flex items-center justify-around h-20 mb-3">
+          <div className="flex flex-col items-center">
+            <div
+              className={`rounded-full flex items-center justify-center text-xs font-black ${
+                pair.lPct >= pair.rPct
+                  ? 'bg-slate-900 text-white'
+                  : 'bg-slate-200 text-slate-700'
+              }`}
+              style={{ width: lSize, height: lSize }}
+            >
+              {pair.lPct}%
+            </div>
+            <span className="text-xs font-bold text-slate-800 mt-1.5">
+              {pair.leftLabel}
+            </span>
+          </div>
+
+          <span className="text-[11px] font-bold text-slate-400">vs</span>
+
+          <div className="flex flex-col items-center">
+            <div
+              className={`rounded-full flex items-center justify-center text-xs font-black ${
+                pair.rPct > pair.lPct
+                  ? 'bg-slate-900 text-white'
+                  : 'bg-slate-200 text-slate-700'
+              }`}
+              style={{ width: rSize, height: rSize }}
+            >
+              {pair.rPct}%
+            </div>
+            <span className="text-xs font-bold text-slate-800 mt-1.5">
+              {pair.rightLabel}
+            </span>
+          </div>
+        </div>
+
+        {/* Bar */}
+        <div className="h-2.5 w-full rounded-full bg-slate-200 overflow-hidden flex">
+          <div
+            className="bg-slate-900 h-full"
+            style={{
+              width: `${pair.lPct}%`,
+            }}
+          />
+        </div>
+      </div>
+    );
+  };
 
   const congruencePct = Math.round(report.selfCongruenceRate * 1000) / 10;
 
@@ -979,70 +1052,134 @@ export default function GraphmeReportView({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 print:!grid-cols-5 gap-3">
-              {studyPairs.map((pair) => {
-                const lPct = Math.round(pair.leftVal * 100);
-                const rPct = Math.round(pair.rightVal * 100);
-                const lSize = 28 + Math.round(pair.leftVal * 32);
-                const rSize = 28 + Math.round(pair.rightVal * 32);
-                return (
-                  <div
-                    key={pair.category}
-                    className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between"
-                  >
-                    <div className="text-xs font-extrabold text-slate-500 text-center mb-3">
-                      {pair.category}
-                    </div>
+              {renderBinaryStudyCard({
+                category: '학습 시점',
+                leftLabel: '예습',
+                lPct: prepPct,
+                rightLabel: '복습',
+                rPct: reviewPct,
+              })}
 
-                    {/* Proportional Circles */}
-                    <div className="flex items-center justify-around h-20 mb-3">
-                      <div className="flex flex-col items-center">
-                        <div
-                          className={`rounded-full flex items-center justify-center text-xs font-black ${
-                            lPct >= rPct
-                              ? 'bg-slate-900 text-white'
-                              : 'bg-slate-200 text-slate-700'
-                          }`}
-                          style={{ width: lSize, height: lSize }}
-                        >
-                          {lPct}%
-                        </div>
-                        <span className="text-xs font-bold text-slate-800 mt-1.5">
-                          {pair.leftLabel}
-                        </span>
-                      </div>
+              {renderBinaryStudyCard({
+                category: '학습 방식',
+                leftLabel: '개념정리',
+                lPct: conceptPct,
+                rightLabel: '문제풀이',
+                rPct: problemPct,
+              })}
 
-                      <span className="text-[11px] font-bold text-slate-400">
-                        vs
-                      </span>
-
-                      <div className="flex flex-col items-center">
-                        <div
-                          className={`rounded-full flex items-center justify-center text-xs font-black ${
-                            rPct > lPct
-                              ? 'bg-slate-900 text-white'
-                              : 'bg-slate-200 text-slate-700'
-                          }`}
-                          style={{ width: rSize, height: rSize }}
-                        >
-                          {rPct}%
-                        </div>
-                        <span className="text-xs font-bold text-slate-800 mt-1.5">
-                          {pair.rightLabel}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Bar */}
-                    <div className="h-2.5 w-full rounded-full bg-slate-200 overflow-hidden flex">
-                      <div
-                        className="bg-slate-900 h-full"
-                        style={{
-                          width: `${(lPct / (lPct + rPct || 1)) * 100}%`,
-                        }}
-                      />
-                    </div>
+              {/* 통합 학습 형태 카드: 개인학습(독학, 1:1 과외) + 집단학습(그룹과외, 학원) = 100% */}
+              <div className="sm:col-span-2 lg:col-span-2 print:!col-span-2 bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between">
+                <div className="grid grid-cols-2 items-center text-xs font-extrabold text-slate-500 text-center mb-3 relative">
+                  <div>
+                    개인학습{' '}
+                    <span className="text-slate-900">({personalTotalPct}%)</span>
                   </div>
-                );
+                  <span className="absolute left-1/2 -translate-x-1/2 text-[11px] font-black text-slate-400">
+                    +
+                  </span>
+                  <div>
+                    집단학습{' '}
+                    <span className="text-slate-900">({groupTotalPct}%)</span>
+                  </div>
+                </div>
+
+                {/* 4 Proportional Circles (Sum = 100%) */}
+                <div className="grid grid-cols-2 items-center h-20 mb-3">
+                  <div className="flex items-center justify-around border-r border-dashed border-slate-300 pr-1.5">
+                    {[
+                      { label: '독학', pct: selfPct },
+                      { label: '1:1 과외', pct: tutor1on1Pct },
+                    ].map((item) => {
+                      const size = 28 + Math.round((item.pct / 100) * 32);
+                      const isTop = item.pct === maxPathPct;
+                      return (
+                        <div key={item.label} className="flex flex-col items-center">
+                          <div
+                            className={`rounded-full flex items-center justify-center text-xs font-black ${
+                              isTop
+                                ? 'bg-slate-900 text-white'
+                                : 'bg-slate-200 text-slate-700'
+                            }`}
+                            style={{ width: size, height: size }}
+                          >
+                            {item.pct}%
+                          </div>
+                          <span className="text-xs font-bold text-slate-800 mt-1.5">
+                            {item.label}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex items-center justify-around pl-1.5">
+                    {[
+                      { label: '그룹과외', pct: groupTutorPct },
+                      { label: '학원', pct: academyPct },
+                    ].map((item) => {
+                      const size = 28 + Math.round((item.pct / 100) * 32);
+                      const isTop = item.pct === maxPathPct;
+                      return (
+                        <div key={item.label} className="flex flex-col items-center">
+                          <div
+                            className={`rounded-full flex items-center justify-center text-xs font-black ${
+                              isTop
+                                ? 'bg-slate-900 text-white'
+                                : 'bg-slate-200 text-slate-700'
+                            }`}
+                            style={{ width: size, height: size }}
+                          >
+                            {item.pct}%
+                          </div>
+                          <span className="text-xs font-bold text-slate-800 mt-1.5">
+                            {item.label}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Single Unified 4-Way 100% Bar */}
+                <div className="h-2.5 w-full rounded-full bg-slate-200 overflow-hidden flex">
+                  {selfPct > 0 && (
+                    <div
+                      className="bg-slate-900 h-full border-r border-white/60 last:border-r-0"
+                      style={{ width: `${selfPct}%` }}
+                      title={`개인학습 · 독학 ${selfPct}%`}
+                    />
+                  )}
+                  {tutor1on1Pct > 0 && (
+                    <div
+                      className="bg-slate-700 h-full border-r border-white/80 last:border-r-0"
+                      style={{ width: `${tutor1on1Pct}%` }}
+                      title={`개인학습 · 1:1 과외 ${tutor1on1Pct}%`}
+                    />
+                  )}
+                  {groupTutorPct > 0 && (
+                    <div
+                      className="bg-slate-500 h-full border-r border-white/60 last:border-r-0"
+                      style={{ width: `${groupTutorPct}%` }}
+                      title={`집단학습 · 그룹과외 ${groupTutorPct}%`}
+                    />
+                  )}
+                  {academyPct > 0 && (
+                    <div
+                      className="bg-slate-300 h-full"
+                      style={{ width: `${academyPct}%` }}
+                      title={`집단학습 · 학원 ${academyPct}%`}
+                    />
+                  )}
+                </div>
+              </div>
+
+              {renderBinaryStudyCard({
+                category: '학습 공간',
+                leftLabel: '독립형공간',
+                lPct: indepSpacePct,
+                rightLabel: '개방형공간',
+                rPct: openSpacePct,
               })}
             </div>
           </div>

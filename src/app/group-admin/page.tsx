@@ -305,7 +305,7 @@ export default async function GroupAdminPage({
       totalQuestions: totalQ,
       answeredQuestions: t.test_status === '완료' ? totalQ : answeredCount,
       progressPercent,
-      answers: formattedAnswers,
+      answers: [],
       resultRow,
       report,
     };

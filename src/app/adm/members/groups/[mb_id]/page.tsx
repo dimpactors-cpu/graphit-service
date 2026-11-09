@@ -1,7 +1,7 @@
 import React from 'react';
 import { redirect } from 'next/navigation';
 import { getSessionUser } from '@/lib/auth';
-import { getDb } from '@/lib/db';
+import { getDb, getAnswersForTest } from '@/lib/db';
 import GroupMemberDetailClient from './GroupMemberDetailClient';
 
 export const dynamic = 'force-dynamic';
@@ -37,14 +37,6 @@ export default async function AdminGroupMemberDetailPage({
     itemQCountMap.set(k, (itemQCountMap.get(k) || 0) + 1);
   }
 
-  const answerCountMap = new Map<string, number>();
-  for (const ans of db.graphit_item_test) {
-    if (ans.test_answer) {
-      const k = `${ans.mb_id}::${ans.it_id}`;
-      answerCountMap.set(k, (answerCountMap.get(k) || 0) + 1);
-    }
-  }
-
   const assignedUpper = new Set(
     String(member.mb_7 || '')
       .split(',')
@@ -74,8 +66,15 @@ export default async function AdminGroupMemberDetailPage({
       const students = groupTests.map((t) => {
         const stMb = memberMap.get(t.mb_id);
         const tItId = String(t.it_id || itId);
-        const totalQ = itemQCountMap.get(tItId) || 1;
-        const ansQ = Math.min(totalQ, answerCountMap.get(`${t.mb_id}::${tItId}`) || 0);
+        const rawAnswers = getAnswersForTest(db, t).filter((a) => Boolean(a.test_answer));
+        const compactCount = Array.isArray((t as any).no_answers)
+          ? (t as any).no_answers.length
+          : 0;
+        const totalQ = compactCount > 0 ? compactCount : itemQCountMap.get(tItId) || 208;
+        const ansQ = Math.min(
+          totalQ,
+          rawAnswers.length > 0 ? rawAnswers.length : compactCount
+        );
         const pct =
           t.test_status === '완료'
             ? 100
@@ -98,6 +97,7 @@ export default async function AdminGroupMemberDetailPage({
           test_datetime: t.test_datetime || '',
           end_datetime: t.end_datetime || '',
           progressPercent: pct,
+          answeredCount: t.test_status === '완료' ? totalQ : ansQ,
         };
       });
 

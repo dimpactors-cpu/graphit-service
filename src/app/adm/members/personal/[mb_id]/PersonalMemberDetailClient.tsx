@@ -353,12 +353,13 @@ export default function PersonalMemberDetailClient({
                   <th className="py-2.5 px-3">단체코드</th>
                   <th className="py-2.5 px-3 text-center">상태</th>
                   <th className="py-2.5 px-3">신청일 / 완료일</th>
+                  <th className="py-2.5 px-3 text-center">결과지 · 응답</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {tests.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-8 text-center text-slate-400">
+                    <td colSpan={6} className="py-8 text-center text-slate-400">
                       검사 신청 내역이 없습니다.
                     </td>
                   </tr>
@@ -390,6 +391,25 @@ export default function PersonalMemberDetailClient({
                       <td className="py-2.5 px-3 text-slate-500">
                         {t.test_datetime}
                         {t.end_datetime ? ` ~ ${t.end_datetime}` : ''}
+                      </td>
+                      <td className="py-2.5 px-3 text-center">
+                        <div className="inline-flex items-center gap-1">
+                          {t.test_status === '완료' && (
+                            <Link
+                              href={`/test/result?test_idx=${t.test_no}`}
+                              target="_blank"
+                              className="px-2 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-extrabold transition"
+                            >
+                              📊 결과지
+                            </Link>
+                          )}
+                          <Link
+                            href={`/adm/tests?open_answers=${t.test_no}`}
+                            className="px-2 py-1 rounded-lg border border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100 text-[11px] font-extrabold text-indigo-800 transition"
+                          >
+                            📝 응답 확인
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                   ))

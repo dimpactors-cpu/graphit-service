@@ -1382,18 +1382,54 @@ export function generateStudentReport(row: ResultBaseRow): StudentReportData {
       paragraph1: weaknessP1,
       paragraph2: weaknessP2,
     },
-    studyPlanRatios: {
-      prep: row.motive_A_pct > 0 ? row.motive_A_pct / 100 : st.prepRatio,
-      review: row.motive_B_pct > 0 ? row.motive_B_pct / 100 : st.reviewRatio,
-      concept: row.perception_A_pct > 0 ? row.perception_A_pct / 100 : st.conceptRatio,
-      problem: row.perception_B_pct > 0 ? row.perception_B_pct / 100 : st.problemRatio,
-      selfStudy: row.path_A_pct > 0 ? row.path_A_pct / 100 : st.selfStudyRatio,
-      tutoring1on1: row.path_B_pct > 0 ? row.path_B_pct / 100 : st.tutoring1on1Ratio,
-      groupTutoring: row.path_C_pct > 0 ? row.path_C_pct / 100 : st.groupTutoringRatio,
-      academy: row.path_D_pct > 0 ? row.path_D_pct / 100 : st.academyRatio,
-      independentSpace: row.space_A_pct > 0 ? row.space_A_pct / 100 : st.independentSpaceRatio,
-      openSpace: row.space_B_pct > 0 ? row.space_B_pct / 100 : st.openSpaceRatio,
-    },
+    studyPlanRatios: (() => {
+      const normalizeGroup = (vals: number[]): number[] => {
+        const safe = vals.map((v) => (Number.isFinite(v) && v > 0 ? v : 0));
+        const total = safe.reduce((acc, v) => acc + v, 0);
+        if (total <= 0) return safe.map(() => 1 / safe.length);
+        return safe.map((v) => v / total);
+      };
+      const hasMotive = row.motive_A_pct + row.motive_B_pct > 0;
+      const [prep, review] = normalizeGroup(
+        hasMotive ? [row.motive_A_pct, row.motive_B_pct] : [st.prepRatio, st.reviewRatio]
+      );
+      const hasPerception = row.perception_A_pct + row.perception_B_pct > 0;
+      const [concept, problem] = normalizeGroup(
+        hasPerception
+          ? [row.perception_A_pct, row.perception_B_pct]
+          : [st.conceptRatio, st.problemRatio]
+      );
+      const hasPath =
+        row.path_A_pct + row.path_B_pct + row.path_C_pct + row.path_D_pct > 0;
+      const [selfStudy, tutoring1on1, groupTutoring, academy] = normalizeGroup(
+        hasPath
+          ? [row.path_A_pct, row.path_B_pct, row.path_C_pct, row.path_D_pct]
+          : [
+              st.selfStudyRatio,
+              st.tutoring1on1Ratio,
+              st.groupTutoringRatio,
+              st.academyRatio,
+            ]
+      );
+      const hasSpace = row.space_A_pct + row.space_B_pct > 0;
+      const [independentSpace, openSpace] = normalizeGroup(
+        hasSpace
+          ? [row.space_A_pct, row.space_B_pct]
+          : [st.independentSpaceRatio, st.openSpaceRatio]
+      );
+      return {
+        prep,
+        review,
+        concept,
+        problem,
+        selfStudy,
+        tutoring1on1,
+        groupTutoring,
+        academy,
+        independentSpace,
+        openSpace,
+      };
+    })(),
   };
 }
 

@@ -30,6 +30,7 @@ interface GroupCodeDetail {
     test_datetime: string;
     end_datetime: string;
     progressPercent: number;
+    answeredCount?: number;
   }>;
 }
 
@@ -570,12 +571,13 @@ export default function GroupMemberDetailClient({
                   <th className="py-3 px-4 text-center">진행률</th>
                   <th className="py-3 px-4 text-center">진행상태</th>
                   <th className="py-3 px-4">신청일시 / 완료일시</th>
+                  <th className="py-3 px-4 text-center">결과지 · 응답 확인</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {currentGroup.students.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="py-12 text-center text-slate-400">
+                    <td colSpan={9} className="py-12 text-center text-slate-400">
                       해당 단체코드로 신청한 수강생이 없습니다.
                     </td>
                   </tr>
@@ -610,6 +612,28 @@ export default function GroupMemberDetailClient({
                       <td className="py-3 px-4 text-xs text-slate-500">
                         {st.test_datetime}
                         {st.end_datetime ? ` ~ ${st.end_datetime}` : ''}
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        <div className="inline-flex items-center gap-1.5">
+                          {st.test_status === '완료' && (
+                            <Link
+                              href={`/test/result?test_idx=${st.test_no}`}
+                              target="_blank"
+                              className="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold transition"
+                            >
+                              📊 결과지
+                            </Link>
+                          )}
+                          <Link
+                            href={`/adm/tests?open_answers=${st.test_no}`}
+                            className="px-2.5 py-1 rounded-lg border border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100 text-xs font-extrabold text-indigo-800 transition"
+                          >
+                            📝 응답 확인
+                            {typeof st.answeredCount === 'number'
+                              ? ` (${st.answeredCount})`
+                              : ''}
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                   ))

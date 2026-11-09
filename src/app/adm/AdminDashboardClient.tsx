@@ -304,6 +304,7 @@ export default function AdminDashboardClient({
                   <th className="py-2.5 px-3">단체코드</th>
                   <th className="py-2.5 px-3 text-center">상태</th>
                   <th className="py-2.5 px-3">신청일시</th>
+                  <th className="py-2.5 px-3 text-center">응답·결과</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -340,6 +341,14 @@ export default function AdminDashboardClient({
                     </td>
                     <td className="py-2.5 px-3 text-xs text-slate-500">
                       {(t.test_datetime || '').slice(0, 16)}
+                    </td>
+                    <td className="py-2.5 px-3 text-center">
+                      <Link
+                        href={`/adm/tests?open_answers=${t.test_no}`}
+                        className="inline-flex px-2.5 py-1 rounded-lg border border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100 text-[11px] font-extrabold text-indigo-800 transition"
+                      >
+                        📝 응답 확인
+                      </Link>
                     </td>
                   </tr>
                 ))}

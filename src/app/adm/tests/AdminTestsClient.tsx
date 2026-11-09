@@ -45,22 +45,31 @@ interface AdminTestsClientProps {
   records: StudentTestRecord[];
   groupCodes: Array<{ code: string; name: string }>;
   items: Array<{ it_id: string; it_name: string }>;
+  initialOpenTestNo?: number;
+  initialGroupFilter?: string;
+  initialKeyword?: string;
 }
 
 export default function AdminTestsClient({
   records,
   groupCodes,
   items,
+  initialOpenTestNo,
+  initialGroupFilter,
+  initialKeyword,
 }: AdminTestsClientProps) {
   const [recordsState, setRecordsState] = useState<StudentTestRecord[]>(records);
   const [releasingNo, setReleasingNo] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'result_db'>('list');
   const [dbColGroup, setDbColGroup] = useState<'summary' | 'competency' | 'direction' | 'ability' | 'roadmap_aq'>('summary');
   const [statusFilter, setStatusFilter] = useState<'ALL' | '완료' | '진행중' | '시작전'>('ALL');
-  const [groupFilter, setGroupFilter] = useState<string>('ALL');
+  const [groupFilter, setGroupFilter] = useState<string>(initialGroupFilter || 'ALL');
   const [itemFilter, setItemFilter] = useState<string>('ALL');
-  const [keyword, setKeyword] = useState<string>('');
-  const [selectedRecord, setSelectedRecord] = useState<StudentTestRecord | null>(null);
+  const [keyword, setKeyword] = useState<string>(initialKeyword || '');
+  const [selectedRecord, setSelectedRecord] = useState<StudentTestRecord | null>(() => {
+    if (!initialOpenTestNo) return null;
+    return records.find((r) => r.test_no === initialOpenTestNo) || null;
+  });
   const [reportModalRecord, setReportModalRecord] = useState<StudentTestRecord | null>(null);
   const [showBulkPdfModal, setShowBulkPdfModal] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
@@ -544,9 +553,9 @@ export default function AdminTestsClient({
                           <button
                             type="button"
                             onClick={() => setSelectedRecord(r)}
-                            className="px-2.5 py-1.5 rounded-lg border border-slate-300 hover:border-slate-500 text-xs font-bold text-slate-700 transition"
+                            className="px-2.5 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100 hover:border-indigo-400 text-xs font-extrabold text-indigo-800 transition"
                           >
-                            응답 ({r.answers.length})
+                            📝 응답 확인 ({r.answers.length})
                           </button>
                         </div>
                       </td>
@@ -571,7 +580,7 @@ export default function AdminTestsClient({
                   <th className="py-3 px-3">단체명</th>
                   <th className="py-3 px-3">아이디</th>
                   <th className="py-3 px-3">이름</th>
-                  <th className="py-3 px-3 text-center">결과지</th>
+                  <th className="py-3 px-3 text-center">결과지 · 응답</th>
 
                   {dbColGroup === 'summary' && (
                     <>
@@ -704,13 +713,22 @@ export default function AdminTestsClient({
                         {dbRow.mb_name}
                       </td>
                       <td className="py-2.5 px-3 text-center">
-                        <button
-                          type="button"
-                          onClick={() => setReportModalRecord(r)}
-                          className="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-extrabold"
-                        >
-                          📊 결과지
-                        </button>
+                        <div className="inline-flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setReportModalRecord(r)}
+                            className="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-extrabold"
+                          >
+                            📊 결과지
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedRecord(r)}
+                            className="px-2 py-1 rounded-lg border border-slate-300 bg-white hover:border-indigo-400 text-slate-700 text-[11px] font-bold"
+                          >
+                            📝 응답 ({r.answers.length})
+                          </button>
+                        </div>
                       </td>
 
                       {dbColGroup === 'summary' && (
@@ -919,6 +937,17 @@ export default function AdminTestsClient({
                 </span>
               </div>
               <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const rec = reportModalRecord;
+                    setReportModalRecord(null);
+                    setSelectedRecord(rec);
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-extrabold text-white transition"
+                >
+                  📝 문항별 응답 확인 ({reportModalRecord.answers.length})
+                </button>
                 <Link
                   href={`/test/result?test_idx=${reportModalRecord.test_no}`}
                   target="_blank"
@@ -955,9 +984,19 @@ export default function AdminTestsClient({
           <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
             <div className="px-6 py-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
               <div>
-                <span className="text-xs font-bold text-indigo-600">
-                  수강생 문항별 상세 응답 이력
-                </span>
+                <div className="flex flex-wrap items-center gap-2 mb-0.5">
+                  <span className="text-xs font-bold text-indigo-600">
+                    수강생 문항별 상세 응답 이력 (#{selectedRecord.test_no})
+                  </span>
+                  {selectedRecord.group_code && (
+                    <span className="px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 text-[11px] font-extrabold">
+                      단체코드: {selectedRecord.group_code}
+                    </span>
+                  )}
+                  <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-700 text-[11px] font-bold">
+                    응답 {selectedRecord.answers.length} / {selectedRecord.totalQuestions}문항
+                  </span>
+                </div>
                 <h3 className="text-lg font-extrabold text-slate-900">
                   {selectedRecord.mb_name} ({selectedRecord.mb_id}) —{' '}
                   {selectedRecord.it_name}
