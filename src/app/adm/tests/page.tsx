@@ -145,14 +145,14 @@ export default async function AdminTestsPage({
       const progressPercent =
         t.test_status === '완료'
           ? 100
-          : totalQ > 0
-          ? Math.min(100, Math.round((answeredCount / totalQ) * 100))
+          : totalQ > 0 && answeredCount > 0
+          ? Math.min(99, Math.max(1, Math.floor((answeredCount / totalQ) * 100)))
           : 0;
 
       let resultRow = undefined;
       let report = undefined;
 
-      if (t.test_status === '완료' || formattedAnswers.length > 0) {
+      if (t.test_status === '완료') {
         const noMap = buildNoAnswersMap(t, rawAnswers, qaMap);
         resultRow = computeResultBaseRow(
           {

@@ -115,9 +115,11 @@ export default async function TestResultPage({
   const shopItem = db.g5_shop_item.find((it) => String(it.it_id) === itId);
   const qaMap = new Map(db.graphit_qa.map((q) => [Number(q.qa_no), q]));
 
+  const isCompleted = testRecord?.test_status === '완료';
   const canShowReport =
     !isJustSubmitted &&
     Boolean(testRecord) &&
+    isCompleted &&
     (isAdmin || isTestResultOpen(testRecord!));
 
   let resultRow = undefined;
@@ -202,6 +204,39 @@ export default async function TestResultPage({
               resultRow={resultRow}
               canViewRawDb={isAdmin}
             />
+          </div>
+        ) : testRecord && !isCompleted ? (
+          <div className="max-w-lg mx-auto bg-white rounded-3xl border border-slate-200 p-8 sm:p-12 text-center shadow-sm">
+            <div className="w-20 h-20 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-4xl font-extrabold mx-auto mb-6">
+              !
+            </div>
+            <span className="inline-block px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-bold mb-2">
+              검사 미완료 ({testRecord.test_status || '진행중'})
+            </span>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 mb-4 leading-snug">
+              아직 검사가 완료되지 않았습니다.
+            </h1>
+            <p className="text-sm sm:text-base text-slate-700 font-semibold leading-relaxed mb-8 bg-slate-50 border border-slate-200 rounded-2xl p-5">
+              진행 중인 검사는 결과지가 생성되지 않습니다.
+              <br />
+              모든 문항 응답을 마치고 최종 제출을 완료한 후 결과를 확인하실 수 있습니다.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              {testRecord.mb_id === user.mb_id && (
+                <Link
+                  href={`/test?it_id=${encodeURIComponent(itId)}&test_idx=${testRecord.test_no}`}
+                  className="flex-1 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-extrabold shadow-sm transition"
+                >
+                  이어서 검사 진행하기
+                </Link>
+              )}
+              <Link
+                href={isAdmin ? '/adm/tests' : user.mb_level === 3 ? '/group-admin' : '/mypage'}
+                className="flex-1 py-3.5 rounded-2xl border border-slate-300 hover:bg-slate-100 text-slate-700 text-sm font-bold transition"
+              >
+                돌아가기
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="max-w-lg mx-auto bg-white rounded-3xl border border-slate-200 p-8 sm:p-12 text-center shadow-sm">

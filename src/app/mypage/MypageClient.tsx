@@ -94,7 +94,7 @@ export default function MypageClient({
     if (statusFilter !== 'ALL') {
       list = list.filter((s) => {
         const computedStatus =
-          s.progressPercent >= 100 || s.test_status === '완료'
+          s.test_status === '완료'
             ? '완료'
             : s.answeredQuestions > 0 || s.test_status === '진행중'
             ? '진행중'
@@ -245,7 +245,7 @@ export default function MypageClient({
                       </tr>
                     ) : (
                       filteredStudents.map((st, idx) => {
-                        const isDone = st.progressPercent >= 100 || st.test_status === '완료';
+                        const isDone = st.test_status === '완료';
                         const isInProgress = !isDone && (st.answeredQuestions > 0 || st.test_status === '진행중');
                         return (
                           <tr key={st.test_idx} className="hover:bg-slate-50/80 transition">
@@ -340,8 +340,7 @@ export default function MypageClient({
               ) : (
                 <div className="space-y-4">
                   {personalTests.map((item) => {
-                    const isCompleted =
-                      item.progressPercent >= 100 || item.test_status === '완료';
+                    const isCompleted = item.test_status === '완료';
                     const isStarted =
                       !isCompleted && (item.answeredQuestions > 0 || item.test_status === '진행중');
                     const imgSrc = item.it_img1

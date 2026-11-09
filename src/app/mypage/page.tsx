@@ -124,8 +124,8 @@ export default async function MypagePage({
       const progressPercent =
         t.test_status === '완료'
           ? 100
-          : totalQ > 0
-          ? Math.min(100, Math.round((answeredQ / totalQ) * 100))
+          : totalQ > 0 && answeredQ > 0
+          ? Math.min(99, Math.max(1, Math.floor((answeredQ / totalQ) * 100)))
           : 0;
 
       return {
@@ -170,11 +170,11 @@ export default async function MypagePage({
             const progressPercent =
               t.test_status === '완료'
                 ? 100
-                : totalQ > 0
-                ? Math.min(100, Math.round((answeredQ / totalQ) * 100))
+                : totalQ > 0 && answeredQ > 0
+                ? Math.min(99, Math.max(1, Math.floor((answeredQ / totalQ) * 100)))
                 : 0;
 
-            if (progressPercent >= 100 || t.test_status === '완료') {
+            if (t.test_status === '완료') {
               completed++;
             } else if (answeredQ > 0 || t.test_status === '진행중') {
               inProgress++;

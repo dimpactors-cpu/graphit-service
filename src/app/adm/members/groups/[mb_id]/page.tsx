@@ -78,11 +78,11 @@ export default async function AdminGroupMemberDetailPage({
         const pct =
           t.test_status === '완료'
             ? 100
-            : totalQ > 0
-            ? Math.min(100, Math.round((ansQ / totalQ) * 100))
+            : totalQ > 0 && ansQ > 0
+            ? Math.min(99, Math.max(1, Math.floor((ansQ / totalQ) * 100)))
             : 0;
 
-        if (pct >= 100 || t.test_status === '완료') completed++;
+        if (t.test_status === '완료') completed++;
         else if (ansQ > 0 || t.test_status === '진행중') inProgress++;
         else beforeStart++;
 

@@ -1605,6 +1605,9 @@ export function isTestResultOpen(testRow: {
   end_datetime?: string | null;
   result_open?: boolean | null;
 }): boolean {
+  if (testRow.test_status !== "완료") {
+    return false;
+  }
   if (testRow.result_open === true) {
     return true;
   }
